@@ -33,9 +33,21 @@ export default function UserMenu({ user, onSignOut }: UserMenuProps) {
     };
   }, [isOpen]);
 
-  const getUserInitials = (email: string) => {
-    return email.charAt(0).toUpperCase();
+  const getUserDisplayName = (user: any): string => {
+    // Check for name in user_metadata
+    const name = user?.user_metadata?.full_name || 
+                 user?.user_metadata?.name || 
+                 user?.user_metadata?.display_name;
+    
+    // Return name if available, otherwise return email
+    return name || user?.email || 'User';
   };
+
+  const getUserInitials = (displayName: string) => {
+    return displayName.charAt(0).toUpperCase();
+  };
+
+  const displayName = getUserDisplayName(user);
 
   const menuItems = [
     {
@@ -77,16 +89,18 @@ export default function UserMenu({ user, onSignOut }: UserMenuProps) {
         aria-expanded={isOpen}
       >
         <Avatar
-          name={user?.email || 'User'}
+          name={displayName}
           size="md"
         />
         <div className="hidden lg:block text-left">
           <p className="text-sm font-semibold text-[var(--gray-900)]">
-            {user?.email?.split('@')[0] || 'User'}
+            {displayName}
           </p>
-          <p className="text-xs text-[var(--gray-500)]">
-            {user?.email || ''}
-          </p>
+          {user?.email && displayName !== user.email && (
+            <p className="text-xs text-[var(--gray-500)]">
+              {user.email}
+            </p>
+          )}
         </div>
         <svg
           className={cn(
@@ -105,11 +119,13 @@ export default function UserMenu({ user, onSignOut }: UserMenuProps) {
         <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-[var(--gray-200)] py-2 z-50 animate-fade-in">
           <div className="px-4 py-3 border-b border-[var(--gray-200)]">
             <p className="text-sm font-semibold text-[var(--gray-900)]">
-              {user?.email?.split('@')[0] || 'User'}
+              {displayName}
             </p>
-            <p className="text-xs text-[var(--gray-500)] truncate">
-              {user?.email || ''}
-            </p>
+            {user?.email && displayName !== user.email && (
+              <p className="text-xs text-[var(--gray-500)] truncate">
+                {user.email}
+              </p>
+            )}
           </div>
 
           <div className="py-2">

@@ -105,21 +105,35 @@ export default function MobileMenu({ isOpen, onClose, user }: MobileMenuProps) {
           </div>
 
           {/* User Info */}
-          {user && (
-            <div className="p-6 border-b border-[var(--gray-200)]">
-              <div className="flex items-center space-x-3">
-                <Avatar name={user?.email || 'User'} size="lg" />
-                <div>
-                  <p className="font-semibold text-[var(--gray-900)]">
-                    {user?.email?.split('@')[0] || 'User'}
-                  </p>
-                  <p className="text-sm text-[var(--gray-500)] truncate">
-                    {user?.email || ''}
-                  </p>
+          {user && (() => {
+            const getUserDisplayName = (user: any): string => {
+              // Check for name in user_metadata
+              const name = user?.user_metadata?.full_name || 
+                           user?.user_metadata?.name || 
+                           user?.user_metadata?.display_name;
+              
+              // Return name if available, otherwise return email
+              return name || user?.email || 'User';
+            };
+            const displayName = getUserDisplayName(user);
+            return (
+              <div className="p-6 border-b border-[var(--gray-200)]">
+                <div className="flex items-center space-x-3">
+                  <Avatar name={displayName} size="lg" />
+                  <div>
+                    <p className="font-semibold text-[var(--gray-900)]">
+                      {displayName}
+                    </p>
+                    {user?.email && displayName !== user.email && (
+                      <p className="text-sm text-[var(--gray-500)] truncate">
+                        {user.email}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto py-4">

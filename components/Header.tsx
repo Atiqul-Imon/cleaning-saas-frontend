@@ -61,7 +61,7 @@ export default function Header() {
   return (
     <>
       <header className="sticky top-0 z-30 bg-white border-b border-[var(--gray-200)] shadow-sm backdrop-blur-sm bg-opacity-95">
-        <Container size="full">
+        <Container size="lg">
           <nav className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-8">
