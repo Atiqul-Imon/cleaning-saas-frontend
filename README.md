@@ -74,12 +74,16 @@ Vercel is the recommended hosting platform for Next.js applications.
    - Select the `frontend` directory as the root (or configure it in settings)
 
 3. **Configure Environment Variables**
-   In Vercel project settings, add all environment variables from `.env.example`:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_API_URL` (your production backend URL)
-   - `NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY` (if using ImageKit)
-   - `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` (if using ImageKit)
+   In Vercel project settings → Environment Variables, add all environment variables from `.env.example`:
+   - `NEXT_PUBLIC_SUPABASE_URL` = `https://iumurbkvgepbtszdqkwa.supabase.co` (your Supabase URL)
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = (your Supabase anon key)
+   - `NEXT_PUBLIC_API_URL` = (your production backend URL, e.g., `https://your-backend-domain.com`)
+   - `NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY` = (optional, if using ImageKit)
+   - `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` = (optional, if using ImageKit)
+   
+   **Important**: 
+   - Add these for **Production**, **Preview**, and **Development** environments
+   - After adding variables, you need to **redeploy** for changes to take effect
 
 4. **Deploy**
    - Click "Deploy"
