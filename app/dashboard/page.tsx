@@ -6,8 +6,7 @@ import { useUserRole } from '@/lib/hooks/use-user-role-query';
 import { useApiQuery } from '@/lib/hooks/use-api';
 import { Container, Grid, Stack, Section } from '@/components/layout';
 import { Card, Button, LoadingSkeleton, EmptyState } from '@/components/ui';
-import StatCard from '@/components/dashboard/StatCard';
-import QuickAction from '@/components/dashboard/QuickAction';
+import { StatCard, QuickAction } from '@/features/dashboard/components';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
@@ -38,6 +37,13 @@ export default function DashboardPage() {
   const isOwner = userRole?.role === 'OWNER';
   const isCleaner = userRole?.role === 'CLEANER';
   const isAdmin = userRole?.role === 'ADMIN';
+
+  // Redirect admins to admin panel
+  useEffect(() => {
+    if (!roleLoading && isAdmin && pathname === '/dashboard') {
+      router.replace('/admin');
+    }
+  }, [roleLoading, isAdmin, pathname, router]);
 
   // Parallel data fetching - both queries run simultaneously
   const businessQuery = useApiQuery<Business>(
@@ -214,11 +220,22 @@ export default function DashboardPage() {
           {(isOwner || isAdmin) && (
             <div>
               <h2 className="text-2xl font-bold text-[var(--gray-900)] mb-4">Quick Actions</h2>
-              <Grid cols={4} gap="md">
+              <Grid cols={5} gap="md">
+                <QuickAction
+                  title="View Jobs"
+                  description="See all your jobs"
+                  variant="primary"
+                  icon={
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  }
+                  href="/jobs"
+                />
                 <QuickAction
                   title="Create Job"
                   description="Schedule a new cleaning job"
-                  variant="primary"
+                  variant="success"
                   icon={
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -229,7 +246,7 @@ export default function DashboardPage() {
                 <QuickAction
                   title="Add Client"
                   description="Add a new client"
-                  variant="success"
+                  variant="info"
                   icon={
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -240,7 +257,7 @@ export default function DashboardPage() {
                 <QuickAction
                   title="View Reports"
                   description="Business analytics"
-                  variant="info"
+                  variant="warning"
                   icon={
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />

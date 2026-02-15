@@ -1,33 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { useUserRole } from '@/lib/hooks/use-user-role-query';
-import { useApiQuery } from '@/lib/hooks/use-api';
+import { useClients } from '@/features/clients/hooks/useClients';
+import { usePermissions } from '@/shared/hooks/usePermissions';
 import { Container, Grid, Stack, Section } from '@/components/layout';
 import { Button, LoadingSkeleton, EmptyState } from '@/components/ui';
-import ClientCard from '@/components/clients/ClientCard';
-
-interface Client {
-  id: string;
-  name: string;
-  phone?: string;
-  address?: string;
-  createdAt: string;
-}
+import { ClientCard } from '@/features/clients/components';
 
 export default function ClientsPage() {
-  const { userRole, loading: roleLoading } = useUserRole();
-  const { data: clients = [], isLoading, error } = useApiQuery<Client[]>(
-    ['clients', userRole?.id || ''],
-    '/clients',
-    {
-      enabled: !!userRole,
-    },
-  );
-
-  const isOwner = userRole?.role === 'OWNER';
+  const { clients, isLoading, error, userRole } = useClients();
+  const { canCreateClients, canAccessClients } = usePermissions();
+  const loading = isLoading;
+  
   const isCleaner = userRole?.role === 'CLEANER';
-  const loading = roleLoading || isLoading;
 
   if (loading) {
     return (
@@ -68,7 +53,7 @@ export default function ClientsPage() {
               {isCleaner ? 'Clients you work with' : 'Manage your client relationships'}
             </p>
           </div>
-          {isOwner && (
+          {canCreateClients && (
             <Link href="/clients/new">
               <Button variant="primary" size="lg" leftIcon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +66,7 @@ export default function ClientsPage() {
           )}
         </Stack>
 
-        {clients.length === 0 ? (
+          {!loading && clients.length === 0 ? (
           <EmptyState
             title={isCleaner ? 'No clients assigned yet' : 'No clients yet'}
             description={
@@ -95,7 +80,7 @@ export default function ClientsPage() {
               </svg>
             }
             action={
-              isOwner ? {
+              canCreateClients ? {
                 label: 'Add First Client',
                 href: '/clients/new',
               } : undefined

@@ -1,54 +1,30 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useUserRole } from '@/lib/hooks/use-user-role-query';
-import { useApiQuery } from '@/lib/hooks/use-api';
-import { useToast } from '@/lib/toast-context';
-import { useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client-singleton';
+import { useJobs } from '@/features/jobs/hooks/useJobs';
+import { usePermissions } from '@/shared/hooks/usePermissions';
 import { Container, Grid, Stack, Section } from '@/components/layout';
-import { Card, Button, Input, Select, LoadingSkeleton, EmptyState, Badge } from '@/components/ui';
-import JobCard from '@/components/jobs/JobCard';
-import { cn } from '@/lib/utils';
-
-interface Job {
-  id: string;
-  type: string;
-  scheduledDate: string;
-  scheduledTime?: string;
-  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED';
-  client: {
-    id: string;
-    name: string;
-  };
-  cleaner?: {
-    id: string;
-    email: string;
-  };
-}
+import { Card, Button, Input, Select, LoadingSkeleton, EmptyState } from '@/components/ui';
+import { JobCard } from '@/features/jobs/components';
 
 export default function JobsPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'client' | 'status'>('date');
-  const { userRole, loading: roleLoading } = useUserRole();
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
+  const { jobs, isLoading, error, userRole } = useJobs();
 
-  const { data: jobs = [], isLoading, error } = useApiQuery<Job[]>(
-    ['jobs', userRole?.id || ''],
-    '/jobs',
-    {
-      enabled: !!userRole,
-    },
-  );
+  const { canCreateJobs } = usePermissions();
+  const loading = isLoading;
 
-
-  const isOwner = userRole?.role === 'OWNER';
-  const isCleaner = userRole?.role === 'CLEANER';
-  const isAdmin = userRole?.role === 'ADMIN';
-  const loading = roleLoading || isLoading;
+  // Redirect cleaners to their dedicated page
+  useEffect(() => {
+    if (!loading && userRole?.role === 'CLEANER') {
+      router.replace('/my-jobs');
+    }
+  }, [loading, userRole, router]);
 
   // Client-side filtering and sorting (using useMemo for performance)
   const filteredJobs = useMemo(() => {
@@ -79,16 +55,8 @@ export default function JobsPage() {
     return filtered;
   }, [jobs, searchQuery, statusFilter, sortBy]);
 
-  const updateJobStatus = async (jobId: string, newStatus: 'IN_PROGRESS' | 'COMPLETED') => {
-    const { apiClient } = await import('@/lib/api-client-singleton');
-    try {
-      await apiClient.put<Job>(`/jobs/${jobId}`, { status: newStatus });
-      queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      showToast(`Job status updated to ${newStatus.replace('_', ' ')}`, 'success');
-    } catch (error: any) {
-      showToast(error.message || 'Failed to update job status', 'error');
-    }
-  };
+  // Note: Job status updates are handled in the job detail page
+  // This page is now focused on listing and filtering jobs
 
   if (loading) {
     return (
@@ -123,14 +91,12 @@ export default function JobsPage() {
         <Stack spacing="lg">
           <Stack direction="row" justify="between" align="center">
             <div>
-              <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">
-                {isCleaner ? 'My Jobs' : 'Jobs'}
-              </h1>
+              <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">Jobs</h1>
               <p className="text-[var(--gray-600)] text-lg">
-                {isCleaner ? 'View and manage your assigned jobs' : 'Manage all your cleaning jobs'}
+                Manage all your cleaning jobs
               </p>
             </div>
-            {(isOwner || isAdmin) && (
+            {canCreateJobs && (
               <Link href="/jobs/create">
                 <Button variant="primary" size="lg" leftIcon={
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,8 +153,6 @@ export default function JobsPage() {
               description={
                 searchQuery || statusFilter !== 'all'
                   ? 'Try adjusting your search or filter criteria'
-                  : isCleaner
-                  ? 'You will see jobs here once they are assigned to you'
                   : 'Create your first job to get started'
               }
               icon={
@@ -197,7 +161,7 @@ export default function JobsPage() {
                 </svg>
               }
               action={
-                !isCleaner && !searchQuery && statusFilter === 'all'
+                !searchQuery && statusFilter === 'all'
                   ? {
                       label: 'Create First Job',
                       href: '/jobs/create',

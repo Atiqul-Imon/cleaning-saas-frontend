@@ -8,7 +8,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">CleanSaaS</h3>
             <p className="text-gray-400 text-sm">
-              Simple SaaS for UK Domestic Cleaning Businesses
+              All-in-one platform for professional cleaning businesses worldwide.
             </p>
           </div>
           <div>
@@ -64,6 +64,9 @@ export default function Footer() {
     </footer>
   );
 }
+
+
+
 
 
 

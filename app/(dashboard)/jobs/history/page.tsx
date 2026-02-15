@@ -7,7 +7,7 @@ import { ApiClient } from '@/lib/api-client';
 import { useUserRole } from '@/lib/use-user-role';
 import { Container, Stack, Section, Grid } from '@/components/layout';
 import { Card, Button, Badge, LoadingSkeleton, EmptyState } from '@/components/ui';
-import JobCard from '@/components/jobs/JobCard';
+import { JobCard } from '@/features/jobs/components';
 
 interface Job {
   id: string;

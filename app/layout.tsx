@@ -6,8 +6,8 @@ import { ToastProvider } from "@/lib/toast-context";
 import { ReactQueryProvider } from "@/lib/react-query-provider";
 
 export const metadata: Metadata = {
-  title: "CleanSaaS - UK Domestic Cleaning Business Management",
-  description: "Simple SaaS for UK Domestic Cleaning Businesses. Manage clients, schedule jobs, track payments, and get paid faster.",
+  title: "CleanSaaS - Professional Cleaning Business Management",
+  description: "All-in-one SaaS platform for cleaning businesses. Manage clients, schedule jobs, track payments, and get paid faster.",
 };
 
 export default function RootLayout({

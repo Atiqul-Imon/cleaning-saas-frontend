@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { Avatar, IconButton } from '@/components/ui';
+import { useBusiness } from '@/lib/hooks/use-business';
+import { useUserRole } from '@/lib/use-user-role';
 import { cn } from '@/lib/utils';
 
 interface UserMenuProps {
@@ -16,6 +18,8 @@ export default function UserMenu({ user, onSignOut }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { businessName } = useBusiness();
+  const { userRole } = useUserRole();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,6 +38,11 @@ export default function UserMenu({ user, onSignOut }: UserMenuProps) {
   }, [isOpen]);
 
   const getUserDisplayName = (user: any): string => {
+    // For OWNER role, prioritize business name if available
+    if (userRole?.role === 'OWNER' && businessName) {
+      return businessName;
+    }
+    
     // Check for name in user_metadata
     const name = user?.user_metadata?.full_name || 
                  user?.user_metadata?.name || 

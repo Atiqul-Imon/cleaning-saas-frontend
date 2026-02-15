@@ -1,6 +1,6 @@
-# Frontend - UK Domestic Cleaning SaaS
+# Frontend - CleanSaaS
 
-Next.js 16 frontend application for the UK Domestic Cleaning SaaS platform.
+Next.js 16 frontend application for the CleanSaaS cleaning business management platform.
 
 ## 🚀 Features
 

@@ -1,33 +1,14 @@
 'use client';
 
-import { useUserRole } from '@/lib/hooks/use-user-role-query';
-import { useApiQuery } from '@/lib/hooks/use-api';
+import { useInvoices } from '@/features/invoices/hooks/useInvoices';
 import { Container, Stack, Section, Grid } from '@/components/layout';
 import { LoadingSkeleton, EmptyState } from '@/components/ui';
-import InvoiceCard from '@/components/invoices/InvoiceCard';
-
-interface Invoice {
-  id: string;
-  invoiceNumber: string;
-  totalAmount: number;
-  status: 'PAID' | 'UNPAID';
-  dueDate: string;
-  client: {
-    name: string;
-  };
-}
+import { InvoiceCard } from '@/features/invoices/components';
 
 export default function InvoicesPage() {
-  const { userRole, loading: roleLoading } = useUserRole();
-  const { data: invoices = [], isLoading, error } = useApiQuery<Invoice[]>(
-    ['invoices', userRole?.id || ''],
-    '/invoices',
-    {
-      enabled: !!userRole && (userRole.role === 'OWNER' || userRole.role === 'ADMIN'),
-    },
-  );
+  const { invoices, isLoading, error } = useInvoices();
 
-  const loading = roleLoading || isLoading;
+  const loading = isLoading;
 
   if (loading) {
     return (

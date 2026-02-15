@@ -3,19 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
-import { useUserRole } from '@/lib/use-user-role';
-import { useToast } from '@/lib/toast-context';
+import { useJobForm } from '@/features/jobs/hooks/useJobForm';
+import { useClients } from '@/features/clients/hooks/useClients';
+import { usePermissions } from '@/shared/hooks/usePermissions';
+import { apiClient } from '@/shared/services/api-client';
 import { Container, Stack, Section, Grid, Divider } from '@/components/layout';
 import { Card, Button, Input, Select, Checkbox, LoadingSkeleton, EmptyState } from '@/components/ui';
 import { cn } from '@/lib/utils';
-
-interface Client {
-  id: string;
-  name: string;
-  phone?: string;
-}
 
 interface Cleaner {
   id: string;
@@ -29,36 +23,23 @@ export default function CreateJobPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clientIdParam = searchParams.get('clientId');
-  const [clients, setClients] = useState<Client[]>([]);
+  const { canCreateJobs } = usePermissions();
+  const { clients, isLoading: clientsLoading } = useClients();
   const [cleaners, setCleaners] = useState<Cleaner[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { userRole } = useUserRole();
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token || null;
+  const [loadingCleaners, setLoadingCleaners] = useState(true);
+
+  // Use the form hook for job creation
+  const { formData, updateField, errors, submit, isSubmitting } = useJobForm({
+    clientId: clientIdParam || '',
   });
-  const { showToast } = useToast();
 
   useEffect(() => {
-    if (userRole && userRole.role !== 'OWNER' && userRole.role !== 'ADMIN') {
+    if (!canCreateJobs) {
       router.push('/dashboard');
     }
-  }, [userRole, router]);
-
-  const [formData, setFormData] = useState({
-    clientId: clientIdParam || '',
-    cleanerId: '',
-    type: 'ONE_OFF' as 'ONE_OFF' | 'RECURRING',
-    frequency: 'WEEKLY' as 'WEEKLY' | 'BI_WEEKLY',
-    scheduledDate: '',
-    scheduledTime: '',
-  });
+  }, [canCreateJobs, router]);
 
   useEffect(() => {
-    loadClients();
     loadCleaners();
   }, []);
 
@@ -69,57 +50,17 @@ export default function CreateJobPage() {
     } catch (error) {
       console.warn('Failed to load cleaners:', error);
       setCleaners([]);
-    }
-  };
-
-  const loadClients = async () => {
-    try {
-      const data = await apiClient.get<Client[]>('/clients');
-      setClients(data);
-    } catch (error) {
-      console.error('Failed to load clients:', error);
-      setError('Failed to load clients. Please add a client first.');
     } finally {
-      setLoading(false);
+      setLoadingCleaners(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
-    setError(null);
-
-    try {
-      const jobData: any = {
-        clientId: formData.clientId,
-        type: formData.type,
-        scheduledDate: formData.scheduledDate,
-      };
-
-      if (formData.cleanerId) {
-        jobData.cleanerId = formData.cleanerId;
-      }
-
-      if (formData.scheduledTime) {
-        jobData.scheduledTime = formData.scheduledTime;
-      }
-
-      if (formData.type === 'RECURRING') {
-        jobData.frequency = formData.frequency;
-      }
-
-      await apiClient.post('/jobs', jobData);
-      showToast('Job created successfully!', 'success');
-      router.push('/jobs');
-      router.refresh();
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to create job';
-      setError(errorMessage);
-      showToast(errorMessage, 'error');
-    } finally {
-      setSubmitting(false);
-    }
+    await submit();
   };
+
+  const loading = clientsLoading || loadingCleaners;
 
   if (loading) {
     return (
@@ -168,13 +109,17 @@ export default function CreateJobPage() {
         ) : (
           <Card variant="elevated" padding="lg">
             <form onSubmit={handleSubmit}>
-              {error && (
+              {errors.length > 0 && (
                 <Card variant="outlined" padding="md" className="mb-6 bg-[var(--error-50)] border-[var(--error-200)]">
                   <Stack direction="row" spacing="sm" align="center">
                     <svg className="w-5 h-5 text-[var(--error-600)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-[var(--error-900)] font-semibold">{error}</span>
+                    <div>
+                      {errors.map((error, index) => (
+                        <p key={index} className="text-[var(--error-900)] font-semibold">{error}</p>
+                      ))}
+                    </div>
                   </Stack>
                 </Card>
               )}
@@ -185,7 +130,7 @@ export default function CreateJobPage() {
                   id="clientId"
                   required
                   value={formData.clientId}
-                  onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
+                  onChange={(e) => updateField('clientId', e.target.value)}
                   options={[
                     { value: '', label: 'Select a client' },
                     ...clients.map((client) => ({
@@ -198,8 +143,8 @@ export default function CreateJobPage() {
                 <Select
                   label="Assign to Staff Member"
                   id="cleanerId"
-                  value={formData.cleanerId}
-                  onChange={(e) => setFormData({ ...formData, cleanerId: e.target.value })}
+                  value={formData.cleanerId || ''}
+                  onChange={(e) => updateField('cleanerId', e.target.value || undefined)}
                   options={[
                     { value: '', label: 'No assignment (unassigned job)' },
                     ...cleaners.map((cleaner) => ({
@@ -231,7 +176,7 @@ export default function CreateJobPage() {
                           ? 'border-[var(--primary-500)] bg-[var(--primary-50)]'
                           : 'border-[var(--gray-200)]'
                       )}
-                      onClick={() => setFormData({ ...formData, type: 'ONE_OFF' })}
+                      onClick={() => updateField('type', 'ONE_OFF')}
                     >
                       <Stack direction="row" spacing="sm" align="center">
                         <input
@@ -239,7 +184,7 @@ export default function CreateJobPage() {
                           name="type"
                           value="ONE_OFF"
                           checked={formData.type === 'ONE_OFF'}
-                          onChange={(e) => setFormData({ ...formData, type: e.target.value as 'ONE_OFF' | 'RECURRING' })}
+                          onChange={(e) => updateField('type', e.target.value as 'ONE_OFF' | 'RECURRING')}
                           className="h-5 w-5 text-[var(--primary-600)] focus:ring-[var(--primary-500)]"
                         />
                         <div>
@@ -258,7 +203,7 @@ export default function CreateJobPage() {
                           ? 'border-[var(--primary-500)] bg-[var(--primary-50)]'
                           : 'border-[var(--gray-200)]'
                       )}
-                      onClick={() => setFormData({ ...formData, type: 'RECURRING' })}
+                      onClick={() => updateField('type', 'RECURRING')}
                     >
                       <Stack direction="row" spacing="sm" align="center">
                         <input
@@ -266,7 +211,7 @@ export default function CreateJobPage() {
                           name="type"
                           value="RECURRING"
                           checked={formData.type === 'RECURRING'}
-                          onChange={(e) => setFormData({ ...formData, type: e.target.value as 'ONE_OFF' | 'RECURRING' })}
+                          onChange={(e) => updateField('type', e.target.value as 'ONE_OFF' | 'RECURRING')}
                           className="h-5 w-5 text-[var(--primary-600)] focus:ring-[var(--primary-500)]"
                         />
                         <div>
@@ -294,7 +239,7 @@ export default function CreateJobPage() {
                             ? 'border-[var(--primary-500)] bg-[var(--primary-50)]'
                             : 'border-[var(--gray-200)]'
                         )}
-                        onClick={() => setFormData({ ...formData, frequency: 'WEEKLY' })}
+                        onClick={() => updateField('frequency', 'WEEKLY')}
                       >
                         <Stack direction="row" spacing="sm" align="center">
                           <input
@@ -302,7 +247,7 @@ export default function CreateJobPage() {
                             name="frequency"
                             value="WEEKLY"
                             checked={formData.frequency === 'WEEKLY'}
-                            onChange={(e) => setFormData({ ...formData, frequency: e.target.value as 'WEEKLY' | 'BI_WEEKLY' })}
+                            onChange={(e) => updateField('frequency', e.target.value as 'WEEKLY' | 'BI_WEEKLY')}
                             className="h-5 w-5 text-[var(--primary-600)] focus:ring-[var(--primary-500)]"
                           />
                           <p className="font-bold text-[var(--gray-900)]">Weekly</p>
@@ -318,7 +263,7 @@ export default function CreateJobPage() {
                             ? 'border-[var(--primary-500)] bg-[var(--primary-50)]'
                             : 'border-[var(--gray-200)]'
                         )}
-                        onClick={() => setFormData({ ...formData, frequency: 'BI_WEEKLY' })}
+                        onClick={() => updateField('frequency', 'BI_WEEKLY')}
                       >
                         <Stack direction="row" spacing="sm" align="center">
                           <input
@@ -326,7 +271,7 @@ export default function CreateJobPage() {
                             name="frequency"
                             value="BI_WEEKLY"
                             checked={formData.frequency === 'BI_WEEKLY'}
-                            onChange={(e) => setFormData({ ...formData, frequency: e.target.value as 'WEEKLY' | 'BI_WEEKLY' })}
+                            onChange={(e) => updateField('frequency', e.target.value as 'WEEKLY' | 'BI_WEEKLY')}
                             className="h-5 w-5 text-[var(--primary-600)] focus:ring-[var(--primary-500)]"
                           />
                           <p className="font-bold text-[var(--gray-900)]">Bi-weekly</p>
@@ -345,7 +290,7 @@ export default function CreateJobPage() {
                     type="date"
                     required
                     value={formData.scheduledDate}
-                    onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
+                    onChange={(e) => updateField('scheduledDate', e.target.value)}
                     leftIcon={
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -356,8 +301,8 @@ export default function CreateJobPage() {
                     label="Scheduled Time"
                     id="scheduledTime"
                     type="time"
-                    value={formData.scheduledTime}
-                    onChange={(e) => setFormData({ ...formData, scheduledTime: e.target.value })}
+                    value={formData.scheduledTime || ''}
+                    onChange={(e) => updateField('scheduledTime', e.target.value || undefined)}
                     leftIcon={
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -369,6 +314,41 @@ export default function CreateJobPage() {
 
                 <Divider spacing="md" />
 
+                {/* Reminder Settings */}
+                <Card variant="outlined" padding="md" className="bg-[var(--gray-50)]">
+                  <Stack spacing="md">
+                    <div>
+                      <Checkbox
+                        id="reminderEnabled"
+                        label="Enable Job Reminders"
+                        checked={formData.reminderEnabled !== false}
+                        onChange={(e) => updateField('reminderEnabled', e.target.checked)}
+                      />
+                      <p className="text-sm text-[var(--gray-600)] mt-2">
+                        Send automated reminders to client, cleaner, and business owner.
+                      </p>
+                    </div>
+                    {formData.reminderEnabled !== false && (
+                      <Select
+                        label="Send Reminder"
+                        id="reminderTime"
+                        value={formData.reminderTime || '1 day'}
+                        onChange={(e) => updateField('reminderTime', e.target.value)}
+                        options={[
+                          { value: '30 minutes', label: '30 minutes before job' },
+                          { value: '1 hour', label: '1 hour before job' },
+                          { value: '2 hours', label: '2 hours before job' },
+                          { value: '1 day', label: '1 day before job' },
+                          { value: '2 days', label: '2 days before job' },
+                        ]}
+                        helperText="Choose when to send the reminder."
+                      />
+                    )}
+                  </Stack>
+                </Card>
+
+                <Divider spacing="md" />
+
                 <Stack direction="row" spacing="md">
                   <Link href="/jobs" className="flex-1">
                     <Button variant="secondary" size="lg" className="w-full">Cancel</Button>
@@ -377,7 +357,7 @@ export default function CreateJobPage() {
                     type="submit"
                     variant="primary"
                     size="lg"
-                    isLoading={submitting}
+                    isLoading={isSubmitting}
                     className="flex-1"
                   >
                     Create Job

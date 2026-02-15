@@ -80,10 +80,16 @@ export default function Header() {
               {/* Desktop Navigation */}
               {user && (
                 <div className="hidden lg:flex items-center space-x-1">
-                  <NavLink href="/dashboard" isActive={isActive('/dashboard')}>
-                    Dashboard
-                  </NavLink>
-                  {(isOwner || isAdmin) && (
+                  {isAdmin ? (
+                    <NavLink href="/admin" isActive={isActive('/admin')}>
+                      Admin
+                    </NavLink>
+                  ) : (
+                    <NavLink href="/dashboard" isActive={isActive('/dashboard')}>
+                      Dashboard
+                    </NavLink>
+                  )}
+                  {isOwner && (
                     <>
                       <NavLink href="/jobs" isActive={isActive('/jobs')}>
                         Jobs
@@ -101,7 +107,7 @@ export default function Header() {
                   )}
                   {isCleaner && (
                     <>
-                      <NavLink href="/jobs" isActive={isActive('/jobs')}>
+                      <NavLink href="/my-jobs" isActive={isActive('/my-jobs')}>
                         My Jobs
                       </NavLink>
                     </>
@@ -114,10 +120,12 @@ export default function Header() {
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
-                  {/* Search - Desktop */}
-                  <div className="hidden md:block">
-                    <SearchBar />
-                  </div>
+                  {/* Search - Desktop (only for Owners and Admins) */}
+                  {(isOwner || isAdmin) && (
+                    <div className="hidden md:block">
+                      <SearchBar />
+                    </div>
+                  )}
 
                   {/* User Menu - Desktop */}
                   <div className="hidden md:block">

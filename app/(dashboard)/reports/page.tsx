@@ -6,7 +6,7 @@ import { ApiClient } from '@/lib/api-client';
 import { useToast } from '@/lib/toast-context';
 import { Container, Stack, Section, Grid } from '@/components/layout';
 import { Card, Button, Input, LoadingSkeleton } from '@/components/ui';
-import StatCard from '@/components/dashboard/StatCard';
+import { StatCard } from '@/features/dashboard/components';
 
 interface BusinessReport {
   period: {

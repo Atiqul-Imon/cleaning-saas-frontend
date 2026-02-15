@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import { ApiClient } from '@/lib/api-client';
+import { InvoiceTemplateSelector } from '@/features/invoices/components';
+import { InvoiceTemplate } from '@/features/invoices/components/InvoiceTemplates';
+import { Divider } from '@/components/layout';
 
 interface Business {
   id: string;
@@ -11,6 +14,7 @@ interface Business {
   address?: string;
   vatEnabled: boolean;
   vatNumber?: string;
+  invoiceTemplate?: InvoiceTemplate;
 }
 
 interface BusinessFormProps {
@@ -25,6 +29,7 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
     address: business?.address || '',
     vatEnabled: business?.vatEnabled || false,
     vatNumber: business?.vatNumber || '',
+    invoiceTemplate: (business?.invoiceTemplate as InvoiceTemplate) || 'classic',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -132,6 +137,16 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
           />
         </div>
       )}
+
+      <Divider spacing="lg" />
+
+      {/* Invoice Template Selection */}
+      <div>
+        <InvoiceTemplateSelector
+          selectedTemplate={formData.invoiceTemplate}
+          onSelect={(template) => setFormData({ ...formData, invoiceTemplate: template })}
+        />
+      </div>
 
       <div>
         <button

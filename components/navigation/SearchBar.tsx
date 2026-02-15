@@ -83,3 +83,6 @@ export default function SearchBar({ onSearch, placeholder = 'Search...' }: Searc
 }
 
 
+
+
+

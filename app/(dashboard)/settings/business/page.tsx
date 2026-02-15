@@ -4,6 +4,7 @@ import BusinessForm from '@/components/BusinessForm';
 import { redirect } from 'next/navigation';
 import { Container, Section } from '@/components/layout';
 import { Card } from '@/components/ui';
+import { InvoiceTemplate } from '@/features/invoices/components/InvoiceTemplates';
 
 interface Business {
   id: string;
@@ -12,6 +13,7 @@ interface Business {
   address?: string;
   vatEnabled: boolean;
   vatNumber?: string;
+  invoiceTemplate?: InvoiceTemplate;
 }
 
 async function getBusiness(userId: string): Promise<Business | null> {

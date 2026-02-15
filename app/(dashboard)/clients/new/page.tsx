@@ -1,77 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
-import { useUserRole } from '@/lib/use-user-role';
+import { useClientForm } from '@/features/clients/hooks/useClientForm';
+import { usePermissions } from '@/shared/hooks/usePermissions';
 import { Container, Stack, Section, Divider } from '@/components/layout';
 import { Card, Button, Input, Textarea } from '@/components/ui';
-import { useToast } from '@/lib/toast-context';
 
 export default function CreateClientPage() {
   const router = useRouter();
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { userRole } = useUserRole();
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token || null;
-  });
-  const { showToast } = useToast();
+  const { canCreateClients } = usePermissions();
+  const { formData, updateField, errors, submit, isSubmitting } = useClientForm();
 
-  useEffect(() => {
-    if (userRole && userRole.role !== 'OWNER' && userRole.role !== 'ADMIN') {
-      router.push('/dashboard');
-    }
-  }, [userRole, router]);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    address: '',
-    keySafe: '',
-    alarmCode: '',
-    pets: '',
-    preferences: '',
-  });
+  if (!canCreateClients) {
+    router.push('/dashboard');
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
-    setError(null);
-
-    try {
-      const clientData: any = {
-        name: formData.name,
-      };
-
-      if (formData.phone) clientData.phone = formData.phone;
-      if (formData.address) clientData.address = formData.address;
-
-      const notes: any = {};
-      if (formData.keySafe) notes.keySafe = formData.keySafe;
-      if (formData.alarmCode) notes.alarmCode = formData.alarmCode;
-      if (formData.pets) notes.pets = formData.pets;
-      if (formData.preferences) notes.preferences = formData.preferences;
-
-      if (Object.keys(notes).length > 0) {
-        clientData.notes = notes;
-      }
-
-      await apiClient.post('/clients', clientData);
-      showToast('Client created successfully!', 'success');
-      router.push('/clients');
-      router.refresh();
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to create client';
-      setError(errorMessage);
-      showToast(errorMessage, 'error');
-    } finally {
-      setSubmitting(false);
-    }
+    await submit();
   };
 
   return (
@@ -96,13 +44,17 @@ export default function CreateClientPage() {
 
         <Card variant="elevated" padding="lg">
           <form onSubmit={handleSubmit}>
-            {error && (
+            {errors.length > 0 && (
               <Card variant="outlined" padding="md" className="mb-6 bg-[var(--error-50)] border-[var(--error-200)]">
                 <Stack direction="row" spacing="sm" align="center">
                   <svg className="w-6 h-6 text-[var(--error-600)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span className="text-[var(--error-900)] font-semibold">{error}</span>
+                  <div>
+                    {errors.map((error, index) => (
+                      <p key={index} className="text-[var(--error-900)] font-semibold">{error}</p>
+                    ))}
+                  </div>
                 </Stack>
               </Card>
             )}
@@ -111,104 +63,89 @@ export default function CreateClientPage() {
               <Input
                 label="Client Name"
                 id="name"
-                type="text"
                 required
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => updateField('name', e.target.value)}
                 placeholder="Enter client name"
-                leftIcon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                }
               />
 
               <Input
                 label="Phone Number"
                 id="phone"
                 type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+44 20 1234 5678"
-                leftIcon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                }
+                value={formData.phone || ''}
+                onChange={(e) => updateField('phone', e.target.value || undefined)}
+                placeholder="Enter phone number"
+                helperText="Optional"
               />
 
               <Textarea
                 label="Address"
                 id="address"
+                value={formData.address || ''}
+                onChange={(e) => updateField('address', e.target.value || undefined)}
+                placeholder="Enter client address"
                 rows={3}
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Enter full address"
+                helperText="Optional"
               />
 
-              <Divider spacing="lg" />
+              <Divider spacing="md" />
 
               <div>
-                <Stack direction="row" spacing="sm" align="center" className="mb-4">
-                  <svg className="w-6 h-6 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                  <h2 className="text-2xl font-bold text-[var(--gray-900)]">Secure Notes</h2>
-                </Stack>
-                <p className="text-sm text-[var(--gray-600)] mb-6">
-                  These notes are stored securely and only visible to your team.
+                <h3 className="text-lg font-bold text-[var(--gray-900)] mb-4">Secure Notes</h3>
+                <p className="text-sm text-[var(--gray-600)] mb-4">
+                  Store important information securely (access codes, key safe locations, etc.)
                 </p>
-
                 <Stack spacing="md">
                   <Input
-                    label="Key Safe Location"
+                    label="Key Safe Code"
                     id="keySafe"
-                    type="text"
-                    value={formData.keySafe}
-                    onChange={(e) => setFormData({ ...formData, keySafe: e.target.value })}
-                    placeholder="e.g., Under the doormat"
-                    leftIcon={
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                      </svg>
-                    }
+                    value={formData.keySafe || ''}
+                    onChange={(e) => updateField('keySafe', e.target.value || undefined)}
+                    placeholder="Enter key safe code"
+                    helperText="Optional"
                   />
 
                   <Input
                     label="Alarm Code"
                     id="alarmCode"
-                    type="text"
-                    value={formData.alarmCode}
-                    onChange={(e) => setFormData({ ...formData, alarmCode: e.target.value })}
+                    value={formData.alarmCode || ''}
+                    onChange={(e) => updateField('alarmCode', e.target.value || undefined)}
                     placeholder="Enter alarm code"
-                    leftIcon={
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    }
+                    helperText="Optional"
                   />
 
-                  <Textarea
-                    label="Pets & Special Instructions"
+                  <Input
+                    label="Access Information"
+                    id="accessInfo"
+                    value={formData.accessInfo || ''}
+                    onChange={(e) => updateField('accessInfo', e.target.value || undefined)}
+                    placeholder="Enter access information"
+                    helperText="Optional"
+                  />
+
+                  <Input
+                    label="Pets"
                     id="pets"
-                    rows={2}
-                    value={formData.pets}
-                    onChange={(e) => setFormData({ ...formData, pets: e.target.value })}
-                    placeholder="e.g., Dog in kitchen, avoid bedroom"
+                    value={formData.pets || ''}
+                    onChange={(e) => updateField('pets', e.target.value || undefined)}
+                    placeholder="Enter pet information"
+                    helperText="Optional"
                   />
 
                   <Textarea
-                    label="Client Preferences"
+                    label="Preferences"
                     id="preferences"
-                    rows={2}
-                    value={formData.preferences}
-                    onChange={(e) => setFormData({ ...formData, preferences: e.target.value })}
-                    placeholder="e.g., Use eco-friendly products, focus on kitchen"
+                    value={formData.preferences || ''}
+                    onChange={(e) => updateField('preferences', e.target.value || undefined)}
+                    placeholder="Enter client preferences"
+                    rows={3}
+                    helperText="Optional"
                   />
                 </Stack>
               </div>
 
-              <Divider spacing="lg" />
+              <Divider spacing="md" />
 
               <Stack direction="row" spacing="md">
                 <Link href="/clients" className="flex-1">
@@ -218,7 +155,7 @@ export default function CreateClientPage() {
                   type="submit"
                   variant="primary"
                   size="lg"
-                  isLoading={submitting}
+                  isLoading={isSubmitting}
                   className="flex-1"
                 >
                   Create Client
