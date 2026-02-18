@@ -11,7 +11,6 @@ interface InvoiceTemplateProps {
     amount: number;
     vatAmount: number;
     totalAmount: number;
-    status: 'PAID' | 'UNPAID';
     dueDate: string;
     createdAt: string;
     client: {
@@ -37,7 +36,6 @@ interface InvoiceTemplateProps {
 
 // Template 1: Classic
 export function ClassicTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>) {
-  const isOverdue = invoice.status === 'UNPAID' && new Date(invoice.dueDate) < new Date();
   
   return (
     <div className="bg-white p-8 sm:p-12 max-w-4xl mx-auto shadow-lg">
@@ -57,7 +55,7 @@ export function ClassicTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
             <div className="space-y-1">
               <p className="text-gray-600"><span className="font-semibold">Invoice #:</span> {invoice.invoiceNumber}</p>
               <p className="text-gray-600"><span className="font-semibold">Date:</span> {new Date(invoice.createdAt).toLocaleDateString()}</p>
-              <p className={cn("text-gray-600", isOverdue && "text-red-600")}>
+              <p className="text-gray-600">
                 <span className="font-semibold">Due Date:</span> {new Date(invoice.dueDate).toLocaleDateString()}
               </p>
             </div>
@@ -114,22 +112,12 @@ export function ClassicTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
         </table>
       </div>
 
-      {/* Status */}
-      <div className="text-center pt-6 border-t border-gray-300">
-        <span className={cn(
-          "inline-block px-6 py-2 rounded-full font-semibold text-sm",
-          invoice.status === 'PAID' ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-        )}>
-          {invoice.status}
-        </span>
-      </div>
     </div>
   );
 }
 
 // Template 2: Modern
 export function ModernTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>) {
-  const isOverdue = invoice.status === 'UNPAID' && new Date(invoice.dueDate) < new Date();
   
   return (
     <div className="bg-white p-8 sm:p-12 max-w-4xl mx-auto shadow-xl rounded-lg overflow-hidden">
@@ -168,17 +156,8 @@ export function ModernTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Due Date:</span>
-              <span className={cn("font-semibold", isOverdue ? "text-red-600" : "text-gray-900")}>
+              <span className="font-semibold text-gray-900">
                 {new Date(invoice.dueDate).toLocaleDateString()}
-              </span>
-            </div>
-            <div className="pt-2 border-t">
-              <span className="text-gray-600">Status:</span>
-              <span className={cn(
-                "ml-2 px-3 py-1 rounded-full text-xs font-semibold",
-                invoice.status === 'PAID' ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-              )}>
-                {invoice.status}
               </span>
             </div>
           </div>
@@ -262,15 +241,6 @@ export function MinimalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
           </div>
         </div>
 
-        {/* Status */}
-        <div className="text-center">
-          <span className={cn(
-            "text-xs font-medium px-4 py-2 rounded-full",
-            invoice.status === 'PAID' ? "bg-gray-100 text-gray-600" : "bg-gray-100 text-gray-600"
-          )}>
-            {invoice.status}
-          </span>
-        </div>
       </div>
     </div>
   );
@@ -278,7 +248,6 @@ export function MinimalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
 
 // Template 4: Professional
 export function ProfessionalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>) {
-  const isOverdue = invoice.status === 'UNPAID' && new Date(invoice.dueDate) < new Date();
   
   return (
     <div className="bg-white p-8 sm:p-12 max-w-4xl mx-auto shadow-md border border-gray-200">
@@ -300,7 +269,7 @@ export function ProfessionalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'te
           </div>
           <div className="text-sm text-gray-600 space-y-1 mt-3">
             <p><span className="font-semibold">Date:</span> {new Date(invoice.createdAt).toLocaleDateString()}</p>
-            <p className={cn(isOverdue && "text-red-600")}>
+            <p>
               <span className="font-semibold">Due:</span> {new Date(invoice.dueDate).toLocaleDateString()}
             </p>
           </div>
@@ -358,15 +327,6 @@ export function ProfessionalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'te
         </table>
       </div>
 
-      {/* Status Footer */}
-      <div className="text-center pt-6 border-t border-gray-200">
-        <span className={cn(
-          "inline-block px-4 py-2 rounded font-semibold text-sm",
-          invoice.status === 'PAID' ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-        )}>
-          Status: {invoice.status}
-        </span>
-      </div>
     </div>
   );
 }
@@ -443,7 +403,6 @@ export function ElegantTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
 
 // Template 6: Bold
 export function BoldTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>) {
-  const isOverdue = invoice.status === 'UNPAID' && new Date(invoice.dueDate) < new Date();
   
   return (
     <div className="bg-white p-8 sm:p-12 max-w-4xl mx-auto">
@@ -469,20 +428,11 @@ export function BoldTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>
           <p className="text-xs text-gray-500 mb-1">Date</p>
           <p className="font-bold text-gray-900">{new Date(invoice.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
         </div>
-        <div className={cn("p-4 rounded-lg text-center", isOverdue ? "bg-red-100" : "bg-gray-100")}>
+        <div className="bg-gray-100 p-4 rounded-lg text-center">
           <p className="text-xs text-gray-500 mb-1">Due Date</p>
-          <p className={cn("font-bold", isOverdue ? "text-red-600" : "text-gray-900")}>
+          <p className="font-bold text-gray-900">
             {new Date(invoice.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </p>
-        </div>
-        <div className="bg-gray-100 p-4 rounded-lg text-center">
-          <p className="text-xs text-gray-500 mb-1">Status</p>
-          <span className={cn(
-            "inline-block px-3 py-1 rounded-full text-xs font-bold",
-            invoice.status === 'PAID' ? "bg-green-500 text-white" : "bg-yellow-500 text-white"
-          )}>
-            {invoice.status}
-          </span>
         </div>
       </div>
 

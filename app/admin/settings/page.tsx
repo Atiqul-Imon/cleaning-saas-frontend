@@ -39,7 +39,7 @@ export default function AdminSettingsPage() {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div>
                 <p className="font-medium text-gray-900">Platform Name</p>
-                <p className="text-sm text-gray-600 mt-1">FieldNeat</p>
+                <p className="text-sm text-gray-600 mt-1">Clenvora</p>
               </div>
               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
                 Edit
@@ -48,7 +48,7 @@ export default function AdminSettingsPage() {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div>
                 <p className="font-medium text-gray-900">Support Email</p>
-                <p className="text-sm text-gray-600 mt-1">support@fieldneat.com</p>
+                <p className="text-sm text-gray-600 mt-1">support@clenvora.com</p>
               </div>
               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
                 Edit

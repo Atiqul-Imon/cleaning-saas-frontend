@@ -65,7 +65,6 @@ export default function InvoicesPage() {
                 id={invoice.id}
                 invoiceNumber={invoice.invoiceNumber}
                 totalAmount={invoice.totalAmount}
-                status={invoice.status}
                 dueDate={invoice.dueDate}
                 client={invoice.client}
               />

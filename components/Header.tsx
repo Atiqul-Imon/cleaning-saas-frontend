@@ -70,11 +70,16 @@ export default function Header() {
                 className="flex items-center space-x-2 group"
               >
                 <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary-600)] to-[var(--accent-500)] rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-                  <span className="text-white font-bold text-lg">FN</span>
+                  <span className="text-white font-bold text-lg">CV</span>
                 </div>
-                <span className="text-2xl font-extrabold bg-gradient-to-r from-[var(--primary-600)] to-[var(--accent-500)] bg-clip-text text-transparent">
-                  FieldNeat
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-2xl font-extrabold bg-gradient-to-r from-[var(--primary-600)] to-[var(--accent-500)] bg-clip-text text-transparent">
+                    Clenvora
+                  </span>
+                  <span className="text-xs text-[var(--gray-500)] -mt-1 hidden sm:block">
+                    Run your cleaning business. Simply.
+                  </span>
+                </div>
               </Link>
 
               {/* Desktop Navigation */}

@@ -1,6 +1,6 @@
-# Frontend - FieldNeat
+# Frontend - Clenvora
 
-Next.js 16 frontend application for the FieldNeat cleaning business management platform.
+Next.js 16 frontend application for the Clenvora cleaning business management platform.
 
 ## 🚀 Features
 

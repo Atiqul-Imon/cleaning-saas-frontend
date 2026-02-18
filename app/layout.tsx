@@ -6,8 +6,8 @@ import { ToastProvider } from "@/lib/toast-context";
 import { ReactQueryProvider } from "@/lib/react-query-provider";
 
 export const metadata: Metadata = {
-  title: "FieldNeat - Professional Cleaning Business Management",
-  description: "All-in-one SaaS platform for cleaning businesses. Manage clients, schedule jobs, track payments, and get paid faster.",
+  title: "Clenvora - Professional Cleaning Business Management",
+  description: "Run your cleaning business. Simply. All-in-one SaaS platform for cleaning businesses. Manage clients, schedule jobs, track payments, and get paid faster.",
 };
 
 export default function RootLayout({

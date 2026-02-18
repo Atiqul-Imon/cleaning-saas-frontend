@@ -16,7 +16,7 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="mb-6 inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-              <span className="text-sm font-medium">✨ All-in-One Cleaning Business Management</span>
+              <span className="text-sm font-medium">Run your cleaning business. Simply.</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight">
@@ -194,7 +194,7 @@ export default function HomePage() {
             Ready to Transform Your Cleaning Business?
           </h2>
           <p className="text-lg sm:text-xl mb-10 text-white/90 max-w-2xl mx-auto">
-            Join thousands of cleaning professionals who trust FieldNeat to manage their business operations.
+            Join thousands of cleaning professionals who trust Clenvora to manage their business operations.
             Start your free trial today—no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

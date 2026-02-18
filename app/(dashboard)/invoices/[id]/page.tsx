@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase';
 import { ApiClient } from '@/lib/api-client';
 import { useToast } from '@/lib/toast-context';
-import { Container, Stack, Section, Grid, Divider } from '@/components/layout';
-import { Card, Button, Badge, Modal, Select, LoadingSkeleton, EmptyState } from '@/components/ui';
+import { Container, Stack, Section } from '@/components/layout';
+import { Card, Button, LoadingSkeleton, EmptyState } from '@/components/ui';
 import { InvoiceTemplateRenderer, InvoiceTemplate } from '@/features/invoices/components/InvoiceTemplates';
-import { cn } from '@/lib/utils';
 
 interface Invoice {
   id: string;
@@ -17,9 +16,6 @@ interface Invoice {
   amount: number;
   vatAmount: number;
   totalAmount: number;
-  status: 'PAID' | 'UNPAID';
-  paymentMethod?: 'BANK_TRANSFER' | 'CARD' | 'CASH';
-  paidAt?: string;
   dueDate: string;
   createdAt: string;
   client: {
@@ -48,12 +44,8 @@ interface Invoice {
 
 export default function InvoiceDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
-  const [markingPaid, setMarkingPaid] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'BANK_TRANSFER' | 'CARD' | 'CASH'>('BANK_TRANSFER');
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const { showToast } = useToast();
   const supabase = createClient();
   const apiClient = new ApiClient(async () => {
@@ -65,34 +57,21 @@ export default function InvoiceDetailPage() {
     if (params.id) {
       loadInvoice();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   const loadInvoice = async () => {
     try {
       const data = await apiClient.get<Invoice>(`/invoices/${params.id}`);
       setInvoice(data);
-    } catch (error: any) {
-      showToast(error.message || 'Failed to load invoice', 'error');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to load invoice';
+      showToast(message, 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMarkAsPaid = async () => {
-    if (!invoice) return;
-
-    setMarkingPaid(true);
-    try {
-      await apiClient.put(`/invoices/${invoice.id}/mark-paid`, { paymentMethod });
-      showToast('Invoice marked as paid', 'success');
-      setShowPaymentModal(false);
-      loadInvoice();
-    } catch (error: any) {
-      showToast(error.message || 'Failed to mark invoice as paid', 'error');
-    } finally {
-      setMarkingPaid(false);
-    }
-  };
 
   const handleGetWhatsAppLink = async () => {
     if (!invoice) return;
@@ -106,8 +85,9 @@ export default function InvoiceDetailPage() {
       } else {
         showToast('Client phone number not available', 'error');
       }
-    } catch (error: any) {
-      showToast(error.message || 'Failed to generate WhatsApp link', 'error');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to generate WhatsApp link';
+      showToast(message, 'error');
     }
   };
 
@@ -144,8 +124,9 @@ export default function InvoiceDetailPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       showToast('PDF downloaded successfully', 'success');
-    } catch (error: any) {
-      showToast(error.message || 'Failed to download PDF', 'error');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to download PDF';
+      showToast(message, 'error');
     }
   };
 
@@ -176,7 +157,6 @@ export default function InvoiceDetailPage() {
     );
   }
 
-  const isOverdue = invoice.status === 'UNPAID' && new Date(invoice.dueDate) < new Date();
 
   return (
     <Section background="subtle" padding="lg">
@@ -192,21 +172,10 @@ export default function InvoiceDetailPage() {
         </Link>
 
         {/* Header */}
-        <Card variant="elevated" padding="lg" className={cn('mb-8', isOverdue && 'border-l-4 border-l-[var(--error-500)]')}>
+        <Card variant="elevated" padding="lg" className="mb-8">
           <Stack direction="row" justify="between" align="start" className="mb-6">
             <div>
               <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">{invoice.invoiceNumber}</h1>
-              <Stack direction="row" spacing="md" align="center">
-                <Badge
-                  variant={invoice.status === 'PAID' ? 'success' : isOverdue ? 'error' : 'warning'}
-                  size="lg"
-                >
-                  {invoice.status}
-                </Badge>
-                {isOverdue && (
-                  <Badge variant="error" size="lg">Overdue</Badge>
-                )}
-              </Stack>
             </div>
             <Stack direction="row" spacing="md" className="flex-wrap">
               {/* Primary Action: WhatsApp */}
@@ -245,11 +214,6 @@ export default function InvoiceDetailPage() {
               }>
                 Download PDF
               </Button>
-              {invoice.status === 'UNPAID' && (
-                <Button variant="success" size="md" onClick={() => setShowPaymentModal(true)}>
-                  Mark as Paid
-                </Button>
-              )}
             </Stack>
           </Stack>
         </Card>
@@ -263,39 +227,6 @@ export default function InvoiceDetailPage() {
         </div>
       </Container>
 
-      {/* Payment Modal */}
-      <Modal
-        isOpen={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        title="Mark Invoice as Paid"
-      >
-        <Stack spacing="lg">
-          <Select
-            label="Payment Method"
-            value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value as any)}
-            options={[
-              { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
-              { value: 'CARD', label: 'Card' },
-              { value: 'CASH', label: 'Cash' },
-            ]}
-          />
-          <Stack direction="row" spacing="md">
-            <Button variant="secondary" size="lg" onClick={() => setShowPaymentModal(false)} className="flex-1">
-              Cancel
-            </Button>
-            <Button
-              variant="success"
-              size="lg"
-              onClick={handleMarkAsPaid}
-              isLoading={markingPaid}
-              className="flex-1"
-            >
-              Mark as Paid
-            </Button>
-          </Stack>
-        </Stack>
-      </Modal>
     </Section>
   );
 }
