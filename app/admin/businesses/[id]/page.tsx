@@ -384,3 +384,5 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
   );
 }
 
+
+

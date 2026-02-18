@@ -70,7 +70,7 @@ export default function ReportsPage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/reports/export?startDate=${startDate}&endDate=${endDate}&type=${type}`,
+        `${process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://fieldnetapi.pixelforgebd.com' : 'http://localhost:5000')}/reports/export?startDate=${startDate}&endDate=${endDate}&type=${type}`,
         {
           headers: {
             'Authorization': `Bearer ${session.access_token}`,

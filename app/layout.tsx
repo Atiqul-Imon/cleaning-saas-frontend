@@ -6,7 +6,7 @@ import { ToastProvider } from "@/lib/toast-context";
 import { ReactQueryProvider } from "@/lib/react-query-provider";
 
 export const metadata: Metadata = {
-  title: "CleanSaaS - Professional Cleaning Business Management",
+  title: "FieldNeat - Professional Cleaning Business Management",
   description: "All-in-one SaaS platform for cleaning businesses. Manage clients, schedule jobs, track payments, and get paid faster.",
 };
 

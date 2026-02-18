@@ -194,7 +194,7 @@ export default function HomePage() {
             Ready to Transform Your Cleaning Business?
           </h2>
           <p className="text-lg sm:text-xl mb-10 text-white/90 max-w-2xl mx-auto">
-            Join thousands of cleaning professionals who trust CleanSaaS to manage their business operations.
+            Join thousands of cleaning professionals who trust FieldNeat to manage their business operations.
             Start your free trial today—no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

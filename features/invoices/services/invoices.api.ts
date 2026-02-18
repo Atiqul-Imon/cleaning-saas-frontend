@@ -41,7 +41,11 @@ export const invoicesApi = {
   downloadPDF: async (id: string): Promise<Blob> => {
     // PDF download needs to be handled differently
     // For now, return a promise that will be handled by the component
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/invoices/${id}/pdf`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' 
+        ? 'https://fieldnetapi.pixelforgebd.com' 
+        : 'http://localhost:5000');
+    const response = await fetch(`${apiUrl}/invoices/${id}/pdf`, {
       headers: {
         'Accept': 'application/pdf',
       },

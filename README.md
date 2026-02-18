@@ -1,6 +1,6 @@
-# Frontend - CleanSaaS
+# Frontend - FieldNeat
 
-Next.js 16 frontend application for the CleanSaaS cleaning business management platform.
+Next.js 16 frontend application for the FieldNeat cleaning business management platform.
 
 ## 🚀 Features
 

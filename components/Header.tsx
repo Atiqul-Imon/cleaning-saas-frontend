@@ -70,10 +70,10 @@ export default function Header() {
                 className="flex items-center space-x-2 group"
               >
                 <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary-600)] to-[var(--accent-500)] rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-                  <span className="text-white font-bold text-lg">C</span>
+                  <span className="text-white font-bold text-lg">FN</span>
                 </div>
                 <span className="text-2xl font-extrabold bg-gradient-to-r from-[var(--primary-600)] to-[var(--accent-500)] bg-clip-text text-transparent">
-                  CleanSaaS
+                  FieldNeat
                 </span>
               </Link>
 

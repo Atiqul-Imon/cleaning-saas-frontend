@@ -44,3 +44,5 @@ export interface UpdateInvoiceDto {
 export type InvoiceStatus = 'PAID' | 'UNPAID';
 export type PaymentMethod = 'BANK_TRANSFER' | 'CARD' | 'CASH';
 
+
+
