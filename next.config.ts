@@ -11,9 +11,15 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  // Optimize bundle
+  // Optimize bundle - tree-shake unused exports from these packages
   experimental: {
-    optimizePackageImports: ['@tanstack/react-query', '@supabase/supabase-js'],
+    optimizePackageImports: [
+      '@tanstack/react-query',
+      '@supabase/supabase-js',
+      '@supabase/ssr',
+      'clsx',
+      'tailwind-merge',
+    ],
   },
 
   // Turbopack configuration (Next.js 16 uses Turbopack by default)

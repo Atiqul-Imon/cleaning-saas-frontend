@@ -1,4 +1,5 @@
 import { useApiQuery } from '@/shared/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { useUserRole } from '@/lib/hooks/use-user-role-query';
 import type { Invoice } from '../types/invoice.types';
 
@@ -10,7 +11,7 @@ export function useInvoices() {
   const { userRole, loading: roleLoading } = useUserRole();
 
   const { data, isLoading, error } = useApiQuery<Invoice[]>(
-    ['invoices', userRole?.id || ''],
+    queryKeys.invoices.all(userRole?.id),
     '/invoices',
     {
       enabled: !!userRole && (userRole.role === 'OWNER' || userRole.role === 'ADMIN'),
@@ -32,7 +33,7 @@ export function useInvoice(invoiceId: string | null) {
   const { userRole, loading: roleLoading } = useUserRole();
 
   const { data, isLoading, error } = useApiQuery<Invoice>(
-    ['invoice', invoiceId || '', userRole?.id || ''],
+    queryKeys.invoices.detail(invoiceId || ''),
     invoiceId ? `/invoices/${invoiceId}` : '',
     {
       enabled:

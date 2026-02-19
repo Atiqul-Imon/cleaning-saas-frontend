@@ -1,102 +1,146 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { apiClient } from '@/lib/api-client-singleton';
+import { queryKeys } from '@/lib/query-keys';
 
-interface UserRole {
+/**
+ * UserRole interface - exported for reuse across components
+ */
+export interface UserRole {
   id: string;
   email: string;
   role: 'OWNER' | 'CLEANER' | 'ADMIN';
 }
 
+/**
+ * Optimized useUserRole hook using React Query
+ *
+ * Features:
+ * - Global caching (shared across all components)
+ * - Automatic refetching on window focus and network reconnect
+ * - Automatic invalidation on auth state changes (sign in/out)
+ * - Long stale time (5 minutes) since user role rarely changes
+ * - Single source of truth for user role
+ * - Smart retry logic (doesn't retry on 401/403 auth errors)
+ * - Automatic cache clearing on logout
+ * - Better error handling with specific error cases
+ */
 export function useUserRole() {
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
-  const [loading, setLoading] = useState(true);
-  const supabaseRef = useRef(createClient());
-  const apiClientRef = useRef(
-    new ApiClient(async () => {
-      const {
-        data: { session },
-      } = await supabaseRef.current.auth.getSession();
-      return session?.access_token || null;
-    }),
-  );
+  const supabase = createClient();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadUserRole = async () => {
-      try {
-        if (!isMounted) {
-          return;
-        }
-
-        const {
-          data: { user },
-        } = await supabaseRef.current.auth.getUser();
-        if (!user) {
-          if (isMounted) {
-            setUserRole(null);
-            setLoading(false);
-          }
-          return;
-        }
-
-        // Add timeout to prevent hanging
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('Request timeout')), 5000);
-        });
-
-        const roleDataPromise = apiClientRef.current.get<UserRole>('/auth/me');
-        const roleData = await Promise.race([roleDataPromise, timeoutPromise]);
-
-        if (isMounted) {
-          setUserRole(roleData);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Failed to load user role:', error);
-        if (isMounted) {
-          setUserRole(null);
-          setLoading(false);
-        }
-      }
-    };
-
-    loadUserRole();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const refetch = async () => {
-    setLoading(true);
-    try {
+  const {
+    data: userRole,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<UserRole | null>({
+    queryKey: queryKeys.auth.me(),
+    queryFn: async () => {
       const {
         data: { user },
-      } = await supabaseRef.current.auth.getUser();
-      if (!user) {
-        setUserRole(null);
-        setLoading(false);
-        return;
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        // Clear cache if user is not authenticated
+        queryClient.setQueryData(queryKeys.auth.me(), null);
+        return null;
       }
 
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 5000);
-      });
+      try {
+        const roleData = await apiClient.get<UserRole>('/auth/me');
+        return roleData;
+      } catch (error: any) {
+        // Handle specific error cases
+        const errorMessage = error?.message || '';
 
-      const roleDataPromise = apiClientRef.current.get<UserRole>('/auth/me');
-      const roleData = await Promise.race([roleDataPromise, timeoutPromise]);
-      setUserRole(roleData);
-    } catch (error) {
-      console.error('Failed to load user role:', error);
-      setUserRole(null);
-    } finally {
-      setLoading(false);
-    }
+        // Don't log 401/403 errors (user not authenticated/authorized)
+        if (
+          errorMessage.includes('401') ||
+          errorMessage.includes('403') ||
+          errorMessage.includes('Unauthorized')
+        ) {
+          queryClient.setQueryData(queryKeys.auth.me(), null);
+          return null;
+        }
+
+        console.error('Failed to load user role:', error);
+        throw error; // Re-throw to trigger retry for other errors
+      }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes - user role doesn't change often
+    gcTime: 10 * 60 * 1000, // 10 minutes cache
+    retry: (failureCount, error: any) => {
+      // Don't retry on auth errors
+      const errorMessage = error?.message || '';
+      if (
+        errorMessage.includes('401') ||
+        errorMessage.includes('403') ||
+        errorMessage.includes('Unauthorized')
+      ) {
+        return false;
+      }
+      // Retry once for other errors
+      return failureCount < 1;
+    },
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    refetchOnMount: false, // Don't refetch on every mount (use cache)
+    refetchOnReconnect: true, // Refetch when network reconnects
+  });
+
+  // Listen to auth state changes and invalidate cache
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        // Clear user role cache on logout or token refresh
+        queryClient.setQueryData(queryKeys.auth.me(), null);
+        queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+
+        // Also clear ApiClient cache
+        apiClient.clearCache();
+      } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+        // Refetch user role on sign in or user update
+        queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [queryClient, supabase]);
+
+  return {
+    userRole: userRole ?? null,
+    loading: isLoading,
+    error,
+    refetch,
   };
+}
 
-  return { userRole, loading, refetch };
+/**
+ * Utility hook to invalidate user role cache
+ * Useful when you need to force a refresh of user role data
+ *
+ * @example
+ * ```tsx
+ * const invalidateUserRole = useInvalidateUserRole();
+ *
+ * const handleRoleChange = async () => {
+ *   await updateRole();
+ *   invalidateUserRole(); // Force refresh
+ * };
+ * ```
+ */
+export function useInvalidateUserRole() {
+  const queryClient = useQueryClient();
+
+  return () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+  };
 }

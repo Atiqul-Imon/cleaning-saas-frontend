@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserRole } from '@/lib/hooks/use-user-role-query';
 import { useApiQuery } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { Card, LoadingSkeleton, Button } from '@/components/ui';
 
 interface AdminStats {
@@ -46,12 +47,12 @@ export default function AdminDashboardPage() {
   const { userRole, loading: roleLoading } = useUserRole();
   const [currentPage, setCurrentPage] = useState(1);
 
-  const statsQuery = useApiQuery<AdminStats>(['admin', 'stats'], '/admin/stats', {
+  const statsQuery = useApiQuery<AdminStats>(queryKeys.admin.stats(), '/admin/stats', {
     enabled: userRole?.role === 'ADMIN',
   });
 
   const businessesQuery = useApiQuery<{ businesses: Business[]; pagination: any }>(
-    ['admin', 'businesses', currentPage.toString()],
+    queryKeys.admin.businesses(currentPage),
     `/admin/businesses?page=${currentPage}&limit=10`,
     {
       enabled: userRole?.role === 'ADMIN',

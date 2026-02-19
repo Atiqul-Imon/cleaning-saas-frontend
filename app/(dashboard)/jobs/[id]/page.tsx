@@ -1,16 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { useUserRole } from '@/lib/use-user-role';
 import { useToast } from '@/lib/toast-context';
 import { Container, Stack, Section, Grid } from '@/components/layout';
 import { Card, Button, Badge, Avatar, LoadingSkeleton } from '@/components/ui';
-import { OwnerJobDetail, OwnerJobInfo, CleanerJobDetail } from '@/features/jobs/components';
 import dynamic from 'next/dynamic';
+
+// Lazy load job detail components (heavy components with complex logic)
+const OwnerJobDetail = dynamic(
+  () => import('@/features/jobs/components').then((mod) => ({ default: mod.OwnerJobDetail })),
+  {
+    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-64" />,
+  },
+);
+
+const OwnerJobInfo = dynamic(
+  () => import('@/features/jobs/components').then((mod) => ({ default: mod.OwnerJobInfo })),
+  {
+    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-32" />,
+  },
+);
+
+const CleanerJobDetail = dynamic(
+  () => import('@/features/jobs/components').then((mod) => ({ default: mod.CleanerJobDetail })),
+  {
+    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-64" />,
+  },
+);
 
 // Lazy load heavy components for code splitting
 const PhotoUpload = dynamic(() => import('@/features/jobs/components/PhotoUpload'), {
@@ -65,71 +85,55 @@ interface Job {
 
 export default function JobDetailPage() {
   const params = useParams();
-  const [job, setJob] = useState<Job | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const jobId = params.id as string;
   const { userRole, loading: roleLoading } = useUserRole();
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
+  const { showToast } = useToast();
+
+  // Fetch job using React Query
+  const jobQuery = useApiQuery<Job>(queryKeys.jobs.detail(jobId), `/jobs/${jobId}`, {
+    enabled: !!jobId && !!userRole,
   });
+
+  const job = jobQuery.data;
+  const loading = jobQuery.isLoading;
+  const error = jobQuery.error ? (jobQuery.error as Error).message : null;
 
   const isOwner = userRole?.role === 'OWNER';
   const isCleaner = userRole?.role === 'CLEANER';
-  const { showToast } = useToast();
 
-  useEffect(() => {
-    if (params.id && !roleLoading) {
-      loadJob();
-    }
-  }, [params.id, roleLoading]);
+  // Update job status mutation
+  const updateStatusMutation = useApiMutation<
+    Job,
+    { status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' }
+  >({
+    endpoint: `/jobs/${jobId}`,
+    method: 'PUT',
+    invalidateQueries: [
+      queryKeys.jobs.detail(jobId),
+      queryKeys.jobs.all(userRole?.id),
+      queryKeys.jobs.myJobs(userRole?.id),
+    ],
+    mutationOptions: {
+      onSuccess: (updatedJob) => {
+        const statusText = updatedJob.status.replace('_', ' ');
+        showToast(`Job status updated to ${statusText}`, 'success');
+      },
+      onError: (error) => {
+        const errorMessage =
+          (error as Error)?.message || 'Failed to update job status. Please try again.';
+        showToast(errorMessage, 'error');
+      },
+    },
+  });
 
-  const loadJob = async () => {
-    try {
-      setError(null);
-      const data = await apiClient.get<Job>(`/jobs/${params.id}`);
-      setJob(data);
-    } catch (error: any) {
-      console.error('Failed to load job:', error);
-      if (error.message?.includes('404') || error.message?.includes('not found')) {
-        setError('Job not found. You may not have access to this job.');
-      } else if (error.message?.includes('Access denied') || error.message?.includes('403')) {
-        setError('You do not have permission to view this job.');
-      } else {
-        setError('Failed to load job. Please try again.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateStatus = async (newStatus: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') => {
+  const updateStatus = (newStatus: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') => {
     if (!job) {
       return;
     }
-
-    setUpdating(true);
-    setError(null);
-
-    try {
-      const updatedJob = await apiClient.put<Job>(`/jobs/${job.id}`, {
-        status: newStatus,
-      });
-      setJob(updatedJob);
-      showToast(`Job status updated to ${newStatus.replace('_', ' ')}`, 'success');
-    } catch (error: any) {
-      console.error('Failed to update job status:', error);
-      const errorMessage = 'Failed to update job status. Please try again.';
-      setError(errorMessage);
-      showToast(errorMessage, 'error');
-    } finally {
-      setUpdating(false);
-    }
+    updateStatusMutation.mutate({ status: newStatus });
   };
+
+  const updating = updateStatusMutation.isPending;
 
   if (roleLoading || loading) {
     return (
@@ -167,7 +171,7 @@ export default function JobDetailPage() {
               <Link href="/jobs">
                 <Button variant="primary">Back to Jobs</Button>
               </Link>
-              <Button variant="secondary" onClick={loadJob}>
+              <Button variant="secondary" onClick={() => jobQuery.refetch()}>
                 Try Again
               </Button>
             </Stack>
@@ -445,11 +449,10 @@ export default function JobDetailPage() {
                   jobId={job.id}
                   checklist={job.checklist}
                   onUpdate={() => {
-                    loadJob();
+                    jobQuery.refetch();
                     showToast('Checklist updated', 'success');
                   }}
                   onError={(error) => {
-                    setError(error);
                     showToast(error, 'error');
                   }}
                 />
@@ -468,6 +471,7 @@ export default function JobDetailPage() {
                         size="sm"
                         onClick={async () => {
                           try {
+                            const { apiClient } = await import('@/lib/api-client-singleton');
                             const data = await apiClient.get<{ whatsappUrl: string | null }>(
                               `/jobs/${job.id}/whatsapp/photos?photoType=BEFORE`,
                             );
@@ -478,7 +482,10 @@ export default function JobDetailPage() {
                               showToast('Failed to generate WhatsApp link', 'error');
                             }
                           } catch (error: any) {
-                            showToast(error.message || 'Failed to send photos', 'error');
+                            showToast(
+                              (error as Error)?.message || 'Failed to send photos',
+                              'error',
+                            );
                           }
                         }}
                         className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
@@ -497,6 +504,7 @@ export default function JobDetailPage() {
                         size="sm"
                         onClick={async () => {
                           try {
+                            const { apiClient } = await import('@/lib/api-client-singleton');
                             const data = await apiClient.get<{ whatsappUrl: string | null }>(
                               `/jobs/${job.id}/whatsapp/photos?photoType=AFTER`,
                             );
@@ -507,7 +515,10 @@ export default function JobDetailPage() {
                               showToast('Failed to generate WhatsApp link', 'error');
                             }
                           } catch (error: any) {
-                            showToast(error.message || 'Failed to send photos', 'error');
+                            showToast(
+                              (error as Error)?.message || 'Failed to send photos',
+                              'error',
+                            );
                           }
                         }}
                         className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
@@ -526,6 +537,7 @@ export default function JobDetailPage() {
                         size="sm"
                         onClick={async () => {
                           try {
+                            const { apiClient } = await import('@/lib/api-client-singleton');
                             const data = await apiClient.get<{ whatsappUrl: string | null }>(
                               `/jobs/${job.id}/whatsapp/photos?photoType=ALL`,
                             );
@@ -536,7 +548,10 @@ export default function JobDetailPage() {
                               showToast('Failed to generate WhatsApp link', 'error');
                             }
                           } catch (error: any) {
-                            showToast(error.message || 'Failed to send photos', 'error');
+                            showToast(
+                              (error as Error)?.message || 'Failed to send photos',
+                              'error',
+                            );
                           }
                         }}
                         className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
@@ -559,12 +574,10 @@ export default function JobDetailPage() {
                     jobId={job.id}
                     photoType="BEFORE"
                     onUploadSuccess={() => {
-                      loadJob();
-                      setError(null);
+                      jobQuery.refetch();
                       showToast('Before photo uploaded successfully', 'success');
                     }}
                     onError={(error) => {
-                      setError(error);
                       showToast(error, 'error');
                     }}
                   />
@@ -572,12 +585,10 @@ export default function JobDetailPage() {
                     jobId={job.id}
                     photoType="AFTER"
                     onUploadSuccess={() => {
-                      loadJob();
-                      setError(null);
+                      jobQuery.refetch();
                       showToast('After photo uploaded successfully', 'success');
                     }}
                     onError={(error) => {
-                      setError(error);
                       showToast(error, 'error');
                     }}
                   />

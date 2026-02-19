@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useState } from 'react';
+import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query-keys';
 import { useUserRole } from '@/lib/use-user-role';
 import { useToast } from '@/lib/toast-context';
 import { Container, Stack, Section, Grid } from '@/components/layout';
@@ -30,86 +31,93 @@ interface Cleaner {
 }
 
 export default function WorkersPage() {
-  const [cleaners, setCleaners] = useState<Cleaner[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
   const [staffToDelete, setStaffToDelete] = useState<{ id: string; email: string } | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [createdStaff, setCreatedStaff] = useState<{ email: string; password: string } | null>(
     null,
   );
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const { userRole } = useUserRole();
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
-  });
   const { showToast } = useToast();
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
     email: '',
     name: '',
   });
 
-  useEffect(() => {
-    if (userRole?.role === 'OWNER' || userRole?.role === 'ADMIN') {
-      loadCleaners();
-    }
-  }, [userRole]);
+  // Use React Query to fetch cleaners
+  const cleanersQuery = useApiQuery<Cleaner[]>(
+    queryKeys.business.cleaners(userRole?.id),
+    '/business/cleaners',
+    {
+      enabled: !!userRole && (userRole.role === 'OWNER' || userRole.role === 'ADMIN'),
+    },
+  );
 
-  const loadCleaners = async () => {
-    try {
-      const data = await apiClient.get<Cleaner[]>('/business/cleaners');
-      setCleaners(data);
-    } catch (error: any) {
-      console.error('Failed to load cleaners:', error);
-      setError(error.message || 'Failed to load workers');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError(null);
-
-    try {
-      const result = await apiClient.post<{ tempPassword?: string }>('/business/cleaners', {
-        email: formData.email,
-        name: formData.name || undefined,
-      });
-
-      if (result?.tempPassword) {
-        setCreatedStaff({
-          email: formData.email,
-          password: result.tempPassword,
-        });
-        setShowAddModal(false);
-        setShowPasswordModal(true);
-      } else {
-        setShowAddModal(false);
-        setFormData({ email: '', name: '' });
-      }
-
-      setFormData({ email: '', name: '' });
-      loadCleaners();
-      showToast('Staff member created successfully!', 'success');
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to create staff member';
-      setError(errorMessage);
+  // Delete cleaner mutation - using custom mutation function for dynamic endpoint
+  const deleteMutation = useMutation<void, Error, { cleanerId: string }>({
+    mutationFn: async (variables: { cleanerId: string }) => {
+      const { apiClient } = await import('@/lib/api-client-singleton');
+      return apiClient.delete<void>(`/business/cleaners/${variables.cleanerId}`);
+    },
+    onSuccess: () => {
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.business.cleaners(userRole?.id) });
+      setShowDeleteModal(false);
+      setStaffToDelete(null);
+      setDeleteConfirmEmail('');
+      showToast('Staff member removed successfully', 'success');
+    },
+    onError: (error) => {
+      const errorMessage = (error as Error)?.message || 'Failed to remove staff member';
+      setDeleteError(errorMessage);
       showToast(errorMessage, 'error');
-    } finally {
-      setSubmitting(false);
-    }
+    },
+  });
+
+  // Create cleaner mutation
+  const createMutation = useApiMutation<{ tempPassword?: string }, { email: string; name: string }>(
+    {
+      endpoint: '/business/cleaners',
+      method: 'POST',
+      invalidateQueries: [queryKeys.business.cleaners(userRole?.id)],
+      mutationOptions: {
+        onSuccess: (result) => {
+          if (result?.tempPassword) {
+            setCreatedStaff({
+              email: formData.email,
+              password: result.tempPassword,
+            });
+            setShowAddModal(false);
+            setShowPasswordModal(true);
+          } else {
+            setShowAddModal(false);
+            setFormData({ email: '', name: '' });
+          }
+          setFormData({ email: '', name: '' });
+          showToast('Staff member created successfully!', 'success');
+        },
+        onError: (err) => {
+          const errorMessage = (err as Error)?.message || 'Failed to create staff member';
+          showToast(errorMessage, 'error');
+        },
+      },
+    },
+  );
+
+  const cleaners = cleanersQuery.data || [];
+  const loading = cleanersQuery.isLoading;
+  const queryError = cleanersQuery.error ? (cleanersQuery.error as Error).message : null;
+  const submitting = createMutation.isPending;
+  const deleting = deleteMutation.isPending;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createMutation.mutate({ email: formData.email, name: formData.name || '' });
   };
 
   const handleRemoveClick = (cleanerId: string, email: string) => {
@@ -119,7 +127,7 @@ export default function WorkersPage() {
     setShowDeleteModal(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (!staffToDelete) {
       return;
     }
@@ -129,23 +137,8 @@ export default function WorkersPage() {
       return;
     }
 
-    setDeleting(true);
     setDeleteError(null);
-
-    try {
-      await apiClient.delete(`/business/cleaners/${staffToDelete.id}`);
-      setShowDeleteModal(false);
-      setStaffToDelete(null);
-      setDeleteConfirmEmail('');
-      loadCleaners();
-      showToast('Staff member removed successfully', 'success');
-    } catch (error: any) {
-      const errorMessage = error.message || 'Failed to remove staff member';
-      setDeleteError(errorMessage);
-      showToast(errorMessage, 'error');
-    } finally {
-      setDeleting(false);
-    }
+    deleteMutation.mutate({ cleanerId: staffToDelete.id });
   };
 
   const copyToClipboard = (text: string) => {
@@ -209,7 +202,7 @@ export default function WorkersPage() {
           </Button>
         </Stack>
 
-        {error && cleaners.length === 0 && (
+        {queryError && cleaners.length === 0 && (
           <Card
             variant="outlined"
             padding="md"
@@ -229,7 +222,7 @@ export default function WorkersPage() {
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span className="text-[var(--error-900)] font-semibold">{error}</span>
+              <span className="text-[var(--error-900)] font-semibold">{queryError}</span>
             </Stack>
           </Card>
         )}
@@ -340,19 +333,18 @@ export default function WorkersPage() {
           onClose={() => {
             setShowAddModal(false);
             setFormData({ email: '', name: '' });
-            setError(null);
           }}
           title="Add New Staff Member"
         >
           <form onSubmit={handleSubmit}>
             <Stack spacing="lg">
-              {error && (
+              {createMutation.isError && (
                 <Card
                   variant="outlined"
                   padding="md"
                   className="bg-[var(--error-50)] border-[var(--error-200)]"
                 >
-                  <span className="text-[var(--error-900)] font-semibold">{error}</span>
+                  <span className="text-[var(--error-900)] font-semibold">{queryError}</span>
                 </Card>
               )}
 
@@ -395,7 +387,6 @@ export default function WorkersPage() {
                   onClick={() => {
                     setShowAddModal(false);
                     setFormData({ email: '', name: '' });
-                    setError(null);
                   }}
                   className="flex-1"
                 >

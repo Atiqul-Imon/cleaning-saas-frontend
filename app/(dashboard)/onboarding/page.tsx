@@ -1,45 +1,34 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
 import { useUserRole } from '@/lib/use-user-role';
-import BusinessForm from '@/components/BusinessForm';
+import { useApiQuery } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { Container, Stack, Section } from '@/components/layout';
 import { Card, LoadingSkeleton } from '@/components/ui';
+import dynamic from 'next/dynamic';
+
+// Lazy load BusinessForm (heavy form component)
+const BusinessForm = dynamic(() => import('@/components/BusinessForm'), {
+  loading: () => <LoadingSkeleton type="card" count={1} />,
+  ssr: false,
+});
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
   const { userRole, loading: roleLoading } = useUserRole();
 
-  const checkBusiness = async () => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) {
-        router.push('/login');
-        return;
-      }
-
-      const apiClient = new ApiClient(async () => session.access_token);
-      try {
-        await apiClient.get('/business');
-        router.replace('/dashboard');
-      } catch {
-        if (userRole?.role === 'OWNER' || userRole?.role === 'ADMIN') {
-          setLoading(false);
-        } else {
-          router.replace('/dashboard');
-        }
-      }
-    } catch {
-      setLoading(false);
-    }
-  };
+  // Use React Query to check if business exists
+  const businessQuery = useApiQuery<{ id: string; name: string }>(
+    queryKeys.business.detail(userRole?.id || ''),
+    '/business',
+    {
+      enabled: !!userRole && (userRole.role === 'OWNER' || userRole.role === 'ADMIN'),
+      retry: false, // Don't retry 404 errors
+      retryOnMount: false,
+    },
+  );
 
   useEffect(() => {
     if (roleLoading || !userRole) {
@@ -51,13 +40,18 @@ export default function OnboardingPage() {
       return;
     }
 
-    if (userRole.role === 'OWNER' || userRole.role === 'ADMIN') {
-      void checkBusiness();
-    } else {
+    // If business exists, redirect to dashboard
+    if (businessQuery.data) {
       setTimeout(() => router.replace('/dashboard'), 0);
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userRole, roleLoading]);
+
+    // If query failed (404), show form (business doesn't exist)
+    if ((businessQuery.isError && userRole.role === 'OWNER') || userRole.role === 'ADMIN') {
+      // Show form - business doesn't exist
+      return;
+    }
+  }, [userRole, roleLoading, businessQuery.data, businessQuery.isError, router]);
 
   const handleSuccess = async () => {
     router.replace('/dashboard');
@@ -65,7 +59,13 @@ export default function OnboardingPage() {
     router.refresh();
   };
 
-  if (roleLoading || loading || userRole?.role === 'CLEANER') {
+  if (
+    roleLoading ||
+    (userRole &&
+      (userRole.role === 'OWNER' || userRole.role === 'ADMIN') &&
+      businessQuery.isLoading) ||
+    userRole?.role === 'CLEANER'
+  ) {
     return (
       <Section background="subtle" padding="lg">
         <Container size="lg">

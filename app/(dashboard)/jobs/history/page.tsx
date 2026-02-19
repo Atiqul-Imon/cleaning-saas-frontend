@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useApiQuery } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { useUserRole } from '@/lib/use-user-role';
 import { Container, Section, Grid } from '@/components/layout';
 import { Card, Button, LoadingSkeleton, EmptyState } from '@/components/ui';
@@ -23,55 +23,39 @@ interface Job {
 }
 
 export default function JobHistoryPage() {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'week' | 'month'>('week');
   const { userRole, loading: roleLoading } = useUserRole();
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
+
+  // Fetch all jobs using React Query
+  const jobsQuery = useApiQuery<Job[]>(queryKeys.jobs.all(userRole?.id), '/jobs', {
+    enabled: !!userRole,
   });
 
+  const allJobs = jobsQuery.data || [];
+  const loading = jobsQuery.isLoading || roleLoading;
   const isCleaner = userRole?.role === 'CLEANER';
 
-  useEffect(() => {
-    loadJobs();
-  }, [filter]);
+  // Client-side filtering (using useMemo for performance)
+  const jobs = useMemo(() => {
+    const completedJobs = allJobs.filter((job) => job.status === 'COMPLETED');
 
-  const loadJobs = async () => {
-    try {
-      setLoading(true);
-      const allJobs = await apiClient.get<Job[]>('/jobs');
+    const now = new Date();
+    let filteredJobs = completedJobs;
 
-      const completedJobs = allJobs.filter((job) => job.status === 'COMPLETED');
-
-      const now = new Date();
-      let filteredJobs = completedJobs;
-
-      if (filter === 'week') {
-        const weekAgo = new Date(now);
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        filteredJobs = completedJobs.filter((job) => new Date(job.updatedAt) >= weekAgo);
-      } else if (filter === 'month') {
-        const monthAgo = new Date(now);
-        monthAgo.setMonth(monthAgo.getMonth() - 1);
-        filteredJobs = completedJobs.filter((job) => new Date(job.updatedAt) >= monthAgo);
-      }
-
-      filteredJobs.sort(
-        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-      );
-
-      setJobs(filteredJobs);
-    } catch (error) {
-      console.error('Failed to load job history:', error);
-    } finally {
-      setLoading(false);
+    if (filter === 'week') {
+      const weekAgo = new Date(now);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      filteredJobs = completedJobs.filter((job) => new Date(job.updatedAt) >= weekAgo);
+    } else if (filter === 'month') {
+      const monthAgo = new Date(now);
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+      filteredJobs = completedJobs.filter((job) => new Date(job.updatedAt) >= monthAgo);
     }
-  };
+
+    return filteredJobs.sort(
+      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
+  }, [allJobs, filter]);
 
   if (loading || roleLoading) {
     return (

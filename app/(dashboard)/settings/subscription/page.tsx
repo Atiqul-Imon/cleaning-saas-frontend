@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
+import { useUserRole } from '@/lib/use-user-role';
 import { useToast } from '@/lib/toast-context';
 import { Container, Stack, Section, Grid } from '@/components/layout';
 import { Card, Button, Badge, LoadingSkeleton } from '@/components/ui';
@@ -34,96 +35,114 @@ interface UsageStats {
 }
 
 export default function SubscriptionPage() {
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
+  const { userRole } = useUserRole();
   const { showToast } = useToast();
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
+
+  // Parallel queries using React Query (automatic deduplication)
+  const subscriptionQuery = useApiQuery<Subscription>(
+    queryKeys.subscriptions.current(userRole?.id),
+    '/subscriptions',
+  );
+
+  const usageQuery = useApiQuery<UsageStats>(
+    queryKeys.subscriptions.usage(userRole?.id),
+    '/subscriptions/usage',
+  );
+
+  // Update mutation
+  const updateMutation = useApiMutation<Subscription, { planType: 'FREE' | 'SOLO' | 'SMALL_TEAM' }>(
+    {
+      endpoint: '/subscriptions',
+      method: 'PUT',
+      invalidateQueries: [
+        queryKeys.subscriptions.current(userRole?.id),
+        queryKeys.subscriptions.usage(userRole?.id),
+      ],
+      mutationOptions: {
+        onSuccess: () => {
+          showToast('Subscription updated successfully!', 'success');
+        },
+        onError: (error) => {
+          showToast((error as Error)?.message || 'Failed to update subscription', 'error');
+        },
+      },
+    },
+  );
+
+  // Cancel mutation
+  const cancelMutation = useApiMutation<Subscription, void>({
+    endpoint: '/subscriptions/cancel',
+    method: 'POST',
+    invalidateQueries: [
+      queryKeys.subscriptions.current(userRole?.id),
+      queryKeys.subscriptions.usage(userRole?.id),
+    ],
+    mutationOptions: {
+      onSuccess: () => {
+        showToast('Subscription cancelled successfully', 'success');
+      },
+      onError: (error) => {
+        showToast((error as Error)?.message || 'Failed to cancel subscription', 'error');
+      },
+    },
+  });
+
+  // Checkout session mutation
+  const checkoutMutation = useApiMutation<
+    { sessionId: string; url: string },
+    { planType: 'SOLO' | 'SMALL_TEAM' }
+  >({
+    endpoint: '/payments/create-checkout-session',
+    method: 'POST',
+    mutationOptions: {
+      onSuccess: (data) => {
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          showToast('Failed to create checkout session', 'error');
+        }
+      },
+      onError: (error) => {
+        showToast((error as Error)?.message || 'Failed to start checkout', 'error');
+      },
+    },
   });
 
   useEffect(() => {
-    loadSubscription();
-
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
       showToast('Subscription activated successfully!', 'success');
       window.history.replaceState({}, '', window.location.pathname);
-      loadSubscription();
+      // Refetch subscription data
+      subscriptionQuery.refetch();
+      usageQuery.refetch();
     } else if (urlParams.get('canceled') === 'true') {
       showToast('Subscription checkout was cancelled', 'info');
       window.history.replaceState({}, '', window.location.pathname);
     }
-  }, [showToast]);
+  }, [showToast, subscriptionQuery, usageQuery]);
 
-  const loadSubscription = async () => {
-    try {
-      const [subData, usageData] = await Promise.all([
-        apiClient.get<Subscription>('/subscriptions'),
-        apiClient.get<UsageStats>('/subscriptions/usage'),
-      ]);
-      setSubscription(subData);
-      setUsageStats(usageData);
-    } catch (error: any) {
-      showToast(error.message || 'Failed to load subscription', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdatePlan = async (planType: 'FREE' | 'SOLO' | 'SMALL_TEAM') => {
+  const handleUpdatePlan = (planType: 'FREE' | 'SOLO' | 'SMALL_TEAM') => {
     if (planType === 'FREE') {
-      setUpdating(true);
-      try {
-        await apiClient.put('/subscriptions/plan', { planType });
-        showToast('Subscription plan updated', 'success');
-        loadSubscription();
-      } catch (error: any) {
-        showToast(error.message || 'Failed to update plan', 'error');
-      } finally {
-        setUpdating(false);
-      }
+      updateMutation.mutate({ planType });
     } else {
-      setUpdating(true);
-      try {
-        const { url } = await apiClient.post<{ sessionId: string; url: string }>(
-          '/payments/create-checkout-session',
-          { planType },
-        );
-        if (url) {
-          window.location.href = url;
-        } else {
-          showToast('Failed to create checkout session', 'error');
-        }
-      } catch (error: any) {
-        showToast(error.message || 'Failed to start checkout', 'error');
-        setUpdating(false);
-      }
+      checkoutMutation.mutate({ planType });
     }
   };
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
     // eslint-disable-next-line no-alert
     if (!window.confirm('Are you sure you want to cancel your subscription?')) {
       return;
     }
-
-    setUpdating(true);
-    try {
-      await apiClient.post('/subscriptions/cancel');
-      showToast('Subscription cancelled', 'success');
-      loadSubscription();
-    } catch (error: any) {
-      showToast(error.message || 'Failed to cancel subscription', 'error');
-    } finally {
-      setUpdating(false);
-    }
+    cancelMutation.mutate();
   };
+
+  const subscription = subscriptionQuery.data;
+  const usageStats = usageQuery.data;
+  const loading = subscriptionQuery.isLoading || usageQuery.isLoading;
+  const updating =
+    updateMutation.isPending || cancelMutation.isPending || checkoutMutation.isPending;
 
   if (loading) {
     return (
@@ -321,7 +340,7 @@ export default function SubscriptionPage() {
                         variant="primary"
                         size="lg"
                         onClick={() => handleUpdatePlan(plan.type)}
-                        isLoading={updating}
+                        isLoading={updating || (plan.type !== 'FREE' && checkoutMutation.isPending)}
                         className="w-full"
                       >
                         Select Plan

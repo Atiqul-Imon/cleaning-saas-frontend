@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useApiMutation } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { InvoiceTemplateSelector } from '@/features/invoices/components';
 import { InvoiceTemplate } from '@/features/invoices/components/InvoiceTemplates';
 import { Divider } from '@/components/layout';
+import { useUserRole } from '@/lib/use-user-role';
 
 interface Business {
   id: string;
@@ -31,39 +32,42 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
     vatNumber: business?.vatNumber || '',
     invoiceTemplate: (business?.invoiceTemplate as InvoiceTemplate) || 'classic',
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { userRole } = useUserRole();
 
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
+  // Use React Query mutation with optimistic updates
+  const mutation = useApiMutation<Business, typeof formData>({
+    endpoint: '/business',
+    method: business ? 'PUT' : 'POST',
+    invalidateQueries: [queryKeys.business.detail(userRole?.id)],
+    optimisticUpdate: business
+      ? {
+          queryKeys: [queryKeys.business.detail(userRole?.id)],
+          optimisticData: () =>
+            ({
+              ...business,
+              ...formData,
+            }) as Business,
+        }
+      : undefined,
+    mutationOptions: {
+      onSuccess: () => {
+        onSuccess?.();
+      },
+      onError: (error) => {
+        // Error is handled by the mutation state
+        console.error('Failed to save business:', error);
+      },
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      if (business) {
-        await apiClient.put('/business', formData);
-      } else {
-        await apiClient.post('/business', formData);
-      }
-      onSuccess?.();
-    } catch (err: any) {
-      setError(err.message || 'Failed to save business');
-    } finally {
-      setLoading(false);
-    }
+    mutation.mutate(formData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {error && (
+      {mutation.isError && (
         <div className="bg-red-100 border-2 border-red-400 text-red-900 px-6 py-4 rounded-lg font-bold flex items-center gap-3">
           <svg
             className="w-6 h-6 text-red-700 flex-shrink-0"
@@ -78,7 +82,7 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span>{error}</span>
+          <span>{(mutation.error as Error)?.message || 'Failed to save business'}</span>
         </div>
       )}
 
@@ -163,10 +167,10 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
       <div>
         <button
           type="submit"
-          disabled={loading}
+          disabled={mutation.isPending}
           className="w-full flex justify-center py-3.5 px-6 border border-transparent rounded-lg text-base font-bold text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 shadow-md hover:shadow-lg transition-all duration-200"
         >
-          {loading ? 'Saving...' : business ? 'Update Business' : 'Create Business'}
+          {mutation.isPending ? 'Saving...' : business ? 'Update Business' : 'Create Business'}
         </button>
       </div>
     </form>

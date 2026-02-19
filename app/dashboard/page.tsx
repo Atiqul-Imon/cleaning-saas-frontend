@@ -4,10 +4,26 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useUserRole } from '@/lib/hooks/use-user-role-query';
 import { useApiQuery } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { Container, Grid, Stack, Section } from '@/components/layout';
 import { Card, Button, LoadingSkeleton, EmptyState } from '@/components/ui';
-import { StatCard, QuickAction } from '@/features/dashboard/components';
 import { useEffect } from 'react';
+import dynamic from 'next/dynamic';
+
+// Lazy load dashboard components for code splitting
+const StatCard = dynamic(
+  () => import('@/features/dashboard/components').then((mod) => ({ default: mod.StatCard })),
+  {
+    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-24" />,
+  },
+);
+
+const QuickAction = dynamic(
+  () => import('@/features/dashboard/components').then((mod) => ({ default: mod.QuickAction })),
+  {
+    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-16" />,
+  },
+);
 
 interface DashboardStats {
   todayJobs: number;
@@ -45,8 +61,9 @@ export default function DashboardPage() {
   }, [roleLoading, isAdmin, pathname, router]);
 
   // Parallel data fetching - both queries run simultaneously
+  // Using query keys from factory for consistency
   const businessQuery = useApiQuery<Business>(
-    ['business', userRole?.id || ''],
+    userRole?.id ? queryKeys.business.detail(userRole.id) : ['business', ''],
     userRole?.role === 'CLEANER' ? '/business/cleaners/my-business' : '/business',
     {
       enabled: !!userRole && (isOwner || isAdmin || isCleaner),
@@ -61,7 +78,7 @@ export default function DashboardPage() {
   );
 
   const statsQuery = useApiQuery<DashboardStats>(
-    ['dashboard', 'stats', userRole?.id || ''],
+    userRole?.id ? queryKeys.dashboard.stats(userRole.id) : ['dashboard', 'stats', ''],
     '/dashboard/stats',
     {
       enabled: !!userRole && (isOwner || isAdmin || isCleaner),

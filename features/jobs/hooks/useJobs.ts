@@ -1,4 +1,5 @@
 import { useApiQuery } from '@/shared/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { useUserRole } from '@/lib/hooks/use-user-role-query';
 import type { Job } from '../types/job.types';
 
@@ -9,7 +10,7 @@ import type { Job } from '../types/job.types';
 export function useJobs() {
   const { userRole, loading: roleLoading } = useUserRole();
 
-  const { data, isLoading, error } = useApiQuery<Job[]>(['jobs', userRole?.id || ''], '/jobs', {
+  const { data, isLoading, error } = useApiQuery<Job[]>(queryKeys.jobs.all(userRole?.id), '/jobs', {
     enabled: !!userRole,
   });
 
@@ -28,7 +29,7 @@ export function useJob(jobId: string | null) {
   const { userRole, loading: roleLoading } = useUserRole();
 
   const { data, isLoading, error } = useApiQuery<Job>(
-    ['job', jobId || '', userRole?.id || ''],
+    queryKeys.jobs.detail(jobId || ''),
     jobId ? `/jobs/${jobId}` : '',
     {
       enabled: !!userRole && !!jobId,
@@ -49,7 +50,7 @@ export function useTodayJobs() {
   const { userRole, loading: roleLoading } = useUserRole();
 
   const { data, isLoading, error } = useApiQuery<Job[]>(
-    ['jobs', 'today', userRole?.id || ''],
+    queryKeys.jobs.all(userRole?.id),
     '/jobs/today',
     {
       enabled: !!userRole,

@@ -1,4 +1,5 @@
 import { useApiQuery } from '@/shared/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { useUserRole } from '@/lib/hooks/use-user-role-query';
 import type { Client } from '../types/client.types';
 
@@ -10,7 +11,7 @@ export function useClients() {
   const { userRole, loading: roleLoading } = useUserRole();
 
   const { data, isLoading, error } = useApiQuery<Client[]>(
-    ['clients', userRole?.id || ''],
+    queryKeys.clients.all(userRole?.id),
     '/clients',
     {
       enabled: !!userRole,
@@ -32,7 +33,7 @@ export function useClient(clientId: string | null) {
   const { userRole, loading: roleLoading } = useUserRole();
 
   const { data, isLoading, error } = useApiQuery<Client>(
-    ['client', clientId || '', userRole?.id || ''],
+    queryKeys.clients.detail(clientId || ''),
     clientId ? `/clients/${clientId}` : '',
     {
       enabled: !!userRole && !!clientId,

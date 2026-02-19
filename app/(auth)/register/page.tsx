@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useApiMutation } from '@/lib/hooks/use-api';
 import Link from 'next/link';
 
 export default function RegisterPage() {
@@ -11,67 +11,62 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    // No token needed for signup
-    return null;
+
+  // Signup mutation
+  const signupMutation = useApiMutation<
+    { user: { id: string; email: string }; message: string },
+    { email: string; password: string }
+  >({
+    endpoint: '/auth/signup',
+    method: 'POST',
+    mutationOptions: {
+      onSuccess: async () => {
+        // After signup, sign in the user automatically
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) {
+          // If auto-login fails, redirect to login page
+          setError('Account created successfully! Please login.');
+          setTimeout(() => {
+            router.push('/login');
+          }, 2000);
+          return;
+        }
+
+        // Successfully signed in, redirect to onboarding for business setup
+        router.push('/onboarding');
+        router.refresh();
+      },
+      onError: (error) => {
+        setError((error as Error)?.message || 'Failed to register');
+      },
+    },
   });
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
+    // Client-side validation
     if (password !== confirmPassword) {
       setError('Passwords do not match');
-      setLoading(false);
       return;
     }
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters');
-      setLoading(false);
       return;
     }
 
-    try {
-      // Use backend signup endpoint which auto-confirms email
-      await apiClient.post('/auth/signup', {
-        email,
-        password,
-      });
-
-      // After signup, sign in the user automatically
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
-        // If auto-login fails, redirect to login page
-        setError('Account created successfully! Please login.');
-        setTimeout(() => {
-          router.push('/login');
-        }, 2000);
-        return;
-      }
-
-      // Successfully signed in, redirect to onboarding for business setup
-      // The onboarding page will check if business exists and redirect to dashboard if needed
-      router.push('/onboarding');
-      router.refresh();
-    } catch (error: any) {
-      setError(error.message || 'Failed to register');
-    } finally {
-      setLoading(false);
-    }
+    signupMutation.mutate({ email, password });
   };
 
   const handleGoogleSignup = async () => {
-    setLoading(true);
     setError(null);
 
     try {
@@ -86,8 +81,7 @@ export default function RegisterPage() {
         throw error;
       }
     } catch (error: any) {
-      setError(error.message || 'Failed to sign up with Google');
-      setLoading(false);
+      setError((error as Error)?.message || 'Failed to sign up with Google');
     }
   };
 
@@ -179,10 +173,10 @@ export default function RegisterPage() {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={signupMutation.isPending}
                 className="group relative w-full flex justify-center py-3.5 px-6 border border-transparent text-base font-bold rounded-lg text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 shadow-md hover:shadow-lg transition-all duration-200"
               >
-                {loading ? 'Creating account...' : 'Sign up'}
+                {signupMutation.isPending ? 'Creating account...' : 'Sign up'}
               </button>
             </div>
 
@@ -199,7 +193,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={handleGoogleSignup}
-                disabled={loading}
+                disabled={signupMutation.isPending}
                 className="w-full flex justify-center py-3.5 px-6 border-2 border-gray-400 rounded-lg shadow-sm text-base font-semibold text-gray-950 bg-white hover:bg-gray-50 hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all duration-200"
               >
                 Sign up with Google

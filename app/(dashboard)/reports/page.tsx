@@ -1,12 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useApiQuery } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
+import { useUserRole } from '@/lib/use-user-role';
 import { useToast } from '@/lib/toast-context';
+import { createClient } from '@/lib/supabase';
 import { Container, Stack, Section, Grid } from '@/components/layout';
 import { Card, Button, Input, LoadingSkeleton } from '@/components/ui';
-import { StatCard } from '@/features/dashboard/components';
+import dynamic from 'next/dynamic';
+
+// Lazy load StatCard component
+const StatCard = dynamic(
+  () => import('@/features/dashboard/components').then((mod) => ({ default: mod.StatCard })),
+  {
+    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-24" />,
+  },
+);
 
 interface BusinessReport {
   period: {
@@ -26,8 +36,6 @@ interface BusinessReport {
 }
 
 export default function ReportsPage() {
-  const [report, setReport] = useState<BusinessReport | null>(null);
-  const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState(() => {
     const date = new Date();
     date.setDate(date.getDate() - 30);
@@ -36,32 +44,28 @@ export default function ReportsPage() {
   const [endDate, setEndDate] = useState(() => {
     return new Date().toISOString().split('T')[0];
   });
+  const { userRole } = useUserRole();
   const { showToast } = useToast();
   const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
-  });
 
+  // Fetch report using React Query
+  const reportQuery = useApiQuery<BusinessReport>(
+    queryKeys.reports.business(userRole?.id || '', startDate, endDate),
+    `/reports/business?startDate=${startDate}&endDate=${endDate}`,
+    {
+      enabled: !!userRole && !!startDate && !!endDate,
+    },
+  );
+
+  const report = reportQuery.data;
+  const loading = reportQuery.isLoading;
+
+  // Refetch when dates change
   useEffect(() => {
-    loadReport();
-  }, [startDate, endDate]);
-
-  const loadReport = async () => {
-    setLoading(true);
-    try {
-      const data = await apiClient.get<BusinessReport>(
-        `/reports/business?startDate=${startDate}&endDate=${endDate}`,
-      );
-      setReport(data);
-    } catch (error: any) {
-      showToast(error.message || 'Failed to load report', 'error');
-    } finally {
-      setLoading(false);
+    if (userRole && startDate && endDate) {
+      reportQuery.refetch();
     }
-  };
+  }, [startDate, endDate, userRole]);
 
   const handleExport = async (type: 'jobs' | 'invoices' | 'all') => {
     try {

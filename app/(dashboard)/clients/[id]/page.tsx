@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useApiQuery } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { useUserRole } from '@/lib/use-user-role';
 import { Container, Stack, Section } from '@/components/layout';
 import { Card, Button, Avatar, Badge, LoadingSkeleton, EmptyState } from '@/components/ui';
@@ -25,35 +24,21 @@ interface Client {
 
 export default function ClientDetailPage() {
   const params = useParams();
-  const [client, setClient] = useState<Client | null>(null);
-  const [loading, setLoading] = useState(true);
+  const clientId = params.id as string;
   const { userRole, loading: roleLoading } = useUserRole();
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
-  });
 
+  // Fetch client using React Query
+  const clientQuery = useApiQuery<Client>(
+    queryKeys.clients.detail(clientId),
+    `/clients/${clientId}`,
+    {
+      enabled: !!clientId && !!userRole,
+    },
+  );
+
+  const client = clientQuery.data;
+  const loading = clientQuery.isLoading;
   const isOwner = userRole?.role === 'OWNER';
-
-  useEffect(() => {
-    if (params.id) {
-      loadClient();
-    }
-  }, [params.id]);
-
-  const loadClient = async () => {
-    try {
-      const data = await apiClient.get<Client>(`/clients/${params.id}`);
-      setClient(data);
-    } catch (error) {
-      console.error('Failed to load client:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading || roleLoading) {
     return (

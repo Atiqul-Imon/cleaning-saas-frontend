@@ -1,17 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
+import { useUserRole } from '@/lib/use-user-role';
 import { useToast } from '@/lib/toast-context';
+import { createClient } from '@/lib/supabase';
 import { Container, Stack, Section } from '@/components/layout';
 import { Card, Button, LoadingSkeleton, EmptyState } from '@/components/ui';
-import {
-  InvoiceTemplateRenderer,
-  InvoiceTemplate,
-} from '@/features/invoices/components/InvoiceTemplates';
+import dynamic from 'next/dynamic';
+
+// Lazy load invoice template renderer (heavy component with template logic)
+const InvoiceTemplateRenderer = dynamic(
+  () =>
+    import('@/features/invoices/components/InvoiceTemplates').then((mod) => ({
+      default: mod.InvoiceTemplateRenderer,
+    })),
+  {
+    loading: () => <div className="animate-pulse bg-gray-200 rounded-lg h-96" />,
+    ssr: false,
+  },
+);
+
+// Type import (no runtime cost)
+import type { InvoiceTemplate } from '@/features/invoices/components/InvoiceTemplates';
 
 interface Invoice {
   id: string;
@@ -47,54 +60,43 @@ interface Invoice {
 
 export default function InvoiceDetailPage() {
   const params = useParams();
-  const [invoice, setInvoice] = useState<Invoice | null>(null);
-  const [loading, setLoading] = useState(true);
+  const invoiceId = params.id as string;
+  const { userRole } = useUserRole();
   const { showToast } = useToast();
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
+
+  // Fetch invoice using React Query
+  const invoiceQuery = useApiQuery<Invoice>(
+    queryKeys.invoices.detail(invoiceId),
+    `/invoices/${invoiceId}`,
+    {
+      enabled: !!invoiceId && !!userRole,
+    },
+  );
+
+  const invoice = invoiceQuery.data;
+  const loading = invoiceQuery.isLoading;
+
+  // Get WhatsApp link mutation
+  const whatsappMutation = useApiMutation<{ link: string }, void>({
+    endpoint: `/invoices/${invoiceId}/whatsapp`,
+    method: 'POST',
+    mutationOptions: {
+      onSuccess: (data) => {
+        window.open(data.link, '_blank');
+        showToast('Opening WhatsApp...', 'success');
+      },
+      onError: (error) => {
+        const message = (error as Error)?.message || 'Failed to generate WhatsApp link';
+        showToast(message, 'error');
+      },
+    },
   });
 
-  useEffect(() => {
-    if (params.id) {
-      loadInvoice();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id]);
-
-  const loadInvoice = async () => {
-    try {
-      const data = await apiClient.get<Invoice>(`/invoices/${params.id}`);
-      setInvoice(data);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to load invoice';
-      showToast(message, 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGetWhatsAppLink = async () => {
+  const handleGetWhatsAppLink = () => {
     if (!invoice) {
       return;
     }
-    try {
-      const data = await apiClient.get<{ whatsappUrl: string | null; phoneNumber?: string }>(
-        `/invoices/${invoice.id}/whatsapp-link`,
-      );
-      if (data.whatsappUrl) {
-        window.open(data.whatsappUrl, '_blank');
-        showToast('Opening WhatsApp...', 'success');
-      } else {
-        showToast('Client phone number not available', 'error');
-      }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to generate WhatsApp link';
-      showToast(message, 'error');
-    }
+    whatsappMutation.mutate();
   };
 
   const handleDownloadPDF = async () => {
@@ -102,6 +104,7 @@ export default function InvoiceDetailPage() {
       return;
     }
     try {
+      const supabase = createClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();

@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
-import { ApiClient } from '@/lib/api-client';
+import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
+import { queryKeys } from '@/lib/query-keys';
 import { useUserRole } from '@/lib/use-user-role';
 import { useToast } from '@/lib/toast-context';
 import { Container, Stack, Section, Grid, Divider } from '@/components/layout';
@@ -31,59 +31,58 @@ export default function CreateInvoicePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobId = searchParams.get('jobId');
-  const [job, setJob] = useState<Job | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [amount, setAmount] = useState<string>('');
   const { userRole, loading: roleLoading } = useUserRole();
-  const supabase = createClient();
-  const apiClient = new ApiClient(async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
-  });
   const { showToast } = useToast();
 
   const isOwner = userRole?.role === 'OWNER';
   const isAdmin = userRole?.role === 'ADMIN';
 
+  // Fetch job using React Query
+  const jobQuery = useApiQuery<Job>(
+    queryKeys.jobs.detail(jobId || ''),
+    jobId ? `/jobs/${jobId}` : '',
+    {
+      enabled: !!jobId && !!userRole && (isOwner || isAdmin),
+    },
+  );
+
+  const job = jobQuery.data;
+  const loading = jobQuery.isLoading || roleLoading;
+  const error = jobQuery.error ? (jobQuery.error as Error).message : null;
+
+  // Create invoice mutation
+  const createInvoiceMutation = useApiMutation<
+    { id: string; invoiceNumber: string },
+    { jobId: string; amount: number }
+  >({
+    endpoint: `/invoices`,
+    method: 'POST',
+    invalidateQueries: [queryKeys.invoices.all(userRole?.id), queryKeys.jobs.detail(jobId || '')],
+    mutationOptions: {
+      onSuccess: () => {
+        showToast('Invoice created successfully!', 'success');
+        router.push('/invoices');
+      },
+      onError: (error) => {
+        showToast((error as Error)?.message || 'Failed to create invoice', 'error');
+      },
+    },
+  });
+
   useEffect(() => {
     if (!jobId) {
-      setError('Job ID is required');
-      setLoading(false);
       return;
     }
 
     if (!roleLoading && userRole) {
       if (!isOwner && !isAdmin) {
-        setError('Only business owners can create invoices');
-        setLoading(false);
-        return;
+        router.push('/dashboard');
       }
-      loadJob();
     }
-  }, [jobId, roleLoading, userRole]);
+  }, [jobId, roleLoading, userRole, isOwner, isAdmin, router]);
 
-  const loadJob = async () => {
-    if (!jobId) {
-      return;
-    }
-
-    try {
-      setError(null);
-      const data = await apiClient.get<Job>(`/jobs/${jobId}`);
-      setJob(data);
-    } catch (error: any) {
-      console.error('Failed to load job:', error);
-      setError(error.message || 'Failed to load job details');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!jobId || !amount) {
       return;
@@ -91,29 +90,17 @@ export default function CreateInvoicePage() {
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError('Please enter a valid amount');
+      showToast('Please enter a valid amount', 'error');
       return;
     }
 
-    setSubmitting(true);
-    setError(null);
-
-    try {
-      const invoice: any = await apiClient.post(`/invoices/from-job/${jobId}`, {
-        amount: amountNum,
-      });
-
-      showToast('Invoice created successfully!', 'success');
-      router.push(`/invoices/${invoice.id}`);
-    } catch (error: any) {
-      console.error('Failed to create invoice:', error);
-      const errorMessage = error.message || 'Failed to create invoice. Please try again.';
-      setError(errorMessage);
-      showToast(errorMessage, 'error');
-    } finally {
-      setSubmitting(false);
-    }
+    createInvoiceMutation.mutate({ jobId, amount: amountNum });
   };
+
+  const submitting = createInvoiceMutation.isPending;
+  const submitError = createInvoiceMutation.error
+    ? (createInvoiceMutation.error as Error).message
+    : null;
 
   if (roleLoading || loading) {
     return (
@@ -125,13 +112,13 @@ export default function CreateInvoicePage() {
     );
   }
 
-  if (error && !job) {
+  if ((error || submitError) && !job) {
     return (
       <Section background="subtle" padding="lg">
         <Container size="md">
           <EmptyState
             title="Error"
-            description={error}
+            description={error || submitError || 'Failed to load job details'}
             icon={
               <div className="bg-[var(--error-100)] w-16 h-16 rounded-full flex items-center justify-center">
                 <svg
@@ -224,7 +211,7 @@ export default function CreateInvoicePage() {
           <p className="text-[var(--gray-600)] text-lg">Create an invoice for the completed job</p>
         </div>
 
-        {error && (
+        {(error || submitError) && (
           <Card
             variant="outlined"
             padding="md"
@@ -244,7 +231,7 @@ export default function CreateInvoicePage() {
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span className="text-[var(--error-900)] font-semibold">{error}</span>
+              <span className="text-[var(--error-900)] font-semibold">{error || submitError}</span>
             </Stack>
           </Card>
         )}
