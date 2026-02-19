@@ -20,7 +20,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -29,10 +29,48 @@ export default function LoginPage() {
         throw error;
       }
 
-      router.push('/dashboard');
+      // Get user role to determine redirect destination
+      if (data.session) {
+        try {
+          const API_URL =
+            process.env.NEXT_PUBLIC_API_URL ||
+            (process.env.NODE_ENV === 'production'
+              ? 'https://api.clenvora.com'
+              : 'http://localhost:5000');
+
+          const response = await fetch(`${API_URL}/auth/me`, {
+            headers: {
+              Authorization: `Bearer ${data.session.access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            const userRole = await response.json();
+            // Redirect based on role
+            if (userRole?.role === 'ADMIN') {
+              router.push('/admin');
+            } else if (userRole?.role === 'CLEANER') {
+              router.push('/my-jobs');
+            } else {
+              router.push('/dashboard');
+            }
+          } else {
+            // Fallback to dashboard if role fetch fails
+            router.push('/dashboard');
+          }
+        } catch {
+          // Fallback to dashboard if role fetch fails
+          router.push('/dashboard');
+        }
+      } else {
+        router.push('/dashboard');
+      }
+
       router.refresh();
-    } catch (error: any) {
-      setError(error.message || 'Failed to login');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to login';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

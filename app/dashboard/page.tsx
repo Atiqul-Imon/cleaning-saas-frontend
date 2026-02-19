@@ -53,23 +53,18 @@ export default function DashboardPage() {
   const isCleaner = userRole?.role === 'CLEANER';
   const isAdmin = userRole?.role === 'ADMIN';
 
-  // Redirect admins to admin panel
-  useEffect(() => {
-    if (!roleLoading && isAdmin && pathname === '/dashboard') {
-      router.replace('/admin');
-    }
-  }, [roleLoading, isAdmin, pathname, router]);
-
   // Parallel data fetching - both queries run simultaneously
   // Using query keys from factory for consistency
+  // All hooks must be called before any conditional returns
   const businessQuery = useApiQuery<Business>(
     userRole?.id ? queryKeys.business.detail(userRole.id) : ['business', ''],
     userRole?.role === 'CLEANER' ? '/business/cleaners/my-business' : '/business',
     {
       enabled: !!userRole && (isOwner || isAdmin || isCleaner),
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: unknown) => {
         // Don't retry 404 errors (business not found)
-        if (error?.message?.includes('not found') || error?.message?.includes('404')) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage.includes('not found') || errorMessage.includes('404')) {
           return false;
         }
         return failureCount < 1;
@@ -85,6 +80,13 @@ export default function DashboardPage() {
     },
   );
 
+  // Redirect admins to admin panel immediately (before rendering)
+  useEffect(() => {
+    if (!roleLoading && isAdmin && pathname === '/dashboard') {
+      router.replace('/admin');
+    }
+  }, [roleLoading, isAdmin, pathname, router]);
+
   // Handle redirect for owners without business
   useEffect(() => {
     if (
@@ -93,7 +95,10 @@ export default function DashboardPage() {
       businessQuery.isError &&
       pathname !== '/onboarding'
     ) {
-      const errorMessage = (businessQuery.error as any)?.message || '';
+      const errorMessage =
+        businessQuery.error instanceof Error
+          ? businessQuery.error.message
+          : String(businessQuery.error || '');
       const is404Error =
         errorMessage.includes('404') ||
         errorMessage.includes('not found') ||
@@ -105,6 +110,28 @@ export default function DashboardPage() {
       }
     }
   }, [userRole, roleLoading, businessQuery.isError, businessQuery.error, pathname, router]);
+
+  // Don't render dashboard content for admins (prevent flash)
+  if (roleLoading) {
+    return (
+      <Section background="subtle" padding="lg">
+        <Container size="lg">
+          <LoadingSkeleton type="card" count={3} />
+        </Container>
+      </Section>
+    );
+  }
+
+  // If admin, show loading while redirect happens (prevents flash)
+  if (isAdmin) {
+    return (
+      <Section background="subtle" padding="lg">
+        <Container size="lg">
+          <LoadingSkeleton type="card" count={3} />
+        </Container>
+      </Section>
+    );
+  }
 
   const loading = roleLoading || businessQuery.isLoading || statsQuery.isLoading;
   const business = businessQuery.data || null;
@@ -364,25 +391,27 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <Grid cols={1} gap="md">
-                {stats.todayJobsList.slice(0, 5).map((job: any) => (
-                  <Card key={job.id} variant="elevated" padding="md" hover>
-                    <Stack direction="row" justify="between" align="center">
-                      <div>
-                        <h3 className="font-bold text-[var(--gray-900)]">
-                          {job.client?.name || 'Unknown Client'}
-                        </h3>
-                        <p className="text-sm text-[var(--gray-600)]">
-                          {job.scheduledTime || 'No time specified'}
-                        </p>
-                      </div>
-                      <Link href={`/jobs/${job.id}`}>
-                        <Button variant="ghost" size="sm">
-                          View
-                        </Button>
-                      </Link>
-                    </Stack>
-                  </Card>
-                ))}
+                {stats.todayJobsList
+                  .slice(0, 5)
+                  .map((job: { id: string; client?: { name: string }; scheduledTime?: string }) => (
+                    <Card key={job.id} variant="elevated" padding="md" hover>
+                      <Stack direction="row" justify="between" align="center">
+                        <div>
+                          <h3 className="font-bold text-[var(--gray-900)]">
+                            {job.client?.name || 'Unknown Client'}
+                          </h3>
+                          <p className="text-sm text-[var(--gray-600)]">
+                            {job.scheduledTime || 'No time specified'}
+                          </p>
+                        </div>
+                        <Link href={`/jobs/${job.id}`}>
+                          <Button variant="ghost" size="sm">
+                            View
+                          </Button>
+                        </Link>
+                      </Stack>
+                    </Card>
+                  ))}
               </Grid>
             </div>
           )}
@@ -399,29 +428,31 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <Grid cols={1} gap="md">
-                {stats.upcomingJobs.slice(0, 5).map((job: any) => (
-                  <Card key={job.id} variant="elevated" padding="md" hover>
-                    <Stack direction="row" justify="between" align="center">
-                      <div>
-                        <h3 className="font-bold text-[var(--gray-900)]">
-                          {job.client?.name || 'Unknown Client'}
-                        </h3>
-                        <p className="text-sm text-[var(--gray-600)]">
-                          {new Date(job.scheduledDate).toLocaleDateString('en-GB', {
-                            weekday: 'short',
-                            day: 'numeric',
-                            month: 'short',
-                          })}
-                        </p>
-                      </div>
-                      <Link href={`/jobs/${job.id}`}>
-                        <Button variant="ghost" size="sm">
-                          View
-                        </Button>
-                      </Link>
-                    </Stack>
-                  </Card>
-                ))}
+                {stats.upcomingJobs
+                  .slice(0, 5)
+                  .map((job: { id: string; client?: { name: string }; scheduledTime?: string }) => (
+                    <Card key={job.id} variant="elevated" padding="md" hover>
+                      <Stack direction="row" justify="between" align="center">
+                        <div>
+                          <h3 className="font-bold text-[var(--gray-900)]">
+                            {job.client?.name || 'Unknown Client'}
+                          </h3>
+                          <p className="text-sm text-[var(--gray-600)]">
+                            {new Date(job.scheduledDate).toLocaleDateString('en-GB', {
+                              weekday: 'short',
+                              day: 'numeric',
+                              month: 'short',
+                            })}
+                          </p>
+                        </div>
+                        <Link href={`/jobs/${job.id}`}>
+                          <Button variant="ghost" size="sm">
+                            View
+                          </Button>
+                        </Link>
+                      </Stack>
+                    </Card>
+                  ))}
               </Grid>
             </div>
           )}

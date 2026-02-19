@@ -1,14 +1,14 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
+import { getUserRoleServer } from '@/lib/get-user-role-server';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 import { AdminSidebarProvider } from '@/components/admin/AdminSidebarContext';
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// Force dynamic rendering since we use cookies for auth
+export const dynamic = 'force-dynamic';
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -18,8 +18,16 @@ export default async function AdminLayout({
     redirect('/login');
   }
 
-  // Note: Role check is done in the page component
-  // This layout just ensures user is authenticated
+  // Server-side role check: Only admins can access admin panel
+  const userRole = await getUserRoleServer();
+  if (userRole?.role !== 'ADMIN') {
+    // Redirect non-admins to their appropriate dashboard
+    if (userRole?.role === 'OWNER' || userRole?.role === 'CLEANER') {
+      redirect('/dashboard');
+    } else {
+      redirect('/login');
+    }
+  }
 
   return (
     <AdminSidebarProvider>
@@ -27,9 +35,7 @@ export default async function AdminLayout({
         <AdminSidebar />
         <div className="lg:pl-64">
           <AdminHeader />
-          <main className="min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8">
-            {children}
-          </main>
+          <main className="min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8">{children}</main>
         </div>
       </div>
     </AdminSidebarProvider>
