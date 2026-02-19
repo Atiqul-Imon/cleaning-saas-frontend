@@ -1,7 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 
-  (process.env.NODE_ENV === 'production' 
-    ? 'https://fieldnetapi.pixelforgebd.com' 
-    : 'http://localhost:5000');
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === 'production' ? 'https://api.clenvora.com' : 'http://localhost:5000');
 
 export class ApiClient {
   private baseUrl: string;
@@ -12,10 +11,7 @@ export class ApiClient {
     this.getToken = getToken;
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {},
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = await this.getToken();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -61,4 +57,3 @@ export class ApiClient {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
 }
-

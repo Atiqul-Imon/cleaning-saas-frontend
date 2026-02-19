@@ -1,9 +1,8 @@
 import { createClient } from '@/lib/supabase';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 
-  (process.env.NODE_ENV === 'production' 
-    ? 'https://fieldnetapi.pixelforgebd.com' 
-    : 'http://localhost:5000');
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === 'production' ? 'https://api.clenvora.com' : 'http://localhost:5000');
 
 /**
  * Singleton ApiClient instance
@@ -18,14 +17,13 @@ class ApiClientSingleton {
 
   private async getToken(): Promise<string | null> {
     const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     return session?.access_token || null;
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {},
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = await this.getToken();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',

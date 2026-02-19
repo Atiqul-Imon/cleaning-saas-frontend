@@ -1,6 +1,6 @@
 /**
  * Get the API URL based on environment
- * Production: https://fieldnetapi.pixelforgebd.com
+ * Production: https://api.clenvora.com
  * Development: http://localhost:5000
  */
 export function getApiUrl(): string {
@@ -8,16 +8,12 @@ export function getApiUrl(): string {
     // Client-side: use environment variable or default
     return (
       process.env.NEXT_PUBLIC_API_URL ||
-      (process.env.NODE_ENV === 'production'
-        ? 'https://fieldnetapi.pixelforgebd.com'
-        : 'http://localhost:5000')
+      (process.env.NODE_ENV === 'production' ? 'https://api.clenvora.com' : 'http://localhost:5000')
     );
   }
   // Server-side: use environment variable or default
   return (
     process.env.NEXT_PUBLIC_API_URL ||
-    (process.env.NODE_ENV === 'production'
-      ? 'https://fieldnetapi.pixelforgebd.com'
-      : 'http://localhost:5000')
+    (process.env.NODE_ENV === 'production' ? 'https://api.clenvora.com' : 'http://localhost:5000')
   );
 }

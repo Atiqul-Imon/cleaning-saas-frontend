@@ -113,7 +113,7 @@ export default function InvoiceDetailPage() {
       const apiUrl =
         process.env.NEXT_PUBLIC_API_URL ||
         (process.env.NODE_ENV === 'production'
-          ? 'https://fieldnetapi.pixelforgebd.com'
+          ? 'https://api.clenvora.com'
           : 'http://localhost:5000');
       const response = await fetch(`${apiUrl}/invoices/${invoice.id}/pdf`, {
         headers: {
