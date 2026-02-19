@@ -21,7 +21,8 @@ export function useJobForm(initialData?: Partial<CreateJobDto>) {
     frequency: initialData?.frequency,
     scheduledDate: initialData?.scheduledDate || '',
     scheduledTime: initialData?.scheduledTime,
-    reminderEnabled: initialData?.reminderEnabled !== undefined ? initialData.reminderEnabled : true,
+    reminderEnabled:
+      initialData?.reminderEnabled !== undefined ? initialData.reminderEnabled : true,
     reminderTime: initialData?.reminderTime || '1 day',
   });
 
@@ -31,7 +32,7 @@ export function useJobForm(initialData?: Partial<CreateJobDto>) {
    * Update form field
    */
   const updateField = <K extends keyof CreateJobDto>(field: K, value: CreateJobDto[K]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear errors when user starts typing
     if (errors.length > 0) {
       setErrors([]);
@@ -62,7 +63,7 @@ export function useJobForm(initialData?: Partial<CreateJobDto>) {
 
     const transformedData = JobsService.transformJobData(formData);
     createJob(transformedData);
-    
+
     // Navigation is handled in useJobManagement hook via success callback
     router.push('/jobs');
     router.refresh();
@@ -77,6 +78,3 @@ export function useJobForm(initialData?: Partial<CreateJobDto>) {
     isSubmitting: isCreating,
   };
 }
-
-
-

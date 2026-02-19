@@ -23,12 +23,6 @@ export default function AdminSubscriptionsPage() {
   const router = useRouter();
   const { userRole, loading: roleLoading } = useUserRole();
 
-  // Redirect if not admin
-  if (!roleLoading && userRole?.role !== 'ADMIN') {
-    router.replace('/admin');
-    return null;
-  }
-
   const businessesQuery = useApiQuery<{ businesses: Business[]; pagination: any }>(
     ['admin', 'businesses', 'subscriptions'],
     '/admin/businesses?page=1&limit=100',
@@ -36,6 +30,12 @@ export default function AdminSubscriptionsPage() {
       enabled: userRole?.role === 'ADMIN',
     },
   );
+
+  // Redirect if not admin
+  if (!roleLoading && userRole?.role !== 'ADMIN') {
+    router.replace('/admin');
+    return null;
+  }
 
   if (roleLoading || businessesQuery.isLoading) {
     return (
@@ -51,9 +51,11 @@ export default function AdminSubscriptionsPage() {
 
   const businesses = businessesQuery.data?.businesses || [];
   const subscriptions = businesses.filter((b) => b.subscription);
-  
+
   const activeSubscriptions = subscriptions.filter((b) => b.subscription?.status === 'ACTIVE');
-  const cancelledSubscriptions = subscriptions.filter((b) => b.subscription?.status === 'CANCELLED');
+  const cancelledSubscriptions = subscriptions.filter(
+    (b) => b.subscription?.status === 'CANCELLED',
+  );
   const pastDueSubscriptions = subscriptions.filter((b) => b.subscription?.status === 'PAST_DUE');
 
   const planCounts = {
@@ -142,7 +144,11 @@ export default function AdminSubscriptionsPage() {
                   <div className="text-right">
                     <p className="font-semibold text-gray-900">{business.subscription?.planType}</p>
                     <p className="text-xs text-gray-500">
-                      Ends {business.subscription && new Date(business.subscription.currentPeriodEnd).toLocaleDateString('en-GB')}
+                      Ends{' '}
+                      {business.subscription &&
+                        new Date(business.subscription.currentPeriodEnd).toLocaleDateString(
+                          'en-GB',
+                        )}
                     </p>
                   </div>
                   <span
@@ -150,14 +156,24 @@ export default function AdminSubscriptionsPage() {
                       business.subscription?.status === 'ACTIVE'
                         ? 'bg-green-100 text-green-700'
                         : business.subscription?.status === 'CANCELLED'
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-amber-100 text-amber-700'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-amber-100 text-amber-700'
                     }`}
                   >
                     {business.subscription?.status}
                   </span>
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    className="w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </div>
               </div>
@@ -168,6 +184,3 @@ export default function AdminSubscriptionsPage() {
     </div>
   );
 }
-
-
-

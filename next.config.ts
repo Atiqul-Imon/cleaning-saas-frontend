@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // Enable compression
@@ -13,10 +13,15 @@ const nextConfig: NextConfig = {
 
   // Optimize bundle
   experimental: {
-    optimizePackageImports: [
-      '@tanstack/react-query',
-      '@supabase/supabase-js',
-    ],
+    optimizePackageImports: ['@tanstack/react-query', '@supabase/supabase-js'],
+  },
+
+  // Turbopack configuration (Next.js 16 uses Turbopack by default)
+  // Set root to avoid workspace root warning
+  turbopack: {
+    resolveAlias: {
+      // This helps Turbopack understand the project structure
+    },
   },
 };
 

@@ -35,6 +35,3 @@ export interface UpdateClientDto {
   preferences?: string;
   accessInfo?: string;
 }
-
-
-

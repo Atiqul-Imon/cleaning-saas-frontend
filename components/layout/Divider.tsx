@@ -10,16 +10,7 @@ export interface DividerProps extends React.HTMLAttributes<HTMLHRElement> {
 }
 
 const Divider = React.forwardRef<HTMLHRElement, DividerProps>(
-  (
-    {
-      orientation = 'horizontal',
-      variant = 'solid',
-      spacing = 'md',
-      className,
-      ...props
-    },
-    ref
-  ) => {
+  ({ orientation = 'horizontal', variant = 'solid', spacing = 'md', className, ...props }, ref) => {
     const variants = {
       solid: 'border-solid',
       dashed: 'border-dashed',
@@ -42,7 +33,7 @@ const Divider = React.forwardRef<HTMLHRElement, DividerProps>(
             variants[variant],
             spacings[spacing],
             'h-full',
-            className
+            className,
           )}
           {...props}
         />
@@ -56,21 +47,14 @@ const Divider = React.forwardRef<HTMLHRElement, DividerProps>(
           'border-0 border-t border-[var(--gray-200)]',
           variants[variant],
           spacings[spacing],
-          className
+          className,
         )}
         {...props}
       />
     );
-  }
+  },
 );
 
 Divider.displayName = 'Divider';
 
 export default Divider;
-
-
-
-
-
-
-

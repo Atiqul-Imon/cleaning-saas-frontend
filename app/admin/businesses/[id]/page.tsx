@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useUserRole } from '@/lib/hooks/use-user-role-query';
 import { useApiQuery } from '@/lib/hooks/use-api';
 import { Card, LoadingSkeleton, Button } from '@/components/ui';
@@ -61,12 +61,6 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
   const { id } = use(params);
   const { userRole, loading: roleLoading } = useUserRole();
 
-  // Redirect if not admin
-  if (!roleLoading && userRole?.role !== 'ADMIN') {
-    router.replace('/admin');
-    return null;
-  }
-
   const businessQuery = useApiQuery<BusinessDetails>(
     ['admin', 'business', id],
     `/admin/businesses/${id}`,
@@ -74,6 +68,12 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
       enabled: userRole?.role === 'ADMIN' && !!id,
     },
   );
+
+  // Redirect if not admin
+  if (!roleLoading && userRole?.role !== 'ADMIN') {
+    router.replace('/admin');
+    return null;
+  }
 
   if (roleLoading || businessQuery.isLoading) {
     return (
@@ -93,7 +93,11 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">Business not found</p>
-        <Button variant="secondary" onClick={() => router.push('/admin/businesses')} className="mt-4">
+        <Button
+          variant="secondary"
+          onClick={() => router.push('/admin/businesses')}
+          className="mt-4"
+        >
           Back to Businesses
         </Button>
       </div>
@@ -105,13 +109,14 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => router.push('/admin/businesses')}
-          >
+          <Button variant="secondary" size="sm" onClick={() => router.push('/admin/businesses')}>
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             Back
           </Button>
@@ -205,7 +210,10 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
             ) : (
               <div className="space-y-3">
                 {business.jobs.map((job) => (
-                  <div key={job.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={job.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div>
                       <p className="font-medium text-gray-900">{job.client.name}</p>
                       <p className="text-sm text-gray-600">
@@ -217,8 +225,8 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
                         job.status === 'COMPLETED'
                           ? 'bg-green-100 text-green-700'
                           : job.status === 'IN_PROGRESS'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-gray-100 text-gray-700'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-700'
                       }`}
                     >
                       {job.status}
@@ -240,7 +248,10 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
             ) : (
               <div className="space-y-3">
                 {business.invoices.map((invoice) => (
-                  <div key={invoice.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={invoice.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div>
                       <p className="font-medium text-gray-900">#{invoice.invoiceNumber}</p>
                       <p className="text-sm text-gray-600">
@@ -249,7 +260,8 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-gray-900">
-                        £{Number(invoice.totalAmount).toLocaleString('en-GB', {
+                        £
+                        {Number(invoice.totalAmount).toLocaleString('en-GB', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
@@ -280,8 +292,18 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
               <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -293,8 +315,18 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
               <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -306,8 +338,18 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
               <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -326,7 +368,9 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
               <div className="space-y-3">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Plan</label>
-                  <p className="text-lg font-semibold text-gray-900 mt-1">{business.subscription.planType}</p>
+                  <p className="text-lg font-semibold text-gray-900 mt-1">
+                    {business.subscription.planType}
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Status</label>
@@ -336,8 +380,8 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
                         business.subscription.status === 'ACTIVE'
                           ? 'bg-green-100 text-green-700'
                           : business.subscription.status === 'CANCELLED'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-gray-100 text-gray-700'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-gray-100 text-gray-700'
                       }`}
                     >
                       {business.subscription.status}
@@ -383,6 +427,3 @@ export default function BusinessDetailsPage({ params }: { params: Promise<{ id: 
     </div>
   );
 }
-
-
-

@@ -5,6 +5,3 @@ export { default as PhotoUpload } from './PhotoUpload';
 export { default as OwnerJobDetail } from './OwnerJobDetail';
 export { default as OwnerJobInfo } from './OwnerJobInfo';
 export { default as CleanerJobDetail } from './CleanerJobDetail';
-
-
-

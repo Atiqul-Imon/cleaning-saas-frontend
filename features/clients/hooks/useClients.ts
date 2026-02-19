@@ -45,6 +45,3 @@ export function useClient(clientId: string | null) {
     error,
   };
 }
-
-
-

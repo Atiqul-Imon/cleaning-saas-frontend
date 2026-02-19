@@ -9,17 +9,11 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
 }
 
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
-  (
-    {
-      label,
-      error,
-      className,
-      id,
-      ...props
-    },
-    ref
-  ) => {
-    const checkboxId = id || `checkbox-${Math.random().toString(36).substr(2, 9)}`;
+  ({ label, error, className, id, ...props }, ref) => {
+    // Use useMemo to generate ID only once per component instance
+    const [checkboxId] = React.useState(
+      () => id || `checkbox-${Math.random().toString(36).substr(2, 9)}`,
+    );
 
     return (
       <div className="w-full">
@@ -35,10 +29,8 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
                 'focus:ring-2 focus:ring-[var(--primary-500)] focus:ring-offset-0',
                 'transition-all duration-200',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
-                error
-                  ? 'border-[var(--error-500)]'
-                  : 'border-[var(--gray-300)]',
-                className
+                error ? 'border-[var(--error-500)]' : 'border-[var(--gray-300)]',
+                className,
               )}
               aria-invalid={error ? 'true' : 'false'}
               {...props}
@@ -49,7 +41,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
               htmlFor={checkboxId}
               className={cn(
                 'ml-3 text-sm font-medium',
-                error ? 'text-[var(--error-600)]' : 'text-[var(--gray-700)]'
+                error ? 'text-[var(--error-600)]' : 'text-[var(--gray-700)]',
               )}
             >
               {label}
@@ -57,25 +49,15 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           )}
         </div>
         {error && (
-          <p
-            className="mt-2 text-sm text-[var(--error-600)] font-medium"
-            role="alert"
-          >
+          <p className="mt-2 text-sm text-[var(--error-600)] font-medium" role="alert">
             {error}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Checkbox.displayName = 'Checkbox';
 
 export default Checkbox;
-
-
-
-
-
-
-

@@ -24,7 +24,7 @@ const Stack = React.forwardRef<HTMLDivElement, StackProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const directions = {
       row: 'flex-row',
@@ -66,23 +66,16 @@ const Stack = React.forwardRef<HTMLDivElement, StackProps>(
           aligns[align],
           justifies[justify],
           wrap && 'flex-wrap',
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 Stack.displayName = 'Stack';
 
 export default Stack;
-
-
-
-
-
-
-

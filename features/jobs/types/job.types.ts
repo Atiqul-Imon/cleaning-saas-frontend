@@ -57,6 +57,3 @@ export interface UpdateJobDto {
 export type JobStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED';
 export type JobType = 'ONE_OFF' | 'RECURRING';
 export type JobFrequency = 'WEEKLY' | 'BI_WEEKLY';
-
-
-

@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/services/api-client';
-import type { Invoice, CreateInvoiceDto, UpdateInvoiceDto } from '../types/invoice.types';
+import type { Invoice, UpdateInvoiceDto } from '../types/invoice.types';
 
 /**
  * Invoices API Service
@@ -41,13 +41,14 @@ export const invoicesApi = {
   downloadPDF: async (id: string): Promise<Blob> => {
     // PDF download needs to be handled differently
     // For now, return a promise that will be handled by the component
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
-      (process.env.NODE_ENV === 'production' 
-        ? 'https://fieldnetapi.pixelforgebd.com' 
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://fieldnetapi.pixelforgebd.com'
         : 'http://localhost:5000');
     const response = await fetch(`${apiUrl}/invoices/${id}/pdf`, {
       headers: {
-        'Accept': 'application/pdf',
+        Accept: 'application/pdf',
       },
     });
     if (!response.ok) {
@@ -60,7 +61,8 @@ export const invoicesApi = {
    * Get WhatsApp link for invoice
    */
   getWhatsAppLink: (id: string): Promise<{ whatsappUrl: string | null; phoneNumber?: string }> => {
-    return apiClient.get<{ whatsappUrl: string | null; phoneNumber?: string }>(`/invoices/${id}/whatsapp-link`);
+    return apiClient.get<{ whatsappUrl: string | null; phoneNumber?: string }>(
+      `/invoices/${id}/whatsapp-link`,
+    );
   },
 };
-

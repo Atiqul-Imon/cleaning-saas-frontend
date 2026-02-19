@@ -16,19 +16,21 @@ interface Business {
   invoiceTemplate?: InvoiceTemplate;
 }
 
-async function getBusiness(userId: string): Promise<Business | null> {
+async function getBusiness(_userId: string): Promise<Business | null> {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   if (!session) {
     return null;
   }
 
   const apiClient = new ApiClient(async () => session.access_token);
-  
+
   try {
     return await apiClient.get<Business>('/business');
-  } catch (error) {
+  } catch {
     return null;
   }
 }

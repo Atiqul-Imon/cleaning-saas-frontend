@@ -45,7 +45,7 @@ export default function RegisterPage() {
       });
 
       // After signup, sign in the user automatically
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -82,7 +82,9 @@ export default function RegisterPage() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
     } catch (error: any) {
       setError(error.message || 'Failed to sign up with Google');
       setLoading(false);
@@ -101,8 +103,18 @@ export default function RegisterPage() {
           <form className="space-y-8" onSubmit={handleRegister}>
             {error && (
               <div className="bg-red-100 border-2 border-red-400 text-red-900 px-6 py-4 rounded-lg font-bold flex items-center gap-3">
-                <svg className="w-6 h-6 text-red-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-6 h-6 text-red-700 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <span>{error}</span>
               </div>
@@ -125,7 +137,10 @@ export default function RegisterPage() {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-950 mb-3">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-semibold text-gray-950 mb-3"
+                >
                   Password
                 </label>
                 <input
@@ -141,7 +156,10 @@ export default function RegisterPage() {
                 />
               </div>
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-950 mb-3">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-semibold text-gray-950 mb-3"
+                >
                   Confirm Password
                 </label>
                 <input
@@ -202,5 +220,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-

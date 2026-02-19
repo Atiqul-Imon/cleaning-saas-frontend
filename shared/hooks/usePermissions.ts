@@ -40,11 +40,10 @@ export function usePermissions() {
 
     // Helper to check if cleaner can view specific job
     canCleanerViewJob: (jobCleanerId?: string) => {
-      if (role !== 'CLEANER') return false;
+      if (role !== 'CLEANER') {
+        return false;
+      }
       return PermissionsService.canCleanerViewJob(role, jobCleanerId, userRole?.id);
     },
   };
 }
-
-
-

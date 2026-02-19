@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Card, Avatar } from '@/components/ui';
 import { Stack } from '@/components/layout';
 
@@ -20,7 +19,9 @@ export default function OwnerJobInfo({ job }: OwnerJobInfoProps) {
         {job.frequency && (
           <div>
             <p className="text-sm font-medium text-[var(--gray-500)] mb-1">Frequency</p>
-            <p className="text-lg font-bold text-[var(--gray-900)]">{job.frequency.replace('_', ' ')}</p>
+            <p className="text-lg font-bold text-[var(--gray-900)]">
+              {job.frequency.replace('_', ' ')}
+            </p>
           </div>
         )}
         <div>
@@ -40,8 +41,18 @@ export default function OwnerJobInfo({ job }: OwnerJobInfoProps) {
             <Stack direction="row" spacing="sm" align="center">
               {job.reminderEnabled !== false ? (
                 <>
-                  <svg className="w-5 h-5 text-[var(--success-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-5 h-5 text-[var(--success-600)]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   <p className="text-lg font-bold text-[var(--gray-900)]">
                     Enabled {job.reminderTime ? `(${job.reminderTime} before)` : '(1 day before)'}
@@ -49,8 +60,18 @@ export default function OwnerJobInfo({ job }: OwnerJobInfoProps) {
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5 text-[var(--gray-400)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-5 h-5 text-[var(--gray-400)]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   <p className="text-lg font-bold text-[var(--gray-400)]">Disabled</p>
                 </>
@@ -62,4 +83,3 @@ export default function OwnerJobInfo({ job }: OwnerJobInfoProps) {
     </Card>
   );
 }
-

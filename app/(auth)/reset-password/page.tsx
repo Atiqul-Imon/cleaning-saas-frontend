@@ -64,14 +64,18 @@ export default function ResetPasswordPage() {
         refresh_token: refreshToken,
       });
 
-      if (sessionError) throw sessionError;
+      if (sessionError) {
+        throw sessionError;
+      }
 
       // Update password
       const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
+        password,
       });
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        throw updateError;
+      }
 
       setSuccess(true);
 
@@ -92,16 +96,19 @@ export default function ResetPasswordPage() {
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-950 mb-2">Reset Password</h1>
-            <p className="text-gray-700 font-medium">
-              Enter your new password below.
-            </p>
+            <p className="text-gray-700 font-medium">Enter your new password below.</p>
           </div>
 
           {success && (
             <div className="bg-green-50 border-2 border-green-300 text-green-800 px-5 py-4 rounded-lg font-medium mb-6">
               <div className="flex items-center gap-2">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 Password reset successfully! Redirecting to login...
               </div>
@@ -117,7 +124,10 @@ export default function ResetPasswordPage() {
           {!success && isValidLink !== false && (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-950 mb-3">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-semibold text-gray-950 mb-3"
+                >
                   New Password *
                 </label>
                 <input
@@ -133,7 +143,10 @@ export default function ResetPasswordPage() {
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-950 mb-3">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-semibold text-gray-950 mb-3"
+                >
                   Confirm New Password *
                 </label>
                 <input
@@ -159,10 +172,7 @@ export default function ResetPasswordPage() {
           )}
 
           <div className="mt-6 text-center">
-            <Link
-              href="/login"
-              className="text-indigo-700 hover:text-indigo-800 font-semibold"
-            >
+            <Link href="/login" className="text-indigo-700 hover:text-indigo-800 font-semibold">
               ← Back to Login
             </Link>
           </div>
@@ -171,4 +181,3 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
-

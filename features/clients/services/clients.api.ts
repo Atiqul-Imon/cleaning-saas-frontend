@@ -41,6 +41,3 @@ export const clientsApi = {
     return apiClient.delete<void>(`/clients/${id}`);
   },
 };
-
-
-

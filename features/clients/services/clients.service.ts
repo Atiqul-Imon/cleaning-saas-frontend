@@ -90,20 +90,36 @@ export class ClientsService {
    */
   static transformClientData(data: CreateClientDto): any {
     const notes: any = {};
-    
-    if (data.keySafe) notes.keySafe = data.keySafe;
-    if (data.alarmCode) notes.alarmCode = data.alarmCode;
-    if (data.pets) notes.pets = data.pets;
-    if (data.preferences) notes.preferences = data.preferences;
-    if (data.accessInfo) notes.accessInfo = data.accessInfo;
+
+    if (data.keySafe) {
+      notes.keySafe = data.keySafe;
+    }
+    if (data.alarmCode) {
+      notes.alarmCode = data.alarmCode;
+    }
+    if (data.pets) {
+      notes.pets = data.pets;
+    }
+    if (data.preferences) {
+      notes.preferences = data.preferences;
+    }
+    if (data.accessInfo) {
+      notes.accessInfo = data.accessInfo;
+    }
 
     const result: any = {
       name: data.name.trim(),
     };
 
-    if (data.phone) result.phone = data.phone.trim();
-    if (data.address) result.address = data.address.trim();
-    if (Object.keys(notes).length > 0) result.notes = notes;
+    if (data.phone) {
+      result.phone = data.phone.trim();
+    }
+    if (data.address) {
+      result.address = data.address.trim();
+    }
+    if (Object.keys(notes).length > 0) {
+      result.notes = notes;
+    }
 
     return result;
   }
@@ -119,9 +135,10 @@ export class ClientsService {
    * Format phone number for display
    */
   static formatPhone(phone?: string): string | undefined {
-    if (!phone) return undefined;
+    if (!phone) {
+      return undefined;
+    }
     // Basic formatting - can be enhanced
     return phone.trim();
   }
 }
-

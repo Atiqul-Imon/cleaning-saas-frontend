@@ -35,7 +35,8 @@ export function useInvoice(invoiceId: string | null) {
     ['invoice', invoiceId || '', userRole?.id || ''],
     invoiceId ? `/invoices/${invoiceId}` : '',
     {
-      enabled: !!userRole && !!invoiceId && (userRole.role === 'OWNER' || userRole.role === 'ADMIN'),
+      enabled:
+        !!userRole && !!invoiceId && (userRole.role === 'OWNER' || userRole.role === 'ADMIN'),
     },
   );
 
@@ -45,6 +46,3 @@ export function useInvoice(invoiceId: string | null) {
     error,
   };
 }
-
-
-

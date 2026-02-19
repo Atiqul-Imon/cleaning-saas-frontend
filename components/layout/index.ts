@@ -9,10 +9,3 @@ export type { GridProps } from './Grid';
 export type { StackProps } from './Stack';
 export type { DividerProps } from './Divider';
 export type { SectionProps } from './Section';
-
-
-
-
-
-
-

@@ -3,13 +3,16 @@ import { useRouter } from 'next/navigation';
 import { useClientManagement } from './useClientManagement';
 import { ClientsService } from '../services/clients.service';
 import { useToast } from '@/lib/toast-context';
-import type { CreateClientDto, UpdateClientDto } from '../types/client.types';
+import type { CreateClientDto } from '../types/client.types';
 
 /**
  * Hook for client form management
  * Handles form state, validation, and submission
  */
-export function useClientForm(initialData?: Partial<CreateClientDto> | { notes?: any; [key: string]: any }, isEdit = false) {
+export function useClientForm(
+  initialData?: Partial<CreateClientDto> | { notes?: any; [key: string]: any },
+  isEdit = false,
+) {
   const router = useRouter();
   const { createClient, updateClient, isCreating, isUpdating } = useClientManagement();
   const { showToast } = useToast();
@@ -31,7 +34,7 @@ export function useClientForm(initialData?: Partial<CreateClientDto> | { notes?:
    * Update form field
    */
   const updateField = <K extends keyof CreateClientDto>(field: K, value: CreateClientDto[K]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear errors when user starts typing
     if (errors.length > 0) {
       setErrors([]);
@@ -45,7 +48,7 @@ export function useClientForm(initialData?: Partial<CreateClientDto> | { notes?:
     const validation = isEdit
       ? ClientsService.validateUpdateClient(formData)
       : ClientsService.validateCreateClient(formData);
-    
+
     if (!validation.valid && validation.errors) {
       setErrors(validation.errors);
       showToast(validation.errors[0], 'error');
@@ -64,13 +67,13 @@ export function useClientForm(initialData?: Partial<CreateClientDto> | { notes?:
     }
 
     const transformedData = ClientsService.transformClientData(formData);
-    
+
     if (isEdit && clientId) {
       updateClient(clientId, transformedData);
     } else {
       createClient(transformedData);
     }
-    
+
     // Navigation is handled in useClientManagement hook via success callback
     router.push('/clients');
     router.refresh();
@@ -85,4 +88,3 @@ export function useClientForm(initialData?: Partial<CreateClientDto> | { notes?:
     isSubmitting: isCreating || isUpdating,
   };
 }
-

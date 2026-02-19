@@ -9,14 +9,21 @@ interface PhotoUploadProps {
   onError: (error: string) => void;
 }
 
-export default function PhotoUpload({ jobId, photoType, onUploadSuccess, onError }: PhotoUploadProps) {
+export default function PhotoUpload({
+  jobId,
+  photoType,
+  onUploadSuccess,
+  onError,
+}: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
@@ -50,8 +57,10 @@ export default function PhotoUpload({ jobId, photoType, onUploadSuccess, onError
       // Get auth token
       const { createClient } = await import('@/lib/supabase');
       const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session?.access_token) {
         throw new Error('Not authenticated');
       }
@@ -165,4 +174,3 @@ export default function PhotoUpload({ jobId, photoType, onUploadSuccess, onError
     </div>
   );
 }
-

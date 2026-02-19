@@ -10,18 +10,10 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  (
-    {
-      label,
-      error,
-      helperText,
-      className,
-      id,
-      ...props
-    },
-    ref
-  ) => {
-    const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+  ({ label, error, helperText, className, id, ...props }, ref) => {
+    const [textareaId] = React.useState(
+      () => id || `textarea-${Math.random().toString(36).substr(2, 9)}`,
+    );
 
     return (
       <div className="w-full">
@@ -46,10 +38,12 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             error
               ? 'border-[var(--error-500)] focus:ring-[var(--error-500)] focus:border-[var(--error-600)]'
               : 'border-[var(--gray-300)] focus:ring-[var(--primary-500)] focus:border-[var(--primary-600)]',
-            className
+            className,
           )}
           aria-invalid={error ? 'true' : 'false'}
-          aria-describedby={error ? `${textareaId}-error` : helperText ? `${textareaId}-helper` : undefined}
+          aria-describedby={
+            error ? `${textareaId}-error` : helperText ? `${textareaId}-helper` : undefined
+          }
           {...props}
         />
         {error && (
@@ -62,19 +56,15 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           </p>
         )}
         {helperText && !error && (
-          <p
-            id={`${textareaId}-helper`}
-            className="mt-2 text-sm text-[var(--gray-500)]"
-          >
+          <p id={`${textareaId}-helper`} className="mt-2 text-sm text-[var(--gray-500)]">
             {helperText}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Textarea.displayName = 'Textarea';
 
 export default Textarea;
-

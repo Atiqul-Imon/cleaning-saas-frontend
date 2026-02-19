@@ -41,7 +41,9 @@ const Modal: React.FC<ModalProps> = ({
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   const sizes = {
     sm: 'max-w-md',
@@ -69,7 +71,7 @@ const Modal: React.FC<ModalProps> = ({
         className={cn(
           'relative bg-white rounded-xl shadow-2xl w-full max-h-[90vh] overflow-y-auto',
           sizes[size],
-          'animate-scale-in'
+          'animate-scale-in',
         )}
         onClick={(e) => e.stopPropagation()}
       >
@@ -77,10 +79,7 @@ const Modal: React.FC<ModalProps> = ({
         {(title || showCloseButton) && (
           <div className="flex items-center justify-between p-6 border-b border-[var(--gray-200)]">
             {title && (
-              <h2
-                id="modal-title"
-                className="text-xl font-bold text-[var(--gray-900)]"
-              >
+              <h2 id="modal-title" className="text-xl font-bold text-[var(--gray-900)]">
                 {title}
               </h2>
             )}
@@ -90,12 +89,7 @@ const Modal: React.FC<ModalProps> = ({
                 className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-[var(--gray-100)] rounded-lg transition-all duration-200 ease-out active:scale-95"
                 aria-label="Close modal"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -116,4 +110,3 @@ const Modal: React.FC<ModalProps> = ({
 };
 
 export default Modal;
-

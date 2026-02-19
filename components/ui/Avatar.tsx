@@ -12,18 +12,7 @@ export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
-  (
-    {
-      src,
-      alt,
-      name,
-      size = 'md',
-      status,
-      className,
-      ...props
-    },
-    ref
-  ) => {
+  ({ src, alt, name, size = 'md', status, className, ...props }, ref) => {
     const sizes = {
       sm: 'w-8 h-8 text-xs',
       md: 'w-10 h-10 text-sm',
@@ -54,33 +43,21 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
     };
 
     return (
-      <div
-        ref={ref}
-        className={cn('relative inline-flex', className)}
-        {...props}
-      >
+      <div ref={ref} className={cn('relative inline-flex', className)} {...props}>
         <div
           className={cn(
             'rounded-full bg-[var(--primary-500)] text-white',
             'flex items-center justify-center font-semibold',
             'overflow-hidden',
-            sizes[size]
+            sizes[size],
           )}
         >
           {src ? (
-            <img
-              src={src}
-              alt={alt || name || 'Avatar'}
-              className="w-full h-full object-cover"
-            />
+            <img src={src} alt={alt || name || 'Avatar'} className="w-full h-full object-cover" />
           ) : name ? (
             getInitials(name)
           ) : (
-            <svg
-              className="w-1/2 h-1/2 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
+            <svg className="w-1/2 h-1/2 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
                 d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
@@ -94,22 +71,15 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
             className={cn(
               'absolute bottom-0 right-0 rounded-full border-2 border-white',
               statusColors[status],
-              statusSizes[size]
+              statusSizes[size],
             )}
           />
         )}
       </div>
     );
-  }
+  },
 );
 
 Avatar.displayName = 'Avatar';
 
 export default Avatar;
-
-
-
-
-
-
-

@@ -17,9 +17,7 @@ export default async function proxy(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value),
-          );
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({
             request,
           });
@@ -36,12 +34,15 @@ export default async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protect dashboard routes (but allow /dashboard specifically)
-  if ((request.nextUrl.pathname.startsWith('/dashboard') || 
-       request.nextUrl.pathname.startsWith('/clients') ||
-       request.nextUrl.pathname.startsWith('/jobs') ||
-       request.nextUrl.pathname.startsWith('/invoices') ||
-       request.nextUrl.pathname.startsWith('/settings') ||
-       request.nextUrl.pathname.startsWith('/onboarding')) && !user) {
+  if (
+    (request.nextUrl.pathname.startsWith('/dashboard') ||
+      request.nextUrl.pathname.startsWith('/clients') ||
+      request.nextUrl.pathname.startsWith('/jobs') ||
+      request.nextUrl.pathname.startsWith('/invoices') ||
+      request.nextUrl.pathname.startsWith('/settings') ||
+      request.nextUrl.pathname.startsWith('/onboarding')) &&
+    !user
+  ) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
@@ -63,8 +64,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
-

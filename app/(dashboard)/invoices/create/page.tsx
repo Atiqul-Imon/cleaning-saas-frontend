@@ -8,8 +8,7 @@ import { ApiClient } from '@/lib/api-client';
 import { useUserRole } from '@/lib/use-user-role';
 import { useToast } from '@/lib/toast-context';
 import { Container, Stack, Section, Grid, Divider } from '@/components/layout';
-import { Card, Button, Input, Badge, Avatar, LoadingSkeleton, EmptyState } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { Card, Button, Input, Avatar, LoadingSkeleton, EmptyState } from '@/components/ui';
 
 interface Job {
   id: string;
@@ -40,7 +39,9 @@ export default function CreateInvoicePage() {
   const { userRole, loading: roleLoading } = useUserRole();
   const supabase = createClient();
   const apiClient = new ApiClient(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     return session?.access_token || null;
   });
   const { showToast } = useToast();
@@ -66,7 +67,9 @@ export default function CreateInvoicePage() {
   }, [jobId, roleLoading, userRole]);
 
   const loadJob = async () => {
-    if (!jobId) return;
+    if (!jobId) {
+      return;
+    }
 
     try {
       setError(null);
@@ -82,7 +85,9 @@ export default function CreateInvoicePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!jobId || !amount) return;
+    if (!jobId || !amount) {
+      return;
+    }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
@@ -129,8 +134,18 @@ export default function CreateInvoicePage() {
             description={error}
             icon={
               <div className="bg-[var(--error-100)] w-16 h-16 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-[var(--error-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-8 h-8 text-[var(--error-600)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </div>
             }
@@ -153,8 +168,18 @@ export default function CreateInvoicePage() {
             description="Only business owners can create invoices."
             icon={
               <div className="bg-[var(--warning-100)] w-16 h-16 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-[var(--warning-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <svg
+                  className="w-8 h-8 text-[var(--warning-600)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
                 </svg>
               </div>
             }
@@ -176,27 +201,48 @@ export default function CreateInvoicePage() {
     <Section background="subtle" padding="lg">
       <Container size="lg">
         <Link href={`/jobs/${job.id}`} className="mb-6 inline-block">
-          <Button variant="ghost" size="sm" leftIcon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          }>
+          <Button
+            variant="ghost"
+            size="sm"
+            leftIcon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            }
+          >
             Back to Job
           </Button>
         </Link>
 
         <div className="mb-8">
           <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">Create Invoice</h1>
-          <p className="text-[var(--gray-600)] text-lg">
-            Create an invoice for the completed job
-          </p>
+          <p className="text-[var(--gray-600)] text-lg">Create an invoice for the completed job</p>
         </div>
 
         {error && (
-          <Card variant="outlined" padding="md" className="mb-6 bg-[var(--error-50)] border-[var(--error-200)]">
+          <Card
+            variant="outlined"
+            padding="md"
+            className="mb-6 bg-[var(--error-50)] border-[var(--error-200)]"
+          >
             <Stack direction="row" spacing="sm" align="center">
-              <svg className="w-5 h-5 text-[var(--error-600)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-5 h-5 text-[var(--error-600)] flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <span className="text-[var(--error-900)] font-semibold">{error}</span>
             </Stack>
@@ -208,8 +254,18 @@ export default function CreateInvoicePage() {
           <div className="lg:col-span-2">
             <Card variant="elevated" padding="lg" className="mb-6">
               <Stack direction="row" spacing="sm" align="center" className="mb-6">
-                <svg className="w-6 h-6 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <svg
+                  className="w-6 h-6 text-[var(--primary-600)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
                 </svg>
                 <h2 className="text-xl font-bold text-[var(--gray-900)]">Job Information</h2>
               </Stack>
@@ -231,13 +287,25 @@ export default function CreateInvoicePage() {
                 <Grid cols={2} gap="md">
                   <div>
                     <p className="text-sm font-medium text-[var(--gray-500)] mb-1">Job Type</p>
-                    <p className="text-lg font-bold text-[var(--gray-900)]">{job.type.replace('_', ' ')}</p>
+                    <p className="text-lg font-bold text-[var(--gray-900)]">
+                      {job.type.replace('_', ' ')}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[var(--gray-500)] mb-1">Date</p>
                     <Stack direction="row" spacing="sm" align="center">
-                      <svg className="w-4 h-4 text-[var(--gray-500)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg
+                        className="w-4 h-4 text-[var(--gray-500)]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                       <p className="text-lg font-bold text-[var(--gray-900)]">
                         {new Date(job.scheduledDate).toLocaleDateString('en-GB', {
@@ -250,10 +318,22 @@ export default function CreateInvoicePage() {
                     </Stack>
                     {job.scheduledTime && (
                       <Stack direction="row" spacing="sm" align="center" className="mt-1">
-                        <svg className="w-4 h-4 text-[var(--gray-500)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg
+                          className="w-4 h-4 text-[var(--gray-500)]"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
                         </svg>
-                        <p className="text-sm font-medium text-[var(--gray-600)]">{job.scheduledTime}</p>
+                        <p className="text-sm font-medium text-[var(--gray-600)]">
+                          {job.scheduledTime}
+                        </p>
                       </Stack>
                     )}
                   </div>
@@ -262,10 +342,14 @@ export default function CreateInvoicePage() {
                   <>
                     <Divider spacing="sm" />
                     <div>
-                      <p className="text-sm font-medium text-[var(--gray-500)] mb-2">Completed by</p>
+                      <p className="text-sm font-medium text-[var(--gray-500)] mb-2">
+                        Completed by
+                      </p>
                       <Stack direction="row" spacing="sm" align="center">
                         <Avatar name={job.cleaner.email} size="sm" />
-                        <p className="text-lg font-bold text-[var(--gray-900)]">{job.cleaner.email}</p>
+                        <p className="text-lg font-bold text-[var(--gray-900)]">
+                          {job.cleaner.email}
+                        </p>
                       </Stack>
                     </div>
                   </>
@@ -276,11 +360,28 @@ export default function CreateInvoicePage() {
                     <div>
                       <p className="text-sm font-medium text-[var(--gray-500)] mb-1">Address</p>
                       <Stack direction="row" spacing="sm" align="start">
-                        <svg className="w-4 h-4 text-[var(--gray-500)] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <svg
+                          className="w-4 h-4 text-[var(--gray-500)] mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
                         </svg>
-                        <p className="text-sm font-medium text-[var(--gray-700)]">{job.client.address}</p>
+                        <p className="text-sm font-medium text-[var(--gray-700)]">
+                          {job.client.address}
+                        </p>
                       </Stack>
                     </div>
                   </>
@@ -293,8 +394,18 @@ export default function CreateInvoicePage() {
           <div>
             <Card variant="elevated" padding="lg" className="sticky top-4">
               <Stack direction="row" spacing="sm" align="center" className="mb-6">
-                <svg className="w-6 h-6 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg
+                  className="w-6 h-6 text-[var(--primary-600)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
                 <h2 className="text-xl font-bold text-[var(--gray-900)]">Invoice Details</h2>
               </Stack>
@@ -311,8 +422,18 @@ export default function CreateInvoicePage() {
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
                     leftIcon={
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     }
                     helperText="VAT will be calculated automatically if enabled"

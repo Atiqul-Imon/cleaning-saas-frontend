@@ -13,7 +13,7 @@ export interface ImageKitUploadResponse {
 
 export async function uploadToImageKit(
   file: File,
-  folder: string = 'job-photos'
+  folder: string = 'job-photos',
 ): Promise<ImageKitUploadResponse> {
   const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY;
   const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
@@ -60,7 +60,7 @@ async function uploadDirectly(
   file: File,
   folder: string,
   publicKey: string,
-  urlEndpoint: string
+  urlEndpoint: string,
 ): Promise<ImageKitUploadResponse> {
   const formData = new FormData();
   formData.append('file', file);
@@ -88,12 +88,3 @@ async function uploadDirectly(
     width: data.width,
   };
 }
-
-
-
-
-
-
-
-
-

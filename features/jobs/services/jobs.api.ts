@@ -51,7 +51,10 @@ export const jobsApi = {
   /**
    * Add a photo to a job
    */
-  addPhoto: (id: string, data: { imageUrl: string; photoType: 'BEFORE' | 'AFTER' }): Promise<void> => {
+  addPhoto: (
+    id: string,
+    data: { imageUrl: string; photoType: 'BEFORE' | 'AFTER' },
+  ): Promise<void> => {
     return apiClient.post<void>(`/jobs/${id}/photos`, data);
   },
 
@@ -65,17 +68,23 @@ export const jobsApi = {
   /**
    * Get WhatsApp link for job photos
    */
-  getWhatsAppPhotosLink: (id: string, photoType: 'BEFORE' | 'AFTER' | 'ALL'): Promise<{ whatsappUrl: string | null; phoneNumber?: string }> => {
-    return apiClient.get<{ whatsappUrl: string | null; phoneNumber?: string }>(`/jobs/${id}/whatsapp/photos?photoType=${photoType}`);
+  getWhatsAppPhotosLink: (
+    id: string,
+    photoType: 'BEFORE' | 'AFTER' | 'ALL',
+  ): Promise<{ whatsappUrl: string | null; phoneNumber?: string }> => {
+    return apiClient.get<{ whatsappUrl: string | null; phoneNumber?: string }>(
+      `/jobs/${id}/whatsapp/photos?photoType=${photoType}`,
+    );
   },
 
   /**
    * Get WhatsApp link for job completion
    */
-  getWhatsAppCompletionLink: (id: string): Promise<{ whatsappUrl: string | null; phoneNumber?: string }> => {
-    return apiClient.get<{ whatsappUrl: string | null; phoneNumber?: string }>(`/jobs/${id}/whatsapp/completion`);
+  getWhatsAppCompletionLink: (
+    id: string,
+  ): Promise<{ whatsappUrl: string | null; phoneNumber?: string }> => {
+    return apiClient.get<{ whatsappUrl: string | null; phoneNumber?: string }>(
+      `/jobs/${id}/whatsapp/completion`,
+    );
   },
 };
-
-
-

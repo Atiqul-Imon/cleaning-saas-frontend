@@ -13,10 +13,17 @@ interface UserRole {
 export function useUserRole() {
   const supabase = createClient();
 
-  const { data: userRole, isLoading, error, refetch } = useQuery<UserRole | null>({
+  const {
+    data: userRole,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<UserRole | null>({
     queryKey: ['userRole'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         return null;
       }
@@ -41,10 +48,3 @@ export function useUserRole() {
     refetch,
   };
 }
-
-
-
-
-
-
-

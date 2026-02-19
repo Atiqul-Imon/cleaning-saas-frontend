@@ -12,20 +12,10 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      label,
-      error,
-      helperText,
-      leftIcon,
-      rightIcon,
-      className,
-      id,
-      ...props
-    },
-    ref
-  ) => {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  ({ label, error, helperText, leftIcon, rightIcon, className, id, ...props }, ref) => {
+    const [inputId] = React.useState(
+      () => id || `input-${Math.random().toString(36).substr(2, 9)}`,
+    );
 
     return (
       <div className="w-full">
@@ -58,10 +48,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 ? 'border-[var(--error-500)] focus:ring-[var(--error-500)] focus:border-[var(--error-600)]'
                 : 'border-[var(--gray-300)] focus:ring-[var(--primary-500)] focus:border-[var(--primary-600)]',
               'disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed',
-              className
+              className,
             )}
             aria-invalid={error ? 'true' : 'false'}
-            aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
+            aria-describedby={
+              error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined
+            }
             {...props}
           />
           {rightIcon && (
@@ -80,19 +72,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </p>
         )}
         {helperText && !error && (
-          <p
-            id={`${inputId}-helper`}
-            className="mt-2 text-sm text-[var(--gray-500)]"
-          >
+          <p id={`${inputId}-helper`} className="mt-2 text-sm text-[var(--gray-500)]">
             {helperText}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = 'Input';
 
 export default Input;
-

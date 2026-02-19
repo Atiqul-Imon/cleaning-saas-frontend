@@ -11,19 +11,10 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 }
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  (
-    {
-      label,
-      error,
-      helperText,
-      options,
-      className,
-      id,
-      ...props
-    },
-    ref
-  ) => {
-    const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+  ({ label, error, helperText, options, className, id, ...props }, ref) => {
+    const [selectId] = React.useState(
+      () => id || `select-${Math.random().toString(36).substr(2, 9)}`,
+    );
 
     return (
       <div className="w-full">
@@ -47,10 +38,12 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             error
               ? 'border-[var(--error-500)] focus:ring-[var(--error-500)] focus:border-[var(--error-600)]'
               : 'border-[var(--gray-300)] focus:ring-[var(--primary-500)] focus:border-[var(--primary-600)]',
-            className
+            className,
           )}
           aria-invalid={error ? 'true' : 'false'}
-          aria-describedby={error ? `${selectId}-error` : helperText ? `${selectId}-helper` : undefined}
+          aria-describedby={
+            error ? `${selectId}-error` : helperText ? `${selectId}-helper` : undefined
+          }
           {...props}
         >
           {options.map((option) => (
@@ -69,19 +62,15 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           </p>
         )}
         {helperText && !error && (
-          <p
-            id={`${selectId}-helper`}
-            className="mt-2 text-sm text-[var(--gray-500)]"
-          >
+          <p id={`${selectId}-helper`} className="mt-2 text-sm text-[var(--gray-500)]">
             {helperText}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Select.displayName = 'Select';
 
 export default Select;
-

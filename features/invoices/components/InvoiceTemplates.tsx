@@ -1,9 +1,12 @@
 'use client';
 
-import React from 'react';
-import { cn } from '@/lib/utils';
-
-export type InvoiceTemplate = 'classic' | 'modern' | 'minimal' | 'professional' | 'elegant' | 'bold';
+export type InvoiceTemplate =
+  | 'classic'
+  | 'modern'
+  | 'minimal'
+  | 'professional'
+  | 'elegant'
+  | 'bold';
 
 interface InvoiceTemplateProps {
   invoice: {
@@ -36,7 +39,6 @@ interface InvoiceTemplateProps {
 
 // Template 1: Classic
 export function ClassicTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>) {
-  
   return (
     <div className="bg-white p-8 sm:p-12 max-w-4xl mx-auto shadow-lg">
       {/* Header */}
@@ -44,7 +46,9 @@ export function ClassicTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">{invoice.business.name}</h1>
-            {invoice.business.address && <p className="text-gray-600">{invoice.business.address}</p>}
+            {invoice.business.address && (
+              <p className="text-gray-600">{invoice.business.address}</p>
+            )}
             {invoice.business.phone && <p className="text-gray-600">{invoice.business.phone}</p>}
             {invoice.business.vatEnabled && invoice.business.vatNumber && (
               <p className="text-gray-600 mt-1">VAT: {invoice.business.vatNumber}</p>
@@ -53,10 +57,16 @@ export function ClassicTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
           <div className="text-right">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">INVOICE</h2>
             <div className="space-y-1">
-              <p className="text-gray-600"><span className="font-semibold">Invoice #:</span> {invoice.invoiceNumber}</p>
-              <p className="text-gray-600"><span className="font-semibold">Date:</span> {new Date(invoice.createdAt).toLocaleDateString()}</p>
               <p className="text-gray-600">
-                <span className="font-semibold">Due Date:</span> {new Date(invoice.dueDate).toLocaleDateString()}
+                <span className="font-semibold">Invoice #:</span> {invoice.invoiceNumber}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-semibold">Date:</span>{' '}
+                {new Date(invoice.createdAt).toLocaleDateString()}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-semibold">Due Date:</span>{' '}
+                {new Date(invoice.dueDate).toLocaleDateString()}
               </p>
             </div>
           </div>
@@ -96,29 +106,33 @@ export function ClassicTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
           <tbody>
             <tr className="border-b border-gray-200">
               <td className="py-4 px-4 text-gray-700">Cleaning Service</td>
-              <td className="py-4 px-4 text-right font-semibold text-gray-900">£{Number(invoice.amount).toFixed(2)}</td>
+              <td className="py-4 px-4 text-right font-semibold text-gray-900">
+                £{Number(invoice.amount).toFixed(2)}
+              </td>
             </tr>
             {invoice.business.vatEnabled && invoice.vatAmount > 0 && (
               <tr className="border-b border-gray-200">
                 <td className="py-4 px-4 text-gray-700">VAT (20%)</td>
-                <td className="py-4 px-4 text-right font-semibold text-gray-900">£{Number(invoice.vatAmount).toFixed(2)}</td>
+                <td className="py-4 px-4 text-right font-semibold text-gray-900">
+                  £{Number(invoice.vatAmount).toFixed(2)}
+                </td>
               </tr>
             )}
             <tr className="bg-gray-100">
               <td className="py-4 px-4 font-bold text-lg text-gray-900">Total</td>
-              <td className="py-4 px-4 text-right font-bold text-2xl text-gray-900">£{Number(invoice.totalAmount).toFixed(2)}</td>
+              <td className="py-4 px-4 text-right font-bold text-2xl text-gray-900">
+                £{Number(invoice.totalAmount).toFixed(2)}
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }
 
 // Template 2: Modern
 export function ModernTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>) {
-  
   return (
     <div className="bg-white p-8 sm:p-12 max-w-4xl mx-auto shadow-xl rounded-lg overflow-hidden">
       {/* Header with gradient */}
@@ -141,8 +155,12 @@ export function ModernTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template
           <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Bill To</h3>
           <div className="space-y-1">
             <p className="font-bold text-gray-900">{invoice.client.name}</p>
-            {invoice.client.address && <p className="text-gray-600 text-sm">{invoice.client.address}</p>}
-            {invoice.client.phone && <p className="text-gray-600 text-sm">{invoice.client.phone}</p>}
+            {invoice.client.address && (
+              <p className="text-gray-600 text-sm">{invoice.client.address}</p>
+            )}
+            {invoice.client.phone && (
+              <p className="text-gray-600 text-sm">{invoice.client.phone}</p>
+            )}
           </div>
         </div>
 
@@ -152,7 +170,9 @@ export function ModernTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">Date:</span>
-              <span className="font-semibold text-gray-900">{new Date(invoice.createdAt).toLocaleDateString()}</span>
+              <span className="font-semibold text-gray-900">
+                {new Date(invoice.createdAt).toLocaleDateString()}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Due Date:</span>
@@ -180,17 +200,23 @@ export function ModernTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template
         <div className="space-y-3">
           <div className="flex justify-between">
             <span className="text-gray-600">Subtotal</span>
-            <span className="font-semibold text-gray-900">£{Number(invoice.amount).toFixed(2)}</span>
+            <span className="font-semibold text-gray-900">
+              £{Number(invoice.amount).toFixed(2)}
+            </span>
           </div>
           {invoice.business.vatEnabled && invoice.vatAmount > 0 && (
             <div className="flex justify-between">
               <span className="text-gray-600">VAT (20%)</span>
-              <span className="font-semibold text-gray-900">£{Number(invoice.vatAmount).toFixed(2)}</span>
+              <span className="font-semibold text-gray-900">
+                £{Number(invoice.vatAmount).toFixed(2)}
+              </span>
             </div>
           )}
           <div className="pt-3 border-t-2 border-gray-300 flex justify-between">
             <span className="text-xl font-bold text-gray-900">Total</span>
-            <span className="text-2xl font-bold text-blue-600">£{Number(invoice.totalAmount).toFixed(2)}</span>
+            <span className="text-2xl font-bold text-blue-600">
+              £{Number(invoice.totalAmount).toFixed(2)}
+            </span>
           </div>
         </div>
       </div>
@@ -218,11 +244,15 @@ export function MinimalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
         <div className="grid grid-cols-2 gap-8 mb-12 text-sm">
           <div>
             <p className="text-gray-500 mb-2">Date</p>
-            <p className="font-medium text-gray-900">{new Date(invoice.createdAt).toLocaleDateString()}</p>
+            <p className="font-medium text-gray-900">
+              {new Date(invoice.createdAt).toLocaleDateString()}
+            </p>
           </div>
           <div>
             <p className="text-gray-500 mb-2">Due Date</p>
-            <p className="font-medium text-gray-900">{new Date(invoice.dueDate).toLocaleDateString()}</p>
+            <p className="font-medium text-gray-900">
+              {new Date(invoice.dueDate).toLocaleDateString()}
+            </p>
           </div>
         </div>
 
@@ -230,17 +260,20 @@ export function MinimalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
         <div className="mb-12">
           <p className="text-gray-500 text-sm mb-3">Bill To</p>
           <p className="font-medium text-gray-900">{invoice.client.name}</p>
-          {invoice.client.address && <p className="text-gray-600 text-sm mt-1">{invoice.client.address}</p>}
+          {invoice.client.address && (
+            <p className="text-gray-600 text-sm mt-1">{invoice.client.address}</p>
+          )}
         </div>
 
         {/* Amount */}
         <div className="border-t border-b border-gray-200 py-8 mb-8">
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Total</span>
-            <span className="text-4xl font-light text-gray-900">£{Number(invoice.totalAmount).toFixed(2)}</span>
+            <span className="text-4xl font-light text-gray-900">
+              £{Number(invoice.totalAmount).toFixed(2)}
+            </span>
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -248,7 +281,6 @@ export function MinimalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
 
 // Template 4: Professional
 export function ProfessionalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>) {
-  
   return (
     <div className="bg-white p-8 sm:p-12 max-w-4xl mx-auto shadow-md border border-gray-200">
       {/* Header with logo area */}
@@ -257,7 +289,9 @@ export function ProfessionalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'te
           <div className="w-16 h-16 bg-gray-800 rounded mb-4"></div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">{invoice.business.name}</h1>
           <p className="text-gray-600 text-sm">{invoice.business.address}</p>
-          {invoice.business.phone && <p className="text-gray-600 text-sm">{invoice.business.phone}</p>}
+          {invoice.business.phone && (
+            <p className="text-gray-600 text-sm">{invoice.business.phone}</p>
+          )}
           {invoice.business.vatEnabled && invoice.business.vatNumber && (
             <p className="text-gray-600 text-sm mt-1">VAT Reg: {invoice.business.vatNumber}</p>
           )}
@@ -268,9 +302,13 @@ export function ProfessionalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'te
             <p className="text-2xl font-bold">{invoice.invoiceNumber}</p>
           </div>
           <div className="text-sm text-gray-600 space-y-1 mt-3">
-            <p><span className="font-semibold">Date:</span> {new Date(invoice.createdAt).toLocaleDateString()}</p>
             <p>
-              <span className="font-semibold">Due:</span> {new Date(invoice.dueDate).toLocaleDateString()}
+              <span className="font-semibold">Date:</span>{' '}
+              {new Date(invoice.createdAt).toLocaleDateString()}
+            </p>
+            <p>
+              <span className="font-semibold">Due:</span>{' '}
+              {new Date(invoice.dueDate).toLocaleDateString()}
             </p>
           </div>
         </div>
@@ -281,7 +319,9 @@ export function ProfessionalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'te
         <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Bill To</h3>
         <div className="bg-gray-50 p-5 border-l-4 border-gray-800">
           <p className="font-bold text-gray-900 text-lg mb-1">{invoice.client.name}</p>
-          {invoice.client.address && <p className="text-gray-600 text-sm">{invoice.client.address}</p>}
+          {invoice.client.address && (
+            <p className="text-gray-600 text-sm">{invoice.client.address}</p>
+          )}
           {invoice.client.phone && <p className="text-gray-600 text-sm">{invoice.client.phone}</p>}
         </div>
       </div>
@@ -289,7 +329,9 @@ export function ProfessionalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'te
       {/* Service Details */}
       {invoice.job && (
         <div className="mb-10">
-          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Service Details</h3>
+          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
+            Service Details
+          </h3>
           <div className="bg-gray-50 p-5">
             <p className="font-semibold text-gray-900">
               {invoice.job.type} - {new Date(invoice.job.scheduledDate).toLocaleDateString()}
@@ -311,22 +353,27 @@ export function ProfessionalTemplate({ invoice }: Omit<InvoiceTemplateProps, 'te
           <tbody>
             <tr className="border-b border-gray-200">
               <td className="py-4 px-4 text-gray-700">Cleaning Service</td>
-              <td className="py-4 px-4 text-right font-semibold text-gray-900">£{Number(invoice.amount).toFixed(2)}</td>
+              <td className="py-4 px-4 text-right font-semibold text-gray-900">
+                £{Number(invoice.amount).toFixed(2)}
+              </td>
             </tr>
             {invoice.business.vatEnabled && invoice.vatAmount > 0 && (
               <tr className="border-b border-gray-200">
                 <td className="py-4 px-4 text-gray-700">VAT (20%)</td>
-                <td className="py-4 px-4 text-right font-semibold text-gray-900">£{Number(invoice.vatAmount).toFixed(2)}</td>
+                <td className="py-4 px-4 text-right font-semibold text-gray-900">
+                  £{Number(invoice.vatAmount).toFixed(2)}
+                </td>
               </tr>
             )}
             <tr className="bg-gray-800 text-white">
               <td className="py-4 px-4 font-bold">TOTAL</td>
-              <td className="py-4 px-4 text-right font-bold text-xl">£{Number(invoice.totalAmount).toFixed(2)}</td>
+              <td className="py-4 px-4 text-right font-bold text-xl">
+                £{Number(invoice.totalAmount).toFixed(2)}
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }
@@ -346,25 +393,37 @@ export function ElegantTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
         {/* Bill To */}
         <div>
-          <h3 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-4">Bill To</h3>
+          <h3 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-4">
+            Bill To
+          </h3>
           <div className="space-y-1">
             <p className="font-semibold text-gray-900 text-lg">{invoice.client.name}</p>
-            {invoice.client.address && <p className="text-gray-600 text-sm">{invoice.client.address}</p>}
-            {invoice.client.phone && <p className="text-gray-600 text-sm">{invoice.client.phone}</p>}
+            {invoice.client.address && (
+              <p className="text-gray-600 text-sm">{invoice.client.address}</p>
+            )}
+            {invoice.client.phone && (
+              <p className="text-gray-600 text-sm">{invoice.client.phone}</p>
+            )}
           </div>
         </div>
 
         {/* Invoice Info */}
         <div>
-          <h3 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-4">Invoice Details</h3>
+          <h3 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-4">
+            Invoice Details
+          </h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-600">Date:</span>
-              <span className="font-semibold text-gray-900">{new Date(invoice.createdAt).toLocaleDateString()}</span>
+              <span className="font-semibold text-gray-900">
+                {new Date(invoice.createdAt).toLocaleDateString()}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Due Date:</span>
-              <span className="font-semibold text-gray-900">{new Date(invoice.dueDate).toLocaleDateString()}</span>
+              <span className="font-semibold text-gray-900">
+                {new Date(invoice.dueDate).toLocaleDateString()}
+              </span>
             </div>
           </div>
         </div>
@@ -373,7 +432,9 @@ export function ElegantTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
       {/* Service */}
       {invoice.job && (
         <div className="mb-12 p-6 bg-indigo-50 border-l-4 border-indigo-600">
-          <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-2">Service</p>
+          <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-2">
+            Service
+          </p>
           <p className="font-semibold text-gray-900">
             {invoice.job.type} - {new Date(invoice.job.scheduledDate).toLocaleDateString()}
             {invoice.job.scheduledTime && ` at ${invoice.job.scheduledTime}`}
@@ -384,7 +445,9 @@ export function ElegantTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
       {/* Amount */}
       <div className="text-center py-12 border-y-2 border-indigo-600">
         <p className="text-sm text-gray-500 mb-2">Total Amount</p>
-        <p className="text-5xl font-serif text-indigo-600">£{Number(invoice.totalAmount).toFixed(2)}</p>
+        <p className="text-5xl font-serif text-indigo-600">
+          £{Number(invoice.totalAmount).toFixed(2)}
+        </p>
         {invoice.business.vatEnabled && invoice.vatAmount > 0 && (
           <p className="text-sm text-gray-500 mt-2">
             Includes VAT: £{Number(invoice.vatAmount).toFixed(2)}
@@ -395,7 +458,9 @@ export function ElegantTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
       {/* Footer */}
       <div className="text-center mt-12 pt-8 border-t border-gray-200">
         <p className="text-xs text-gray-500">{invoice.business.address}</p>
-        {invoice.business.phone && <p className="text-xs text-gray-500">{invoice.business.phone}</p>}
+        {invoice.business.phone && (
+          <p className="text-xs text-gray-500">{invoice.business.phone}</p>
+        )}
       </div>
     </div>
   );
@@ -403,7 +468,6 @@ export function ElegantTemplate({ invoice }: Omit<InvoiceTemplateProps, 'templat
 
 // Template 6: Bold
 export function BoldTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>) {
-  
   return (
     <div className="bg-white p-8 sm:p-12 max-w-4xl mx-auto">
       {/* Bold Header */}
@@ -426,12 +490,20 @@ export function BoldTemplate({ invoice }: Omit<InvoiceTemplateProps, 'template'>
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="bg-gray-100 p-4 rounded-lg text-center">
           <p className="text-xs text-gray-500 mb-1">Date</p>
-          <p className="font-bold text-gray-900">{new Date(invoice.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+          <p className="font-bold text-gray-900">
+            {new Date(invoice.createdAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+            })}
+          </p>
         </div>
         <div className="bg-gray-100 p-4 rounded-lg text-center">
           <p className="text-xs text-gray-500 mb-1">Due Date</p>
           <p className="font-bold text-gray-900">
-            {new Date(invoice.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            {new Date(invoice.dueDate).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+            })}
           </p>
         </div>
       </div>
@@ -489,4 +561,3 @@ export function InvoiceTemplateRenderer({ invoice, template }: InvoiceTemplatePr
       return <ClassicTemplate invoice={invoice} />;
   }
 }
-

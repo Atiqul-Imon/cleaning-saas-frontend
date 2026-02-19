@@ -21,33 +21,38 @@ export function useBusiness() {
   const [user, setUser] = useState<any>(null);
   const [hasUser, setHasUser] = useState(false);
 
-  useEffect(() => {
-    checkUser();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      checkUser();
-    });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     setUser(user);
     setHasUser(!!user);
   };
 
+  useEffect(() => {
+    void checkUser();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
+      void checkUser();
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Only fetch business for OWNER role
   const shouldFetch = hasUser && userRole?.role === 'OWNER';
 
-  const { data: business, isLoading, error } = useApiQuery<Business>(
-    ['business', user?.id || ''],
-    '/business',
-    {
-      enabled: shouldFetch,
-      retry: false,
-    }
-  );
+  const {
+    data: business,
+    isLoading,
+    error,
+  } = useApiQuery<Business>(['business', user?.id || ''], '/business', {
+    enabled: shouldFetch,
+    retry: false,
+  });
 
   return {
     business,
@@ -56,4 +61,3 @@ export function useBusiness() {
     businessName: business?.name || null,
   };
 }
-

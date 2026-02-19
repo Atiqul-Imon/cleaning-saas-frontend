@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase';
 import { ApiClient } from '@/lib/api-client';
 import { useUserRole } from '@/lib/use-user-role';
 import { useToast } from '@/lib/toast-context';
-import { Container, Stack, Section, Grid, Divider } from '@/components/layout';
-import { Card, Button, Badge, Avatar, LoadingSkeleton, EmptyState } from '@/components/ui';
+import { Container, Stack, Section, Grid } from '@/components/layout';
+import { Card, Button, Badge, Avatar, LoadingSkeleton } from '@/components/ui';
 import { OwnerJobDetail, OwnerJobInfo, CleanerJobDetail } from '@/features/jobs/components';
 import dynamic from 'next/dynamic';
 
@@ -65,7 +65,6 @@ interface Job {
 
 export default function JobDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -73,7 +72,9 @@ export default function JobDetailPage() {
   const { userRole, loading: roleLoading } = useUserRole();
   const supabase = createClient();
   const apiClient = new ApiClient(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     return session?.access_token || null;
   });
 
@@ -107,7 +108,9 @@ export default function JobDetailPage() {
   };
 
   const updateStatus = async (newStatus: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') => {
-    if (!job) return;
+    if (!job) {
+      return;
+    }
 
     setUpdating(true);
     setError(null);
@@ -144,8 +147,18 @@ export default function JobDetailPage() {
         <Container size="md">
           <Card variant="elevated" padding="lg" className="text-center">
             <div className="bg-[var(--error-100)] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-[var(--error-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-8 h-8 text-[var(--error-600)]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-[var(--gray-900)] mb-2">Error</h2>
@@ -154,7 +167,9 @@ export default function JobDetailPage() {
               <Link href="/jobs">
                 <Button variant="primary">Back to Jobs</Button>
               </Link>
-              <Button variant="secondary" onClick={loadJob}>Try Again</Button>
+              <Button variant="secondary" onClick={loadJob}>
+                Try Again
+              </Button>
             </Stack>
           </Card>
         </Container>
@@ -178,11 +193,20 @@ export default function JobDetailPage() {
     <Section background="subtle" padding="lg">
       <Container size="lg">
         <Link href="/jobs" className="mb-6 inline-block">
-          <Button variant="ghost" size="sm" leftIcon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          }>
+          <Button
+            variant="ghost"
+            size="sm"
+            leftIcon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            }
+          >
             Back to Jobs
           </Button>
         </Link>
@@ -195,7 +219,12 @@ export default function JobDetailPage() {
               <Stack direction="row" spacing="md" align="center" className="text-[var(--gray-600)]">
                 <Stack direction="row" spacing="sm" align="center">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                   <span className="font-medium">
                     {new Date(job.scheduledDate).toLocaleDateString('en-GB', {
@@ -210,8 +239,18 @@ export default function JobDetailPage() {
                   <>
                     <span className="text-[var(--gray-400)]">•</span>
                     <Stack direction="row" spacing="sm" align="center">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                       <span className="font-medium">{job.scheduledTime}</span>
                     </Stack>
@@ -226,10 +265,24 @@ export default function JobDetailPage() {
         </Card>
 
         {error && (
-          <Card variant="outlined" padding="md" className="mb-6 bg-[var(--error-50)] border-[var(--error-200)]">
+          <Card
+            variant="outlined"
+            padding="md"
+            className="mb-6 bg-[var(--error-50)] border-[var(--error-200)]"
+          >
             <Stack direction="row" spacing="sm" align="center">
-              <svg className="w-5 h-5 text-[var(--error-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-5 h-5 text-[var(--error-600)]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <span className="text-[var(--error-900)] font-semibold">{error}</span>
             </Stack>
@@ -248,12 +301,16 @@ export default function JobDetailPage() {
                 <Stack spacing="md">
                   <div>
                     <p className="text-sm font-medium text-[var(--gray-500)] mb-1">Job Type</p>
-                    <p className="text-lg font-bold text-[var(--gray-900)]">{job.type.replace('_', ' ')}</p>
+                    <p className="text-lg font-bold text-[var(--gray-900)]">
+                      {job.type.replace('_', ' ')}
+                    </p>
                   </div>
                   {job.frequency && (
                     <div>
                       <p className="text-sm font-medium text-[var(--gray-500)] mb-1">Frequency</p>
-                      <p className="text-lg font-bold text-[var(--gray-900)]">{job.frequency.replace('_', ' ')}</p>
+                      <p className="text-lg font-bold text-[var(--gray-900)]">
+                        {job.frequency.replace('_', ' ')}
+                      </p>
                     </div>
                   )}
                 </Stack>
@@ -290,7 +347,9 @@ export default function JobDetailPage() {
                   <div>
                     <p className="text-sm font-medium text-[var(--gray-500)] mb-1">Address</p>
                     <Stack direction="row" spacing="sm" align="start">
-                      <p className="text-lg font-bold text-[var(--gray-900)] flex-1">{job.client.address}</p>
+                      <p className="text-lg font-bold text-[var(--gray-900)] flex-1">
+                        {job.client.address}
+                      </p>
                       {isCleaner && (
                         <a
                           href={`https://maps.google.com/?q=${encodeURIComponent(job.client.address)}`}
@@ -298,50 +357,84 @@ export default function JobDetailPage() {
                           rel="noopener noreferrer"
                           className="text-[var(--primary-600)] hover:text-[var(--primary-700)] font-medium text-sm"
                         >
-                          <Button variant="ghost" size="sm">Open Maps</Button>
+                          <Button variant="ghost" size="sm">
+                            Open Maps
+                          </Button>
                         </a>
                       )}
                     </Stack>
                   </div>
                 )}
-                {job.client.notes && (job.client.notes.keySafe || job.client.notes.alarmCode || job.client.notes.pets || job.client.notes.preferences) && (
-                  <div className="mt-4 pt-4 border-t border-[var(--gray-200)]">
-                    <Stack direction="row" spacing="sm" align="center" className="mb-4">
-                      <svg className="w-5 h-5 text-[var(--primary-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      <p className="text-sm font-semibold text-[var(--gray-700)] uppercase tracking-wide">Secure Notes</p>
-                    </Stack>
-                    <Card variant="outlined" padding="md" className="bg-[var(--gray-50)]">
-                      <Stack spacing="sm">
-                        {job.client.notes.keySafe && (
-                          <div>
-                            <span className="text-sm font-bold text-[var(--gray-700)]">Key Safe: </span>
-                            <span className="text-[var(--gray-900)] font-medium">{job.client.notes.keySafe}</span>
-                          </div>
-                        )}
-                        {job.client.notes.alarmCode && (
-                          <div>
-                            <span className="text-sm font-bold text-[var(--gray-700)]">Alarm Code: </span>
-                            <span className="text-[var(--gray-900)] font-medium">{job.client.notes.alarmCode}</span>
-                          </div>
-                        )}
-                        {job.client.notes.pets && (
-                          <div>
-                            <span className="text-sm font-bold text-[var(--gray-700)]">Pets: </span>
-                            <span className="text-[var(--gray-900)] font-medium">{job.client.notes.pets}</span>
-                          </div>
-                        )}
-                        {job.client.notes.preferences && (
-                          <div>
-                            <span className="text-sm font-bold text-[var(--gray-700)]">Preferences: </span>
-                            <span className="text-[var(--gray-900)] font-medium">{job.client.notes.preferences}</span>
-                          </div>
-                        )}
+                {job.client.notes &&
+                  (job.client.notes.keySafe ||
+                    job.client.notes.alarmCode ||
+                    job.client.notes.pets ||
+                    job.client.notes.preferences) && (
+                    <div className="mt-4 pt-4 border-t border-[var(--gray-200)]">
+                      <Stack direction="row" spacing="sm" align="center" className="mb-4">
+                        <svg
+                          className="w-5 h-5 text-[var(--primary-600)]"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                          />
+                        </svg>
+                        <p className="text-sm font-semibold text-[var(--gray-700)] uppercase tracking-wide">
+                          Secure Notes
+                        </p>
                       </Stack>
-                    </Card>
-                  </div>
-                )}
+                      <Card variant="outlined" padding="md" className="bg-[var(--gray-50)]">
+                        <Stack spacing="sm">
+                          {job.client.notes.keySafe && (
+                            <div>
+                              <span className="text-sm font-bold text-[var(--gray-700)]">
+                                Key Safe:{' '}
+                              </span>
+                              <span className="text-[var(--gray-900)] font-medium">
+                                {job.client.notes.keySafe}
+                              </span>
+                            </div>
+                          )}
+                          {job.client.notes.alarmCode && (
+                            <div>
+                              <span className="text-sm font-bold text-[var(--gray-700)]">
+                                Alarm Code:{' '}
+                              </span>
+                              <span className="text-[var(--gray-900)] font-medium">
+                                {job.client.notes.alarmCode}
+                              </span>
+                            </div>
+                          )}
+                          {job.client.notes.pets && (
+                            <div>
+                              <span className="text-sm font-bold text-[var(--gray-700)]">
+                                Pets:{' '}
+                              </span>
+                              <span className="text-[var(--gray-900)] font-medium">
+                                {job.client.notes.pets}
+                              </span>
+                            </div>
+                          )}
+                          {job.client.notes.preferences && (
+                            <div>
+                              <span className="text-sm font-bold text-[var(--gray-700)]">
+                                Preferences:{' '}
+                              </span>
+                              <span className="text-[var(--gray-900)] font-medium">
+                                {job.client.notes.preferences}
+                              </span>
+                            </div>
+                          )}
+                        </Stack>
+                      </Card>
+                    </div>
+                  )}
               </Stack>
             </Card>
 
@@ -391,7 +484,7 @@ export default function JobDetailPage() {
                         className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
                         leftIcon={
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                           </svg>
                         }
                       >
@@ -420,7 +513,7 @@ export default function JobDetailPage() {
                         className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
                         leftIcon={
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                           </svg>
                         }
                       >
@@ -449,7 +542,7 @@ export default function JobDetailPage() {
                         className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
                         leftIcon={
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                           </svg>
                         }
                       >
@@ -496,11 +589,7 @@ export default function JobDetailPage() {
           {/* Sidebar - Role-specific */}
           <div className="space-y-6">
             {isCleaner ? (
-              <CleanerJobDetail 
-                job={job} 
-                onStatusUpdate={updateStatus}
-                updating={updating}
-              />
+              <CleanerJobDetail job={job} onStatusUpdate={updateStatus} updating={updating} />
             ) : isOwner ? (
               <OwnerJobDetail job={job} />
             ) : null}

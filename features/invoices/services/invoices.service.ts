@@ -62,7 +62,9 @@ export class InvoicesService {
    * Calculate VAT amount
    */
   static calculateVAT(amount: number, vatEnabled: boolean): number {
-    if (!vatEnabled) return 0;
+    if (!vatEnabled) {
+      return 0;
+    }
     // UK VAT rate is 20%
     return Math.round(amount * 0.2 * 100) / 100;
   }
@@ -79,7 +81,9 @@ export class InvoicesService {
    * Check if invoice is overdue
    */
   static isOverdue(invoice: { dueDate: string; status: string }): boolean {
-    if (invoice.status === 'PAID') return false;
+    if (invoice.status === 'PAID') {
+      return false;
+    }
     const dueDate = new Date(invoice.dueDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -116,6 +120,3 @@ export class InvoicesService {
     return invoiceNumber.toUpperCase();
   }
 }
-
-
-

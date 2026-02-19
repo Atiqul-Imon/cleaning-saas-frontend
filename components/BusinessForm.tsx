@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { ApiClient } from '@/lib/api-client';
 import { InvoiceTemplateSelector } from '@/features/invoices/components';
@@ -36,7 +36,9 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
 
   const supabase = createClient();
   const apiClient = new ApiClient(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     return session?.access_token || null;
   });
 
@@ -63,8 +65,18 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
     <form onSubmit={handleSubmit} className="space-y-8">
       {error && (
         <div className="bg-red-100 border-2 border-red-400 text-red-900 px-6 py-4 rounded-lg font-bold flex items-center gap-3">
-          <svg className="w-6 h-6 text-red-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="w-6 h-6 text-red-700 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           <span>{error}</span>
         </div>
@@ -160,5 +172,3 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
     </form>
   );
 }
-
-

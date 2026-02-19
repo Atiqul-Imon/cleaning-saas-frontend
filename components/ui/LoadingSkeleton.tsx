@@ -6,7 +6,11 @@ interface LoadingSkeletonProps {
   className?: string;
 }
 
-export default function LoadingSkeleton({ type = 'card', count = 1, className = '' }: LoadingSkeletonProps) {
+export default function LoadingSkeleton({
+  type = 'card',
+  count = 1,
+  className = '',
+}: LoadingSkeletonProps) {
   const renderSkeleton = () => {
     switch (type) {
       case 'card':
@@ -32,9 +36,7 @@ export default function LoadingSkeleton({ type = 'card', count = 1, className = 
           </div>
         );
       case 'image':
-        return (
-          <div className="bg-gray-200 rounded-lg animate-pulse aspect-video"></div>
-        );
+        return <div className="bg-gray-200 rounded-lg animate-pulse aspect-video"></div>;
       default:
         return null;
     }
@@ -48,12 +50,3 @@ export default function LoadingSkeleton({ type = 'card', count = 1, className = 
     </div>
   );
 }
-
-
-
-
-
-
-
-
-

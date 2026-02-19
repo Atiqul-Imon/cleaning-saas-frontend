@@ -9,15 +9,7 @@ export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
-  (
-    {
-      size = 'lg',
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({ size = 'lg', className, children, ...props }, ref) => {
     const sizes = {
       sm: 'max-w-3xl',
       md: 'max-w-5xl',
@@ -29,26 +21,15 @@ const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          'mx-auto px-4 sm:px-6 lg:px-8',
-          sizes[size],
-          className
-        )}
+        className={cn('mx-auto px-4 sm:px-6 lg:px-8', sizes[size], className)}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 Container.displayName = 'Container';
 
 export default Container;
-
-
-
-
-
-
-

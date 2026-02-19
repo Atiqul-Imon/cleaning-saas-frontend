@@ -1,16 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Link from 'next/link';
 import { useUserRole } from '@/lib/hooks/use-user-role-query';
 import { useApiQuery } from '@/lib/hooks/use-api';
-import { useToast } from '@/lib/toast-context';
-import { useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client-singleton';
 import { Container, Grid, Stack, Section } from '@/components/layout';
-import { Card, Button, Input, Select, LoadingSkeleton, EmptyState, Badge } from '@/components/ui';
+import { Card, Input, Select, LoadingSkeleton, EmptyState } from '@/components/ui';
 import { JobCard } from '@/features/jobs/components';
-import { cn } from '@/lib/utils';
 
 interface Job {
   id: string;
@@ -26,19 +21,19 @@ interface Job {
 
 export default function MyJobsPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED'
+  >('all');
   const [sortBy, setSortBy] = useState<'date' | 'client' | 'status'>('date');
   const { userRole, loading: roleLoading } = useUserRole();
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
 
-  const { data: jobs = [], isLoading, error } = useApiQuery<Job[]>(
-    ['jobs', userRole?.id || ''],
-    '/jobs',
-    {
-      enabled: !!userRole,
-    },
-  );
+  const {
+    data: jobs = [],
+    isLoading,
+    error,
+  } = useApiQuery<Job[]>(['jobs', userRole?.id || ''], '/jobs', {
+    enabled: !!userRole,
+  });
 
   const loading = roleLoading || isLoading;
 
@@ -50,7 +45,7 @@ export default function MyJobsPage() {
       filtered = filtered.filter(
         (job) =>
           job.client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          job.type.toLowerCase().includes(searchQuery.toLowerCase())
+          job.type.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -70,17 +65,6 @@ export default function MyJobsPage() {
 
     return filtered;
   }, [jobs, searchQuery, statusFilter, sortBy]);
-
-  const updateJobStatus = async (jobId: string, newStatus: 'IN_PROGRESS' | 'COMPLETED') => {
-    const { apiClient } = await import('@/lib/api-client-singleton');
-    try {
-      await apiClient.put<Job>(`/jobs/${jobId}`, { status: newStatus });
-      queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      showToast(`Job status updated to ${newStatus.replace('_', ' ')}`, 'success');
-    } catch (error: any) {
-      showToast(error.message || 'Failed to update job status', 'error');
-    }
-  };
 
   if (loading) {
     return (
@@ -131,7 +115,12 @@ export default function MyJobsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 leftIcon={
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
                   </svg>
                 }
               />
@@ -162,15 +151,29 @@ export default function MyJobsPage() {
           {/* Jobs List */}
           {filteredJobs.length === 0 ? (
             <EmptyState
-              title={searchQuery || statusFilter !== 'all' ? 'No jobs match your filters' : 'No jobs assigned yet'}
+              title={
+                searchQuery || statusFilter !== 'all'
+                  ? 'No jobs match your filters'
+                  : 'No jobs assigned yet'
+              }
               description={
                 searchQuery || statusFilter !== 'all'
                   ? 'Try adjusting your search or filter criteria'
                   : 'You will see jobs here once they are assigned to you by the business owner'
               }
               icon={
-                <svg className="w-16 h-16 text-[var(--gray-400)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg
+                  className="w-16 h-16 text-[var(--gray-400)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
               }
             />
@@ -194,4 +197,3 @@ export default function MyJobsPage() {
     </Section>
   );
 }
-

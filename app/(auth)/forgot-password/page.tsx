@@ -23,7 +23,9 @@ export default function ForgotPasswordPage() {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       setSuccess(true);
     } catch (err: any) {
@@ -40,7 +42,7 @@ export default function ForgotPasswordPage() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-950 mb-2">Forgot Password?</h1>
             <p className="text-gray-700 font-medium">
-              Enter your email address and we'll send you a link to reset your password.
+              Enter your email address and we&apos;ll send you a link to reset your password.
             </p>
           </div>
 
@@ -48,7 +50,12 @@ export default function ForgotPasswordPage() {
             <div className="bg-green-50 border-2 border-green-300 text-green-800 px-5 py-4 rounded-lg font-medium mb-6">
               <div className="flex items-center gap-2">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 Password reset link has been sent to your email. Please check your inbox.
               </div>
@@ -89,10 +96,7 @@ export default function ForgotPasswordPage() {
           )}
 
           <div className="mt-6 text-center">
-            <Link
-              href="/login"
-              className="text-indigo-700 hover:text-indigo-800 font-semibold"
-            >
+            <Link href="/login" className="text-indigo-700 hover:text-indigo-800 font-semibold">
               ← Back to Login
             </Link>
           </div>
@@ -101,12 +105,3 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-

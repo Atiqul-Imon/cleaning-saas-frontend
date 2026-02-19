@@ -27,12 +27,6 @@ export default function AdminUsersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
 
-  // Redirect if not admin
-  if (!roleLoading && userRole?.role !== 'ADMIN') {
-    router.replace('/admin');
-    return null;
-  }
-
   const usersQuery = useApiQuery<{ users: User[]; pagination: any }>(
     ['admin', 'users', currentPage.toString()],
     `/admin/users?page=${currentPage}&limit=20`,
@@ -40,6 +34,12 @@ export default function AdminUsersPage() {
       enabled: userRole?.role === 'ADMIN',
     },
   );
+
+  // Redirect if not admin
+  if (!roleLoading && userRole?.role !== 'ADMIN') {
+    router.replace('/admin');
+    return null;
+  }
 
   if (roleLoading || usersQuery.isLoading) {
     return (
@@ -60,7 +60,10 @@ export default function AdminUsersPage() {
   const filteredUsers = users.filter((user) => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      if (!user.email.toLowerCase().includes(query) && !user.business?.name.toLowerCase().includes(query)) {
+      if (
+        !user.email.toLowerCase().includes(query) &&
+        !user.business?.name.toLowerCase().includes(query)
+      ) {
         return false;
       }
     }
@@ -100,7 +103,12 @@ export default function AdminUsersPage() {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
             <input
               type="text"
@@ -132,8 +140,18 @@ export default function AdminUsersPage() {
       {filteredUsers.length === 0 ? (
         <Card variant="elevated" padding="lg">
           <div className="text-center py-12">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            <svg
+              className="w-16 h-16 text-gray-400 mx-auto mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
             </svg>
             <p className="text-gray-500 text-lg font-medium">
               {searchQuery || roleFilter !== 'all' ? 'No users found' : 'No users registered yet'}
@@ -151,8 +169,8 @@ export default function AdminUsersPage() {
                       user.role === 'ADMIN'
                         ? 'bg-gradient-to-br from-purple-500 to-indigo-600'
                         : user.role === 'OWNER'
-                        ? 'bg-gradient-to-br from-blue-500 to-cyan-600'
-                        : 'bg-gradient-to-br from-green-500 to-emerald-600'
+                          ? 'bg-gradient-to-br from-blue-500 to-cyan-600'
+                          : 'bg-gradient-to-br from-green-500 to-emerald-600'
                     }`}
                   >
                     {user.email.charAt(0).toUpperCase()}
@@ -165,8 +183,8 @@ export default function AdminUsersPage() {
                           user.role === 'ADMIN'
                             ? 'bg-purple-100 text-purple-700'
                             : user.role === 'OWNER'
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-green-100 text-green-700'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-green-100 text-green-700'
                         }`}
                       >
                         {user.role}
@@ -175,15 +193,35 @@ export default function AdminUsersPage() {
                     <div className="space-y-1">
                       {user.business && (
                         <p className="text-sm text-gray-600 flex items-center gap-2">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                            />
                           </svg>
                           {user.business.name}
                         </p>
                       )}
                       <p className="text-sm text-gray-600 flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
                         {user._count.assignedJobs} assigned jobs
                       </p>
@@ -192,7 +230,8 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="flex flex-col items-end gap-2 flex-shrink-0">
                   <span className="text-xs text-gray-500">
-                    Joined {new Date(user.createdAt).toLocaleDateString('en-GB', {
+                    Joined{' '}
+                    {new Date(user.createdAt).toLocaleDateString('en-GB', {
                       day: 'numeric',
                       month: 'short',
                       year: 'numeric',
@@ -237,6 +276,3 @@ export default function AdminUsersPage() {
     </div>
   );
 }
-
-
-

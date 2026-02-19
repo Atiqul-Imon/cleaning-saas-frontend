@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Card, Button } from '@/components/ui';
 import { Stack } from '@/components/layout';
 
@@ -38,10 +37,24 @@ export default function CleanerJobDetail({ job, onStatusUpdate, updating }: Clea
           </Button>
         )}
         {job.status === 'COMPLETED' && (
-          <Card variant="outlined" padding="md" className="bg-[var(--success-50)] border-[var(--success-200)]">
+          <Card
+            variant="outlined"
+            padding="md"
+            className="bg-[var(--success-50)] border-[var(--success-200)]"
+          >
             <Stack direction="row" spacing="sm" align="center" justify="center">
-              <svg className="w-5 h-5 text-[var(--success-600)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-5 h-5 text-[var(--success-600)]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               <p className="text-[var(--success-800)] font-bold">Job Completed</p>
             </Stack>
@@ -51,4 +64,3 @@ export default function CleanerJobDetail({ job, onStatusUpdate, updating }: Clea
     </Card>
   );
 }
-

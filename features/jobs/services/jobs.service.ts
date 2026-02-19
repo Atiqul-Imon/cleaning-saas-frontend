@@ -34,7 +34,7 @@ export class JobsService {
       const scheduledDate = new Date(data.scheduledDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       if (scheduledDate < today) {
         errors.push('Scheduled date cannot be in the past');
       }
@@ -67,7 +67,7 @@ export class JobsService {
       const scheduledDate = new Date(data.scheduledDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       if (scheduledDate < today) {
         errors.push('Scheduled date cannot be in the past');
       }
@@ -137,12 +137,11 @@ export class JobsService {
    * Format job status for display
    */
   static formatStatus(status: string): string {
-    return status.replace('_', ' ').toLowerCase()
+    return status
+      .replace('_', ' ')
+      .toLowerCase()
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   }
 }
-
-
-
