@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card, Badge, Avatar } from '@/components/ui';
 import { Stack } from '@/components/layout';
 import { cn } from '@/lib/utils';
+import { formatDateBritishWithWeekday } from '@/lib/date-utils';
 
 export interface JobCardProps {
   id: string;
@@ -72,11 +73,7 @@ const JobCard = React.memo(
                     />
                   </svg>
                   <span className="text-sm font-medium">
-                    {new Date(scheduledDate).toLocaleDateString('en-GB', {
-                      weekday: 'short',
-                      day: 'numeric',
-                      month: 'short',
-                    })}
+                    {formatDateBritishWithWeekday(scheduledDate)}
                   </span>
                   {scheduledTime && (
                     <>

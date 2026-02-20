@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useJobForm } from '@/features/jobs/hooks/useJobForm';
@@ -19,6 +19,7 @@ import {
   EmptyState,
 } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { getTodayDateInput, getTomorrowDateInput, getNextWeekDateInput } from '@/lib/date-utils';
 
 interface Cleaner {
   id: string;
@@ -34,6 +35,7 @@ export default function CreateJobPage() {
   const clientIdParam = searchParams.get('clientId');
   const { canCreateJobs } = usePermissions();
   const { userRole } = useUserRole();
+  const [showQuickDates, setShowQuickDates] = useState(false);
 
   // Parallel fetching: Both clients and cleaners fetch simultaneously
   // They're independent queries, so React Query will run them in parallel
@@ -340,17 +342,23 @@ export default function CreateJobPage() {
 
                 <Divider spacing="md" />
 
-                <Grid cols={2} gap="md">
-                  <Input
-                    label="Scheduled Date"
-                    id="scheduledDate"
-                    type="date"
-                    required
-                    value={formData.scheduledDate}
-                    onChange={(e) => updateField('scheduledDate', e.target.value)}
-                    leftIcon={
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--gray-900)] mb-3">
+                    Schedule Date & Time *
+                  </label>
+
+                  {/* Quick Date Selection */}
+                  <div className="mb-4">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowQuickDates(!showQuickDates)}
+                      className="mb-2"
+                    >
+                      {showQuickDates ? 'Hide' : 'Show'} Quick Date Options
                       <svg
-                        className="w-5 h-5"
+                        className={`w-4 h-4 ml-2 transition-transform ${showQuickDates ? 'rotate-180' : ''}`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -359,35 +367,161 @@ export default function CreateJobPage() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          d="M19 9l-7 7-7-7"
                         />
                       </svg>
-                    }
-                  />
-                  <Input
-                    label="Scheduled Time"
-                    id="scheduledTime"
-                    type="time"
-                    value={formData.scheduledTime || ''}
-                    onChange={(e) => updateField('scheduledTime', e.target.value || undefined)}
-                    leftIcon={
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    }
-                    helperText="Optional"
-                  />
-                </Grid>
+                    </Button>
+
+                    {showQuickDates && (
+                      <Grid cols={3} gap="sm" className="mb-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateField('scheduledDate', getTodayDateInput());
+                            setShowQuickDates(false);
+                          }}
+                          className={cn(
+                            'px-4 py-2 text-sm rounded-lg border transition-all font-medium',
+                            formData.scheduledDate === getTodayDateInput()
+                              ? 'bg-[var(--primary-500)] text-white border-[var(--primary-500)]'
+                              : 'bg-white text-[var(--gray-700)] border-[var(--gray-300)] hover:border-[var(--primary-300)] hover:bg-[var(--primary-50)]',
+                          )}
+                        >
+                          Today
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateField('scheduledDate', getTomorrowDateInput());
+                            setShowQuickDates(false);
+                          }}
+                          className={cn(
+                            'px-4 py-2 text-sm rounded-lg border transition-all font-medium',
+                            formData.scheduledDate === getTomorrowDateInput()
+                              ? 'bg-[var(--primary-500)] text-white border-[var(--primary-500)]'
+                              : 'bg-white text-[var(--gray-700)] border-[var(--gray-300)] hover:border-[var(--primary-300)] hover:bg-[var(--primary-50)]',
+                          )}
+                        >
+                          Tomorrow
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateField('scheduledDate', getNextWeekDateInput());
+                            setShowQuickDates(false);
+                          }}
+                          className={cn(
+                            'px-4 py-2 text-sm rounded-lg border transition-all font-medium',
+                            formData.scheduledDate === getNextWeekDateInput()
+                              ? 'bg-[var(--primary-500)] text-white border-[var(--primary-500)]'
+                              : 'bg-white text-[var(--gray-700)] border-[var(--gray-300)] hover:border-[var(--primary-300)] hover:bg-[var(--primary-50)]',
+                          )}
+                        >
+                          Next Week
+                        </button>
+                      </Grid>
+                    )}
+                  </div>
+
+                  <Grid cols={2} gap="md">
+                    <div>
+                      <Input
+                        label="Date"
+                        id="scheduledDate"
+                        type="date"
+                        required
+                        value={formData.scheduledDate}
+                        onChange={(e) => updateField('scheduledDate', e.target.value)}
+                        min={getTodayDateInput()}
+                        leftIcon={
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                        }
+                        helperText={
+                          formData.scheduledDate
+                            ? new Date(formData.scheduledDate).toLocaleDateString('en-GB', {
+                                weekday: 'long',
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              })
+                            : 'Select a date'
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        label="Time"
+                        id="scheduledTime"
+                        type="time"
+                        value={formData.scheduledTime || ''}
+                        onChange={(e) => updateField('scheduledTime', e.target.value || undefined)}
+                        leftIcon={
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        }
+                        helperText={
+                          formData.scheduledTime
+                            ? `Selected: ${formData.scheduledTime}`
+                            : 'Optional - Select a time'
+                        }
+                      />
+
+                      {/* Quick Time Selection */}
+                      <div className="mt-2">
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            '09:00',
+                            '10:00',
+                            '11:00',
+                            '12:00',
+                            '13:00',
+                            '14:00',
+                            '15:00',
+                            '16:00',
+                            '17:00',
+                          ].map((time) => (
+                            <button
+                              key={time}
+                              type="button"
+                              onClick={() => updateField('scheduledTime', time)}
+                              className={cn(
+                                'px-3 py-1.5 text-sm rounded-lg border transition-all',
+                                formData.scheduledTime === time
+                                  ? 'bg-[var(--primary-500)] text-white border-[var(--primary-500)]'
+                                  : 'bg-white text-[var(--gray-700)] border-[var(--gray-300)] hover:border-[var(--primary-300)] hover:bg-[var(--primary-50)]',
+                              )}
+                            >
+                              {time}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </Grid>
+                </div>
 
                 <Divider spacing="md" />
 

@@ -21,12 +21,43 @@ export function useJobManagement() {
       }
       return jobsApi.create(JobsService.transformJobData(data));
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Invalidate all job-related queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
-      showToast('Job created successfully!', 'success');
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+
+      const jobDate = new Date(data.scheduledDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const jobDateOnly = new Date(jobDate);
+      jobDateOnly.setHours(0, 0, 0, 0);
+
+      // Format date in British format
+      const formattedDate = `${String(jobDate.getDate()).padStart(2, '0')}/${String(jobDate.getMonth() + 1).padStart(2, '0')}/${String(jobDate.getFullYear()).slice(-2)}`;
+
+      if (jobDateOnly.getTime() === today.getTime()) {
+        showToast(
+          `Job created successfully! It will appear in today's jobs (${formattedDate}).`,
+          'success',
+        );
+      } else if (jobDateOnly.getTime() > today.getTime()) {
+        showToast(
+          `Job created successfully! Scheduled for ${formattedDate}. Check "Upcoming Jobs" section.`,
+          'success',
+        );
+      } else {
+        showToast(
+          `Job created successfully! Scheduled for ${formattedDate}. Check "Recent Jobs" section.`,
+          'success',
+        );
+      }
     },
     onError: (error: Error) => {
-      showToast(error.message || 'Failed to create job', 'error');
+      console.error('Job creation error:', error);
+      const errorMessage =
+        error.message || 'Failed to create job. Please check all fields and try again.';
+      showToast(errorMessage, 'error');
     },
   });
 
@@ -61,7 +92,14 @@ export function useJobManagement() {
   });
 
   return {
-    createJob: (data: CreateJobDto) => createJob.mutate(data),
+    createJob: async (data: CreateJobDto) => {
+      return new Promise((resolve, reject) => {
+        createJob.mutate(data, {
+          onSuccess: (result) => resolve(result),
+          onError: (error) => reject(error),
+        });
+      });
+    },
     updateJob: (id: string, data: UpdateJobDto) => updateJob.mutate({ id, data }),
     deleteJob: (id: string) => deleteJob.mutate(id),
     isCreating: createJob.isPending,
@@ -69,4 +107,3 @@ export function useJobManagement() {
     isDeleting: deleteJob.isPending,
   };
 }
-

@@ -61,12 +61,19 @@ export function useJobForm(initialData?: Partial<CreateJobDto>) {
       return;
     }
 
-    const transformedData = JobsService.transformJobData(formData);
-    createJob(transformedData);
+    try {
+      const transformedData = JobsService.transformJobData(formData);
+      await createJob(transformedData);
 
-    // Navigation is handled in useJobManagement hook via success callback
-    router.push('/jobs');
-    router.refresh();
+      // Wait for success, then navigate
+      // Navigation will happen after successful creation
+      router.push('/jobs');
+      router.refresh();
+    } catch (error) {
+      // Error is already handled by useJobManagement hook
+      // Don't navigate on error
+      console.error('Job creation failed:', error);
+    }
   };
 
   return {
