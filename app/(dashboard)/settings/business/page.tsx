@@ -51,8 +51,10 @@ export default async function BusinessSettingsPage() {
     <Section background="subtle" padding="lg">
       <Container size="lg">
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">Business Settings</h1>
-          <p className="text-[var(--gray-600)] text-lg">
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2">
+            Business Settings
+          </h1>
+          <p className="text-[var(--gray-600)] text-base sm:text-lg">
             Manage your business information and preferences
           </p>
         </div>

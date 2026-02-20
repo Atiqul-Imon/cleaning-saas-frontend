@@ -9,9 +9,22 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  fullWidth?: boolean;
   children: React.ReactNode;
 }
 
+/**
+ * Button Component
+ *
+ * Enhanced button with:
+ * - Multiple variants (primary, secondary, ghost, danger, success)
+ * - Three sizes (sm, md, lg)
+ * - Loading state with spinner
+ * - Icon support (left/right)
+ * - Full width option
+ * - Accessible (ARIA labels, keyboard navigation)
+ * - Touch-friendly (44px minimum)
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -20,39 +33,43 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       isLoading = false,
       leftIcon,
       rightIcon,
+      fullWidth = false,
       className,
       disabled,
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
-    
+    const baseStyles =
+      'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
+
     const variants = {
-      primary: 'bg-[var(--primary-600)] text-white hover:bg-[var(--primary-700)] active:bg-[var(--primary-800)] focus:ring-[var(--primary-500)] shadow-md hover:shadow-lg',
-      secondary: 'bg-[var(--gray-200)] text-[var(--gray-900)] hover:bg-[var(--gray-300)] active:bg-[var(--gray-400)] focus:ring-[var(--gray-500)]',
-      ghost: 'bg-transparent text-[var(--gray-700)] hover:bg-[var(--gray-100)] active:bg-[var(--gray-200)] focus:ring-[var(--gray-500)]',
-      danger: 'bg-[var(--error-500)] text-white hover:bg-[var(--error-600)] active:bg-[var(--error-700)] focus:ring-[var(--error-500)] shadow-md hover:shadow-lg',
-      success: 'bg-[var(--success-500)] text-white hover:bg-[var(--success-600)] active:bg-[var(--success-700)] focus:ring-[var(--success-500)] shadow-md hover:shadow-lg',
+      primary:
+        'bg-[var(--primary-600)] text-white hover:bg-[var(--primary-700)] active:bg-[var(--primary-800)] focus:ring-[var(--primary-500)] shadow-md hover:shadow-lg',
+      secondary:
+        'bg-[var(--gray-200)] text-[var(--gray-900)] hover:bg-[var(--gray-300)] active:bg-[var(--gray-400)] focus:ring-[var(--gray-500)]',
+      ghost:
+        'bg-transparent text-[var(--gray-700)] hover:bg-[var(--gray-100)] active:bg-[var(--gray-200)] focus:ring-[var(--gray-500)]',
+      danger:
+        'bg-[var(--error-500)] text-white hover:bg-[var(--error-600)] active:bg-[var(--error-700)] focus:ring-[var(--error-500)] shadow-md hover:shadow-lg',
+      success:
+        'bg-[var(--success-500)] text-white hover:bg-[var(--success-600)] active:bg-[var(--success-700)] focus:ring-[var(--success-500)] shadow-md hover:shadow-lg',
     };
 
     const sizes = {
-      sm: 'px-4 py-2 text-sm min-h-[44px] min-w-[44px]',
-      md: 'px-6 py-3 text-base min-h-[44px] min-w-[44px]',
-      lg: 'px-8 py-4 text-lg min-h-[48px] min-w-[48px]',
+      sm: 'px-4 py-2 text-sm min-h-[44px]',
+      md: 'px-6 py-3 text-base min-h-[44px]',
+      lg: 'px-8 py-4 text-lg min-h-[48px]',
     };
 
     return (
       <button
         ref={ref}
-        className={cn(
-          baseStyles,
-          variants[variant],
-          sizes[size],
-          className
-        )}
+        type={props.type || 'button'}
+        className={cn(baseStyles, variants[variant], sizes[size], fullWidth && 'w-full', className)}
         disabled={disabled || isLoading}
+        aria-busy={isLoading}
         {...props}
       >
         {isLoading ? (
@@ -88,10 +105,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = 'Button';
 
 export default Button;
-

@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SkipLink from '@/components/accessibility/SkipLink';
+import { ThemeProvider } from '@/lib/theme-context';
 import { ToastProvider } from '@/lib/toast-context';
 import { ReactQueryProvider } from '@/lib/react-query-provider';
 
@@ -17,8 +19,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#ffffff" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -47,13 +50,21 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="flex flex-col min-h-screen overflow-x-hidden">
+      <body
+        className="flex flex-col min-h-screen overflow-x-hidden"
+        style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+      >
         <ReactQueryProvider>
-          <ToastProvider>
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </ToastProvider>
+          <ThemeProvider>
+            <ToastProvider>
+              <SkipLink />
+              <Header />
+              <main id="main-content" className="flex-grow" tabIndex={-1}>
+                {children}
+              </main>
+              <Footer />
+            </ToastProvider>
+          </ThemeProvider>
         </ReactQueryProvider>
       </body>
     </html>

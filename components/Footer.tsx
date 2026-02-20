@@ -1,15 +1,33 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Hide footer on dashboard pages
+  const isDashboardPage =
+    pathname?.startsWith('/dashboard') ||
+    pathname?.startsWith('/jobs') ||
+    pathname?.startsWith('/clients') ||
+    pathname?.startsWith('/invoices') ||
+    pathname?.startsWith('/reports') ||
+    pathname?.startsWith('/my-jobs') ||
+    pathname?.startsWith('/settings') ||
+    pathname?.startsWith('/onboarding');
+
+  if (isDashboardPage) {
+    return null;
+  }
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-lg font-semibold mb-2">Clenvora</h3>
-            <p className="text-gray-400 text-sm mb-2 italic">
-              Run your cleaning business. Simply.
-            </p>
+            <p className="text-gray-400 text-sm mb-2 italic">Run your cleaning business. Simply.</p>
             <p className="text-gray-400 text-sm">
               All-in-one platform for professional cleaning businesses worldwide.
             </p>
@@ -60,19 +78,10 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+        <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-400">
           <p>&copy; {new Date().getFullYear()} Clenvora. All rights reserved.</p>
         </div>
       </div>
     </footer>
   );
 }
-
-
-
-
-
-
-
-
-

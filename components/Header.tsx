@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUserRole } from '@/lib/use-user-role';
 import { Button, IconButton } from '@/components/ui';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 import { Container } from '@/components/layout';
 import dynamic from 'next/dynamic';
 
@@ -67,6 +68,17 @@ export default function Header() {
   const isAdmin = userRole?.role === 'ADMIN';
   const isCleaner = userRole?.role === 'CLEANER';
 
+  // Hide header on dashboard pages (sidebar handles navigation)
+  const isDashboardPage =
+    pathname?.startsWith('/dashboard') ||
+    pathname?.startsWith('/jobs') ||
+    pathname?.startsWith('/clients') ||
+    pathname?.startsWith('/invoices') ||
+    pathname?.startsWith('/reports') ||
+    pathname?.startsWith('/my-jobs') ||
+    pathname?.startsWith('/settings') ||
+    pathname?.startsWith('/onboarding');
+
   const isActive = (href: string) => {
     if (href === '/dashboard') {
       return pathname === '/dashboard';
@@ -74,9 +86,20 @@ export default function Header() {
     return pathname?.startsWith(href);
   };
 
+  // Don't render header on dashboard pages
+  if (isDashboardPage && user) {
+    return null;
+  }
+
   return (
     <>
-      <header className="sticky top-0 z-30 bg-white border-b border-[var(--gray-200)] shadow-sm backdrop-blur-sm bg-opacity-95">
+      <header
+        className="sticky top-0 z-30 shadow-sm backdrop-blur-sm bg-opacity-95 transition-colors duration-300"
+        style={{
+          backgroundColor: 'var(--bg-elevated)',
+          borderBottom: '1px solid var(--border-light)',
+        }}
+      >
         <Container size="lg">
           <nav className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -138,6 +161,11 @@ export default function Header() {
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
+                  {/* Theme Toggle */}
+                  <div className="hidden md:block">
+                    <ThemeToggle />
+                  </div>
+
                   {/* Search - Desktop (only for Owners and Admins) */}
                   {(isOwner || isAdmin) && (
                     <div className="hidden md:block">

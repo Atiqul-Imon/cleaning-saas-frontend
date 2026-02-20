@@ -3,8 +3,8 @@
 import { useState, useMemo } from 'react';
 import { useUserRole } from '@/lib/hooks/use-user-role-query';
 import { useApiQuery } from '@/lib/hooks/use-api';
-import { Container, Grid, Stack, Section } from '@/components/layout';
-import { Card, Input, Select, LoadingSkeleton, EmptyState } from '@/components/ui';
+import { Container, Grid, Stack, Section, PageHeader } from '@/components/layout';
+import { Card, Select, LoadingSkeleton } from '@/components/ui';
 import { JobCard } from '@/features/jobs/components';
 
 interface Job {
@@ -20,7 +20,6 @@ interface Job {
 }
 
 export default function MyJobsPageClient() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED'
   >('all');
@@ -41,14 +40,6 @@ export default function MyJobsPageClient() {
   const filteredJobs = useMemo(() => {
     let filtered = [...jobs];
 
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (job) =>
-          job.client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          job.type.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-    }
-
     if (statusFilter !== 'all') {
       filtered = filtered.filter((job) => job.status === statusFilter);
     }
@@ -64,13 +55,27 @@ export default function MyJobsPageClient() {
     });
 
     return filtered;
-  }, [jobs, searchQuery, statusFilter, sortBy]);
+  }, [jobs, statusFilter, sortBy]);
+
+  // Count jobs by status
+  const statusCounts = useMemo(() => {
+    return {
+      all: jobs.length,
+      SCHEDULED: jobs.filter((j) => j.status === 'SCHEDULED').length,
+      IN_PROGRESS: jobs.filter((j) => j.status === 'IN_PROGRESS').length,
+      COMPLETED: jobs.filter((j) => j.status === 'COMPLETED').length,
+    };
+  }, [jobs]);
 
   if (loading) {
     return (
       <Section background="subtle" padding="lg">
         <Container size="lg">
-          <LoadingSkeleton type="card" count={6} />
+          <LoadingSkeleton
+            type="card"
+            count={6}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          />
         </Container>
       </Section>
     );
@@ -80,14 +85,39 @@ export default function MyJobsPageClient() {
     return (
       <Section background="subtle" padding="lg">
         <Container size="lg">
-          <EmptyState
-            title="Error Loading Jobs"
-            description={(error as Error)?.message || 'Failed to load jobs'}
-            action={{
-              label: 'Try Again',
-              onClick: () => window.location.reload(),
-            }}
-          />
+          <Card variant="elevated" padding="lg" className="text-center">
+            <div className="max-w-md mx-auto space-y-4">
+              <div className="w-16 h-16 mx-auto bg-[var(--error-50)] rounded-full flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-[var(--error-600)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-[var(--gray-900)] mb-2">
+                  Error Loading Jobs
+                </h3>
+                <p className="text-[var(--gray-600)] mb-6">
+                  {(error as Error)?.message || 'Failed to load jobs'}
+                </p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-[var(--primary-600)] text-white rounded-lg hover:bg-[var(--primary-700)] transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </Card>
         </Container>
       </Section>
     );
@@ -97,35 +127,14 @@ export default function MyJobsPageClient() {
     <Section background="subtle" padding="lg">
       <Container size="lg">
         <Stack spacing="lg">
-          <Stack direction="row" justify="between" align="center">
-            <div>
-              <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">My Jobs</h1>
-              <p className="text-[var(--gray-600)] text-lg">
-                View and manage your assigned cleaning jobs
-              </p>
-            </div>
-          </Stack>
+          {/* Page Header */}
+          <PageHeader title="My Jobs" description="View and manage your assigned cleaning jobs" />
 
           {/* Filters */}
           <Card variant="elevated" padding="md">
-            <Grid cols={3} gap="md">
-              <Input
-                placeholder="Search by client or type..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                leftIcon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                }
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Select
-                label="Status"
+                label="Filter by Status"
                 value={statusFilter}
                 onChange={(e) =>
                   setStatusFilter(
@@ -133,14 +142,14 @@ export default function MyJobsPageClient() {
                   )
                 }
                 options={[
-                  { label: 'All Statuses', value: 'all' },
-                  { label: 'Scheduled', value: 'SCHEDULED' },
-                  { label: 'In Progress', value: 'IN_PROGRESS' },
-                  { label: 'Completed', value: 'COMPLETED' },
+                  { label: `All (${statusCounts.all})`, value: 'all' },
+                  { label: `Scheduled (${statusCounts.SCHEDULED})`, value: 'SCHEDULED' },
+                  { label: `In Progress (${statusCounts.IN_PROGRESS})`, value: 'IN_PROGRESS' },
+                  { label: `Completed (${statusCounts.COMPLETED})`, value: 'COMPLETED' },
                 ]}
               />
               <Select
-                label="Sort By"
+                label="Sort by"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'date' | 'client' | 'status')}
                 options={[
@@ -149,40 +158,42 @@ export default function MyJobsPageClient() {
                   { label: 'Status', value: 'status' },
                 ]}
               />
-            </Grid>
+            </div>
           </Card>
 
           {/* Jobs List */}
           {filteredJobs.length === 0 ? (
-            <EmptyState
-              title={
-                searchQuery || statusFilter !== 'all'
-                  ? 'No jobs match your filters'
-                  : 'No jobs assigned yet'
-              }
-              description={
-                searchQuery || statusFilter !== 'all'
-                  ? 'Try adjusting your search or filter criteria'
-                  : 'You will see jobs here once they are assigned to you by the business owner'
-              }
-              icon={
-                <svg
-                  className="w-16 h-16 text-[var(--gray-400)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              }
-            />
+            <Card variant="elevated" padding="lg" className="text-center">
+              <div className="max-w-md mx-auto space-y-4">
+                <div className="w-20 h-20 mx-auto bg-[var(--gray-100)] rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-10 h-10 text-[var(--gray-400)]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-[var(--gray-900)] mb-2">
+                    {statusFilter !== 'all' ? 'No jobs match your filters' : 'No jobs assigned yet'}
+                  </h3>
+                  <p className="text-[var(--gray-600)]">
+                    {statusFilter !== 'all'
+                      ? 'Try adjusting your filter criteria'
+                      : 'You will see jobs here once they are assigned to you by the business owner'}
+                  </p>
+                </div>
+              </div>
+            </Card>
           ) : (
-            <Grid cols={1} gap="md">
+            <Grid cols={3} gap="md">
               {filteredJobs.map((job) => (
                 <JobCard
                   key={job.id}

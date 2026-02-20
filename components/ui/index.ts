@@ -11,6 +11,10 @@ export { default as Modal } from './Modal';
 export { default as LoadingSkeleton } from './LoadingSkeleton';
 export { default as EmptyState } from './EmptyState';
 export { default as Toast } from './Toast';
+export { default as SearchBar } from './SearchBar';
+export { default as FilterBar } from './FilterBar';
+export { default as StatusBadge } from './StatusBadge';
+export { default as ConfirmDialog } from './ConfirmDialog';
 
 export type { ButtonProps } from './Button';
 export type { InputProps } from './Input';
@@ -22,3 +26,7 @@ export type { SelectProps } from './Select';
 export type { TextareaProps } from './Textarea';
 export type { CheckboxProps } from './Checkbox';
 export type { ModalProps } from './Modal';
+export type { SearchBarProps } from './SearchBar';
+export type { FilterBarProps, FilterOption } from './FilterBar';
+export type { StatusBadgeProps, StatusType } from './StatusBadge';
+export type { ConfirmDialogProps } from './ConfirmDialog';

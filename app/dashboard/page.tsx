@@ -181,26 +181,60 @@ export default function DashboardPage() {
     return null; // Redirect will happen in useEffect
   }
 
+  // Get current date for hero section
+  const currentDate = new Date();
+  const dayName = currentDate.toLocaleDateString('en-GB', { weekday: 'long' });
+  const dateString = currentDate.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
   return (
     <Section background="subtle" padding="lg">
       <Container size="lg">
         <Stack spacing="lg">
-          {/* Welcome Section */}
-          <div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2 break-words">
-              {isOwner || isAdmin
-                ? `Welcome back, ${business?.name || 'Business Owner'}!`
-                : isCleaner
-                  ? 'Welcome back!'
-                  : 'Welcome!'}
-            </h1>
-            <p className="text-[var(--gray-600)] text-base sm:text-lg">
-              {isOwner || isAdmin
-                ? "Here's an overview of your business"
-                : isCleaner
-                  ? 'Here are your jobs for today'
-                  : 'Dashboard'}
-            </p>
+          {/* Hero Section */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--primary-600)] to-[var(--accent-600)] p-6 sm:p-8 lg:p-10 text-white">
+            <div className="relative z-10">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex-1">
+                  <p className="text-sm sm:text-base font-medium opacity-90 mb-2">
+                    {dayName}, {dateString}
+                  </p>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-2 break-words">
+                    {isOwner || isAdmin
+                      ? `Welcome back, ${business?.name || 'Business Owner'}!`
+                      : isCleaner
+                        ? 'Welcome back!'
+                        : 'Welcome!'}
+                  </h1>
+                  <p className="text-base sm:text-lg opacity-90">
+                    {isOwner || isAdmin
+                      ? stats?.todayJobs
+                        ? `You have ${stats.todayJobs} ${stats.todayJobs === 1 ? 'job' : 'jobs'} scheduled today`
+                        : "Here's an overview of your business"
+                      : isCleaner
+                        ? stats?.todayJobs
+                          ? `You have ${stats.todayJobs} ${stats.todayJobs === 1 ? 'job' : 'jobs'} scheduled today`
+                          : 'Here are your jobs for today'
+                        : 'Dashboard'}
+                  </p>
+                </div>
+                {stats && (isOwner || isAdmin) && stats.todayJobs > 0 && (
+                  <div className="flex-shrink-0">
+                    <Link href="/jobs?status=SCHEDULED">
+                      <button className="px-4 py-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-lg font-semibold text-sm transition-all duration-200 border border-white/30">
+                        View Today&apos;s Jobs
+                      </button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* Decorative background pattern */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
           </div>
 
           {/* Stats Cards */}
@@ -310,8 +344,13 @@ export default function DashboardPage() {
           {/* Quick Actions */}
           {(isOwner || isAdmin) && (
             <div>
-              <h2 className="text-2xl font-bold text-[var(--gray-900)] mb-4">Quick Actions</h2>
-              <Grid cols={5} gap="md">
+              <div className="mb-4 sm:mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-[var(--gray-900)] mb-1">
+                  Quick Actions
+                </h2>
+                <p className="text-sm text-[var(--gray-600)]">Common tasks and shortcuts</p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 w-full">
                 <QuickAction
                   title="View Jobs"
                   description="See all your jobs"
@@ -414,7 +453,7 @@ export default function DashboardPage() {
                   }
                   href="/settings/business"
                 />
-              </Grid>
+              </div>
             </div>
           )}
 
@@ -429,7 +468,7 @@ export default function DashboardPage() {
                   </Button>
                 </Link>
               </div>
-              <Grid cols={1} gap="md">
+              <Grid cols={3} gap="md">
                 {stats.todayJobsList
                   .slice(0, 5)
                   .map(
@@ -474,15 +513,23 @@ export default function DashboardPage() {
           {/* Upcoming Jobs for Owners */}
           {stats && (isOwner || isAdmin) && stats.upcomingJobs && stats.upcomingJobs.length > 0 && (
             <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-[var(--gray-900)]">Upcoming Jobs</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-[var(--gray-900)] mb-1">
+                    Upcoming Jobs
+                  </h2>
+                  <p className="text-sm text-[var(--gray-600)]">
+                    {stats.upcomingJobs.length} {stats.upcomingJobs.length === 1 ? 'job' : 'jobs'}{' '}
+                    scheduled in the next 30 days
+                  </p>
+                </div>
                 <Link href="/jobs">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="w-full sm:w-auto">
                     View All
                   </Button>
                 </Link>
               </div>
-              <Grid cols={1} gap="md">
+              <Grid cols={3} gap="md">
                 {stats.upcomingJobs
                   .slice(0, 5)
                   .map(
@@ -530,15 +577,23 @@ export default function DashboardPage() {
             stats.inProgressJobs &&
             stats.inProgressJobs.length > 0 && (
               <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-[var(--gray-900)]">In Progress Jobs</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--gray-900)] mb-1">
+                      In Progress Jobs
+                    </h2>
+                    <p className="text-sm text-[var(--gray-600)]">
+                      {stats.inProgressJobs.length}{' '}
+                      {stats.inProgressJobs.length === 1 ? 'job' : 'jobs'} currently in progress
+                    </p>
+                  </div>
                   <Link href="/jobs?status=IN_PROGRESS">
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" className="w-full sm:w-auto">
                       View All
                     </Button>
                   </Link>
                 </div>
-                <Grid cols={1} gap="md">
+                <Grid cols={3} gap="md">
                   {stats.inProgressJobs
                     .slice(0, 5)
                     .map(
@@ -580,15 +635,23 @@ export default function DashboardPage() {
           {/* Upcoming Jobs for Cleaners */}
           {stats && isCleaner && stats.upcomingJobs && stats.upcomingJobs.length > 0 && (
             <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-[var(--gray-900)]">Upcoming Jobs</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-[var(--gray-900)] mb-1">
+                    Upcoming Jobs
+                  </h2>
+                  <p className="text-sm text-[var(--gray-600)]">
+                    {stats.upcomingJobs.length} {stats.upcomingJobs.length === 1 ? 'job' : 'jobs'}{' '}
+                    scheduled
+                  </p>
+                </div>
                 <Link href="/jobs">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="w-full sm:w-auto">
                     View All
                   </Button>
                 </Link>
               </div>
-              <Grid cols={1} gap="md">
+              <Grid cols={3} gap="md">
                 {stats.upcomingJobs
                   .slice(0, 5)
                   .map(
@@ -686,15 +749,22 @@ export default function DashboardPage() {
             stats.recentClients &&
             stats.recentClients.length > 0 && (
               <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-[var(--gray-900)]">Recent Clients</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--gray-900)] mb-1">
+                      Recent Clients
+                    </h2>
+                    <p className="text-sm text-[var(--gray-600)]">
+                      {stats.recentClients.length} of {stats.totalClients || 0} total clients
+                    </p>
+                  </div>
                   <Link href="/clients">
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" className="w-full sm:w-auto">
                       View All ({stats.totalClients || 0})
                     </Button>
                   </Link>
                 </div>
-                <Grid cols={1} gap="md">
+                <Grid cols={3} gap="md">
                   {stats.recentClients
                     .slice(0, 5)
                     .map(
@@ -739,10 +809,17 @@ export default function DashboardPage() {
             stats.recentInvoices &&
             stats.recentInvoices.length > 0 && (
               <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-[var(--gray-900)]">Recent Invoices</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--gray-900)] mb-1">
+                      Recent Invoices
+                    </h2>
+                    <p className="text-sm text-[var(--gray-600)]">
+                      {stats.recentInvoices.length} of {stats.totalInvoices || 0} total invoices
+                    </p>
+                  </div>
                   <Link href="/invoices">
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" className="w-full sm:w-auto">
                       View All ({stats.totalInvoices || 0})
                     </Button>
                   </Link>
@@ -809,29 +886,45 @@ export default function DashboardPage() {
             (!stats.upcomingJobs || stats.upcomingJobs.length === 0) &&
             (!stats.inProgressJobs || stats.inProgressJobs.length === 0) &&
             (isOwner || isAdmin) && (
-              <EmptyState
-                title="No jobs scheduled"
-                description="Get started by creating your first job or adding a client"
-                icon={
-                  <svg
-                    className="w-16 h-16 text-[var(--gray-400)]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                }
-                action={{
-                  label: 'Create Your First Job',
-                  href: '/jobs/create',
-                }}
-              />
+              <Card variant="elevated" padding="lg" className="text-center">
+                <div className="max-w-md mx-auto space-y-4">
+                  <div className="w-20 h-20 mx-auto bg-[var(--primary-50)] rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-10 h-10 text-[var(--primary-600)]"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-[var(--gray-900)] mb-2">
+                      No jobs scheduled yet
+                    </h3>
+                    <p className="text-[var(--gray-600)] mb-6">
+                      Get started by creating your first job or adding a client to your business
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Link href="/jobs/create">
+                        <Button variant="primary" size="lg">
+                          Create Your First Job
+                        </Button>
+                      </Link>
+                      <Link href="/clients/new">
+                        <Button variant="secondary" size="lg">
+                          Add a Client
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </Card>
             )}
         </Stack>
       </Container>

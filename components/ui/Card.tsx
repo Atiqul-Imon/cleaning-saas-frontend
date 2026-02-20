@@ -7,8 +7,21 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'elevated' | 'outlined' | 'flat';
   padding?: 'none' | 'sm' | 'md' | 'lg';
   hover?: boolean;
+  clickable?: boolean;
   children: React.ReactNode;
 }
+
+/**
+ * Card Component
+ *
+ * Enhanced card with:
+ * - Multiple variants (default, elevated, outlined, flat)
+ * - Padding options (none, sm, md, lg)
+ * - Hover effects
+ * - Clickable state
+ * - Smooth transitions
+ * - Accessible (role, tabIndex when clickable)
+ */
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   (
@@ -16,17 +29,34 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       variant = 'default',
       padding = 'md',
       hover = false,
+      clickable = false,
       className,
       children,
+      onClick,
       ...props
     },
-    ref
+    ref,
   ) => {
     const variants = {
-      default: 'bg-white border border-[var(--gray-200)] shadow-sm',
-      elevated: 'bg-white border border-[var(--gray-200)] shadow-lg',
-      outlined: 'bg-transparent border-2 border-[var(--gray-300)]',
-      flat: 'bg-[var(--gray-50)] border-0',
+      default: 'shadow-sm',
+      elevated: 'shadow-lg',
+      outlined: 'border-2',
+      flat: 'border-0',
+    };
+
+    const getVariantStyles = () => {
+      const baseStyle = {
+        backgroundColor: 'var(--bg-elevated)',
+        borderColor: 'var(--border-light)',
+      };
+
+      if (variant === 'outlined') {
+        return { ...baseStyle, borderColor: 'var(--border-medium)' };
+      }
+      if (variant === 'flat') {
+        return { ...baseStyle, backgroundColor: 'var(--bg-tertiary)', borderColor: 'transparent' };
+      }
+      return baseStyle;
     };
 
     const paddings = {
@@ -36,25 +66,39 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       lg: 'p-8',
     };
 
+    const isInteractive = clickable || hover || onClick;
+
     return (
       <div
         ref={ref}
+        role={isInteractive ? 'button' : undefined}
+        tabIndex={isInteractive ? 0 : undefined}
         className={cn(
-          'rounded-xl transition-all duration-200 ease-out',
+          'rounded-xl transition-all duration-200 ease-out border',
           variants[variant],
           paddings[padding],
-          hover && 'hover:shadow-xl hover:-translate-y-0.5 cursor-pointer active:scale-[0.99]',
-          className
+          (hover || clickable) &&
+            'hover:shadow-xl hover:-translate-y-0.5 cursor-pointer active:scale-[0.99]',
+          isInteractive &&
+            'focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2',
+          className,
         )}
+        style={getVariantStyles()}
+        onClick={onClick}
+        onKeyDown={(e) => {
+          if (isInteractive && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            onClick?.(e as any);
+          }
+        }}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 Card.displayName = 'Card';
 
 export default Card;
-

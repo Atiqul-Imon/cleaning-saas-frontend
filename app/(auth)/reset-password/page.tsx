@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
+import { Button, Input, Card } from '@/components/ui';
+import { Container } from '@/components/layout';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -91,93 +93,163 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-950 mb-2">Reset Password</h1>
-            <p className="text-gray-700 font-medium">Enter your new password below.</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[var(--primary-50)] via-white to-[var(--accent-50)] px-4 py-12">
+      <Container size="sm">
+        <div className="max-w-md w-full mx-auto space-y-8">
+          {/* Logo and Header */}
+          <div className="text-center space-y-4">
+            <Link href="/" className="inline-flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-[var(--primary-600)] to-[var(--accent-500)] rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-xl">CV</span>
+              </div>
+            </Link>
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2">
+                Reset Password
+              </h1>
+              <p className="text-base text-[var(--gray-600)]">Enter your new password below</p>
+            </div>
           </div>
 
-          {success && (
-            <div className="bg-green-50 border-2 border-green-300 text-green-800 px-5 py-4 rounded-lg font-medium mb-6">
-              <div className="flex items-center gap-2">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Card */}
+          <Card variant="elevated" padding="lg" className="shadow-xl">
+            {/* Success Message */}
+            {success && (
+              <div className="space-y-6">
+                <div
+                  className="bg-[var(--success-50)] border-2 border-[var(--success-200)] text-[var(--success-700)] px-4 py-4 rounded-lg flex items-start gap-3"
+                  role="alert"
+                >
+                  <svg
+                    className="w-5 h-5 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="font-semibold mb-1">Password reset successfully!</p>
+                    <p className="text-sm">Redirecting to login page...</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && !success && (
+              <div
+                className="bg-[var(--error-50)] border-2 border-[var(--error-200)] text-[var(--error-700)] px-4 py-3 rounded-lg flex items-start gap-3 mb-6"
+                role="alert"
+              >
+                <svg
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M5 13l4 4L19 7"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Password reset successfully! Redirecting to login...
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{error}</p>
+                  {error.includes('Invalid or expired') && (
+                    <Link
+                      href="/forgot-password"
+                      className="text-sm text-[var(--primary-600)] hover:text-[var(--primary-700)] font-medium mt-2 inline-block"
+                    >
+                      Request a new reset link →
+                    </Link>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {error && (
-            <div className="bg-red-50 border-2 border-red-300 text-red-800 px-5 py-4 rounded-lg font-medium mb-6">
-              {error}
-            </div>
-          )}
-
-          {!success && isValidLink !== false && (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-gray-950 mb-3"
-                >
-                  New Password *
-                </label>
-                <input
+            {/* Form */}
+            {!success && isValidLink !== false && (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <Input
+                  label="New Password"
                   type="password"
                   id="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-lg border-2 border-gray-400 placeholder-gray-400 text-gray-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600 px-4 py-3.5 font-medium transition-all"
                   placeholder="Enter new password (min. 6 characters)"
                   minLength={6}
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  }
                 />
-              </div>
 
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-semibold text-gray-950 mb-3"
-                >
-                  Confirm New Password *
-                </label>
-                <input
+                <Input
+                  label="Confirm New Password"
                   type="password"
                   id="confirmPassword"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full rounded-lg border-2 border-gray-400 placeholder-gray-400 text-gray-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600 px-4 py-3.5 font-medium transition-all"
                   placeholder="Confirm new password"
                   minLength={6}
+                  error={
+                    confirmPassword && password !== confirmPassword
+                      ? 'Passwords do not match'
+                      : undefined
+                  }
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  }
                 />
-              </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-indigo-700 text-white px-8 py-3.5 rounded-lg font-bold hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 shadow-md hover:shadow-lg transition-all duration-200"
+                <Button type="submit" variant="primary" size="lg" fullWidth isLoading={loading}>
+                  Reset Password
+                </Button>
+              </form>
+            )}
+
+            {/* Back to Login */}
+            <div className="mt-6 pt-6 border-t border-[var(--gray-200)] text-center">
+              <Link
+                href="/login"
+                className="text-sm font-medium text-[var(--primary-600)] hover:text-[var(--primary-700)] transition-colors inline-flex items-center gap-2"
               >
-                {loading ? 'Resetting Password...' : 'Reset Password'}
-              </button>
-            </form>
-          )}
-
-          <div className="mt-6 text-center">
-            <Link href="/login" className="text-indigo-700 hover:text-indigo-800 font-semibold">
-              ← Back to Login
-            </Link>
-          </div>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Back to login
+              </Link>
+            </div>
+          </Card>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

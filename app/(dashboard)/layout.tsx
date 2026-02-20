@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getUserRoleServer } from '@/lib/get-user-role-server';
 import MobileBottomNav from '@/components/mobile/MobileBottomNav';
+import DashboardSidebar from '@/components/navigation/DashboardSidebar';
 
 // Force dynamic rendering since we use cookies for auth
 export const dynamic = 'force-dynamic';
@@ -26,9 +27,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // This ensures cleaners are redirected server-side before any content renders
 
   return (
-    <>
-      {children}
+    <div
+      className="flex min-h-screen transition-colors duration-300"
+      style={{ backgroundColor: 'var(--bg-secondary)' }}
+    >
+      {/* Desktop Sidebar */}
+      <DashboardSidebar userRole={userRole} />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-0">{children}</div>
+
+      {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
-    </>
+    </div>
   );
 }

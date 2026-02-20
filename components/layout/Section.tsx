@@ -10,16 +10,7 @@ export interface SectionProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 const Section = React.forwardRef<HTMLElement, SectionProps>(
-  (
-    {
-      padding = 'md',
-      background = 'default',
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({ padding = 'md', background = 'default', className, children, ...props }, ref) => {
     const paddings = {
       none: 'py-0',
       sm: 'py-6',
@@ -28,10 +19,15 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
       xl: 'py-20',
     };
 
-    const backgrounds = {
-      default: 'bg-white',
-      subtle: 'bg-[var(--gray-50)]',
-      elevated: 'bg-white shadow-sm',
+    const getBackgroundStyle = () => {
+      switch (background) {
+        case 'subtle':
+          return { backgroundColor: 'var(--bg-secondary)' };
+        case 'elevated':
+          return { backgroundColor: 'var(--bg-elevated)', boxShadow: 'var(--shadow-sm)' };
+        default:
+          return { backgroundColor: 'var(--bg-primary)' };
+      }
     };
 
     return (
@@ -39,19 +35,19 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
         ref={ref}
         className={cn(
           paddings[padding],
-          backgrounds[background],
+          'transition-colors duration-300',
           'animate-fade-in',
-          className
+          className,
         )}
+        style={getBackgroundStyle()}
         {...props}
       >
         {children}
       </section>
     );
-  }
+  },
 );
 
 Section.displayName = 'Section';
 
 export default Section;
-
