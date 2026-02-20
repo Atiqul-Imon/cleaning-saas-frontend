@@ -475,9 +475,7 @@ export default function DashboardPage() {
           {stats && (isOwner || isAdmin) && stats.upcomingJobs && stats.upcomingJobs.length > 0 && (
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-[var(--gray-900)]">
-                  Upcoming Jobs (Next 7 Days)
-                </h2>
+                <h2 className="text-2xl font-bold text-[var(--gray-900)]">Upcoming Jobs</h2>
                 <Link href="/jobs">
                   <Button variant="ghost" size="sm">
                     View All
@@ -624,6 +622,63 @@ export default function DashboardPage() {
               </Grid>
             </div>
           )}
+
+          {/* Recent Jobs for Owners - Show if no upcoming jobs */}
+          {stats &&
+            (isOwner || isAdmin) &&
+            stats.recentJobs &&
+            stats.recentJobs.length > 0 &&
+            (!stats.upcomingJobs || stats.upcomingJobs.length === 0) && (
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-[var(--gray-900)]">Recent Jobs</h2>
+                  <Link href="/jobs">
+                    <Button variant="ghost" size="sm">
+                      View All
+                    </Button>
+                  </Link>
+                </div>
+                <Grid cols={1} gap="md">
+                  {stats.recentJobs
+                    .slice(0, 5)
+                    .map(
+                      (job: {
+                        id: string;
+                        client?: { id?: string; name: string; phone?: string; address?: string };
+                        scheduledDate?: string | Date;
+                        scheduledTime?: string;
+                        status?: string;
+                        type?: string;
+                        cleaner?: { id?: string; email?: string };
+                      }) => (
+                        <JobCard
+                          key={job.id}
+                          id={job.id}
+                          client={{
+                            id: job.client?.id || job.id,
+                            name: job.client?.name || 'Unknown Client',
+                          }}
+                          type={job.type || 'ONE_OFF'}
+                          scheduledDate={
+                            job.scheduledDate
+                              ? new Date(job.scheduledDate).toISOString()
+                              : new Date().toISOString()
+                          }
+                          scheduledTime={job.scheduledTime || ''}
+                          status={
+                            (job.status as 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') || 'SCHEDULED'
+                          }
+                          cleaner={
+                            job.cleaner?.email
+                              ? { id: job.cleaner.id || '', email: job.cleaner.email }
+                              : undefined
+                          }
+                        />
+                      ),
+                    )}
+                </Grid>
+              </div>
+            )}
 
           {/* Recent Clients for Owners */}
           {stats &&
