@@ -343,7 +343,7 @@ export default function CreateJobPage() {
                 <Divider spacing="md" />
 
                 <div>
-                  <label className="block text-sm font-semibold text-[var(--gray-900)] mb-3">
+                  <label className="block text-sm font-semibold text-[var(--gray-900)] mb-3 break-words">
                     Schedule Date & Time *
                   </label>
 

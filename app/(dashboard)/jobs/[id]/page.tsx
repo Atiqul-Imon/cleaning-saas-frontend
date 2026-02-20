@@ -217,12 +217,19 @@ export default function JobDetailPage() {
 
         {/* Header */}
         <Card variant="elevated" padding="lg" className={cn('mb-8 border-l-4', config.color)}>
-          <Stack direction="row" justify="between" align="start">
-            <div>
-              <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">Job Details</h1>
-              <Stack direction="row" spacing="md" align="center" className="text-[var(--gray-600)]">
-                <Stack direction="row" spacing="sm" align="center">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2">
+                Job Details
+              </h1>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-[var(--gray-600)]">
+                <div className="flex items-center gap-2 min-w-0">
+                  <svg
+                    className="w-5 h-5 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -230,21 +237,21 @@ export default function JobDetailPage() {
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <span className="font-medium">
+                  <span className="font-medium text-sm sm:text-base truncate">
                     {new Date(job.scheduledDate).toLocaleDateString('en-GB', {
-                      weekday: 'long',
+                      weekday: 'short',
                       year: 'numeric',
-                      month: 'long',
+                      month: 'short',
                       day: 'numeric',
                     })}
                   </span>
-                </Stack>
+                </div>
                 {job.scheduledTime && (
                   <>
-                    <span className="text-[var(--gray-400)]">•</span>
-                    <Stack direction="row" spacing="sm" align="center">
+                    <span className="hidden sm:inline text-[var(--gray-400)]">•</span>
+                    <div className="flex items-center gap-2">
                       <svg
-                        className="w-5 h-5"
+                        className="w-5 h-5 flex-shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -256,16 +263,18 @@ export default function JobDetailPage() {
                           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <span className="font-medium">{job.scheduledTime}</span>
-                    </Stack>
+                      <span className="font-medium text-sm sm:text-base">{job.scheduledTime}</span>
+                    </div>
                   </>
                 )}
-              </Stack>
+              </div>
             </div>
-            <Badge variant={config.variant} size="lg">
-              {job.status.replace('_', ' ')}
-            </Badge>
-          </Stack>
+            <div className="flex-shrink-0">
+              <Badge variant={config.variant} size="lg">
+                {job.status.replace('_', ' ')}
+              </Badge>
+            </div>
+          </div>
         </Card>
 
         {error && (
@@ -295,7 +304,7 @@ export default function JobDetailPage() {
 
         <Grid cols={1} gap="lg" className="lg:grid-cols-3">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 overflow-x-hidden">
             {/* Job Information - Role-specific */}
             {isOwner ? (
               <OwnerJobInfo job={job} />
