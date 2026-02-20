@@ -509,7 +509,8 @@ export default function JobDetailPage() {
                 )}
               </Stack>
               <PhotoGallery photos={job.photos} />
-              {isCleaner && (
+              {/* Allow photo upload for cleaners OR owners completing jobs themselves */}
+              {(isCleaner || (isOwner && !job.cleanerId)) && (
                 <div className="mt-6 space-y-6 pt-6 border-t border-[var(--gray-200)]">
                   <PhotoUpload
                     jobId={job.id}
@@ -549,7 +550,7 @@ export default function JobDetailPage() {
             {isCleaner ? (
               <CleanerJobDetail job={job} onStatusUpdate={updateStatus} updating={updating} />
             ) : isOwner ? (
-              <OwnerJobDetail job={job} />
+              <OwnerJobDetail job={job} onStatusUpdate={updateStatus} updating={updating} />
             ) : null}
           </div>
         </Grid>

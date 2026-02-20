@@ -48,20 +48,26 @@ export default function ClientsPage() {
   return (
     <Section background="subtle" padding="lg">
       <Container size="lg">
-        <Stack direction="row" justify="between" align="center" className="mb-8">
-          <div>
-            <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">
+        <Stack
+          direction="row"
+          justify="between"
+          align="center"
+          className="mb-8 flex-col sm:flex-row gap-4 sm:gap-0"
+        >
+          <div className="w-full sm:w-auto">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2">
               {isCleaner ? 'My Clients' : 'Clients'}
             </h1>
-            <p className="text-[var(--gray-600)]">
+            <p className="text-[var(--gray-600)] text-sm sm:text-base">
               {isCleaner ? 'Clients you work with' : 'Manage your client relationships'}
             </p>
           </div>
           {canCreateClients && (
-            <Link href="/clients/new">
+            <Link href="/clients/new" className="w-full sm:w-auto">
               <Button
                 variant="primary"
                 size="lg"
+                className="w-full sm:w-auto"
                 leftIcon={
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -112,7 +118,7 @@ export default function ClientsPage() {
             }
           />
         ) : (
-          <Grid cols={3} gap="lg">
+          <Grid cols={1} gap="lg" className="sm:grid-cols-2 lg:grid-cols-3">
             {clients.map((client) => (
               <ClientCard
                 key={client.id}

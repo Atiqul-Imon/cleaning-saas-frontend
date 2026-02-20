@@ -103,14 +103,29 @@ export default function ClientDetailPage() {
         </Link>
 
         <Card variant="elevated" padding="lg" className="mb-8">
-          <Stack direction="row" justify="between" align="start" className="mb-6">
-            <Stack direction="row" spacing="md" align="center">
+          <Stack
+            direction="row"
+            justify="between"
+            align="start"
+            className="mb-6 flex-col sm:flex-row gap-4 sm:gap-0"
+          >
+            <Stack
+              direction="row"
+              spacing="md"
+              align="center"
+              className="flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto"
+            >
               <Avatar name={client.name} size="xl" />
-              <div>
-                <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2 break-words">
                   {client.name}
                 </h1>
-                <Stack direction="row" spacing="md" align="center">
+                <Stack
+                  direction="row"
+                  spacing="md"
+                  align="center"
+                  className="flex-col sm:flex-row gap-2 sm:gap-4"
+                >
                   {client.phone && (
                     <Stack
                       direction="row"
@@ -160,7 +175,7 @@ export default function ClientDetailPage() {
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      <span className="font-medium">{client.address}</span>
+                      <span className="font-medium break-words">{client.address}</span>
                     </Stack>
                   )}
                 </Stack>

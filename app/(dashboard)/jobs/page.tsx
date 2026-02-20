@@ -91,16 +91,26 @@ export default function JobsPage() {
     <Section background="subtle" padding="lg">
       <Container size="lg">
         <Stack spacing="lg">
-          <Stack direction="row" justify="between" align="center">
-            <div>
-              <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">Jobs</h1>
-              <p className="text-[var(--gray-600)] text-lg">Manage all your cleaning jobs</p>
+          <Stack
+            direction="row"
+            justify="between"
+            align="center"
+            className="flex-col sm:flex-row gap-4 sm:gap-0"
+          >
+            <div className="w-full sm:w-auto">
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2">
+                Jobs
+              </h1>
+              <p className="text-[var(--gray-600)] text-base sm:text-lg">
+                Manage all your cleaning jobs
+              </p>
             </div>
             {canCreateJobs && (
-              <Link href="/jobs/create">
+              <Link href="/jobs/create" className="w-full sm:w-auto">
                 <Button
                   variant="primary"
                   size="lg"
+                  className="w-full sm:w-auto"
                   leftIcon={
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -120,7 +130,7 @@ export default function JobsPage() {
 
           {/* Filters */}
           <Card variant="elevated" padding="md">
-            <Grid cols={3} gap="md">
+            <Grid cols={1} gap="md" className="sm:grid-cols-2 lg:grid-cols-3">
               <Input
                 placeholder="Search by client or type..."
                 value={searchQuery}

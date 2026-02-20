@@ -214,7 +214,7 @@ export default function CreateJobPage() {
                   <label className="block text-sm font-semibold text-[var(--gray-900)] mb-4">
                     Job Type *
                   </label>
-                  <Grid cols={2} gap="md">
+                  <Grid cols={1} gap="md" className="sm:grid-cols-2">
                     <Card
                       variant={formData.type === 'ONE_OFF' ? 'elevated' : 'outlined'}
                       padding="md"
@@ -283,7 +283,7 @@ export default function CreateJobPage() {
                     <label className="block text-sm font-semibold text-[var(--gray-900)] mb-4">
                       Frequency *
                     </label>
-                    <Grid cols={2} gap="md">
+                    <Grid cols={1} gap="md" className="sm:grid-cols-2">
                       <Card
                         variant={formData.frequency === 'WEEKLY' ? 'elevated' : 'outlined'}
                         padding="md"
@@ -373,7 +373,7 @@ export default function CreateJobPage() {
                     </Button>
 
                     {showQuickDates && (
-                      <Grid cols={3} gap="sm" className="mb-4">
+                      <Grid cols={1} gap="sm" className="mb-4 sm:grid-cols-3">
                         <button
                           type="button"
                           onClick={() => {
@@ -423,7 +423,7 @@ export default function CreateJobPage() {
                     )}
                   </div>
 
-                  <Grid cols={2} gap="md">
+                  <Grid cols={1} gap="md" className="sm:grid-cols-2">
                     <div>
                       <Input
                         label="Date"
@@ -560,8 +560,8 @@ export default function CreateJobPage() {
 
                 <Divider spacing="md" />
 
-                <Stack direction="row" spacing="md">
-                  <Link href="/jobs" className="flex-1">
+                <Stack direction="row" spacing="md" className="flex-col sm:flex-row gap-3 sm:gap-4">
+                  <Link href="/jobs" className="w-full sm:flex-1">
                     <Button variant="secondary" size="lg" className="w-full">
                       Cancel
                     </Button>
@@ -571,7 +571,7 @@ export default function CreateJobPage() {
                     variant="primary"
                     size="lg"
                     isLoading={isSubmitting}
-                    className="flex-1"
+                    className="w-full sm:flex-1"
                   >
                     Create Job
                   </Button>

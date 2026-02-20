@@ -26,18 +26,29 @@ export default function CreateClientPage() {
     <Section background="subtle" padding="lg">
       <Container size="lg">
         <Link href="/clients" className="mb-6 inline-block">
-          <Button variant="ghost" size="sm" leftIcon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          }>
+          <Button
+            variant="ghost"
+            size="sm"
+            leftIcon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            }
+          >
             Back to Clients
           </Button>
         </Link>
 
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">Add New Client</h1>
-          <p className="text-[var(--gray-600)] text-lg">
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2">
+            Add New Client
+          </h1>
+          <p className="text-[var(--gray-600)] text-base sm:text-lg">
             Create a new client profile with contact information and secure notes
           </p>
         </div>
@@ -45,14 +56,30 @@ export default function CreateClientPage() {
         <Card variant="elevated" padding="lg">
           <form onSubmit={handleSubmit}>
             {errors.length > 0 && (
-              <Card variant="outlined" padding="md" className="mb-6 bg-[var(--error-50)] border-[var(--error-200)]">
+              <Card
+                variant="outlined"
+                padding="md"
+                className="mb-6 bg-[var(--error-50)] border-[var(--error-200)]"
+              >
                 <Stack direction="row" spacing="sm" align="center">
-                  <svg className="w-6 h-6 text-[var(--error-600)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-6 h-6 text-[var(--error-600)] flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   <div>
                     {errors.map((error, index) => (
-                      <p key={index} className="text-[var(--error-900)] font-semibold">{error}</p>
+                      <p key={index} className="text-[var(--error-900)] font-semibold">
+                        {error}
+                      </p>
                     ))}
                   </div>
                 </Stack>
@@ -147,16 +174,18 @@ export default function CreateClientPage() {
 
               <Divider spacing="md" />
 
-              <Stack direction="row" spacing="md">
-                <Link href="/clients" className="flex-1">
-                  <Button variant="secondary" size="lg" className="w-full">Cancel</Button>
+              <Stack direction="row" spacing="md" className="flex-col sm:flex-row gap-3 sm:gap-4">
+                <Link href="/clients" className="w-full sm:flex-1">
+                  <Button variant="secondary" size="lg" className="w-full">
+                    Cancel
+                  </Button>
                 </Link>
                 <Button
                   type="submit"
                   variant="primary"
                   size="lg"
                   isLoading={isSubmitting}
-                  className="flex-1"
+                  className="w-full sm:flex-1"
                 >
                   Create Client
                 </Button>

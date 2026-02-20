@@ -187,14 +187,14 @@ export default function DashboardPage() {
         <Stack spacing="lg">
           {/* Welcome Section */}
           <div>
-            <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2 break-words">
               {isOwner || isAdmin
                 ? `Welcome back, ${business?.name || 'Business Owner'}!`
                 : isCleaner
                   ? 'Welcome back!'
                   : 'Welcome!'}
             </h1>
-            <p className="text-[var(--gray-600)] text-lg">
+            <p className="text-[var(--gray-600)] text-base sm:text-lg">
               {isOwner || isAdmin
                 ? "Here's an overview of your business"
                 : isCleaner
@@ -205,7 +205,7 @@ export default function DashboardPage() {
 
           {/* Stats Cards */}
           {stats && (isOwner || isAdmin) && (
-            <Grid cols={4} gap="lg">
+            <Grid cols={1} gap="lg" className="sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
                 title="Today's Jobs"
                 value={stats.todayJobs.toString()}
@@ -271,7 +271,7 @@ export default function DashboardPage() {
 
           {/* Cleaner Stats */}
           {stats && isCleaner && (
-            <Grid cols={2} gap="lg">
+            <Grid cols={1} gap="lg" className="sm:grid-cols-2">
               <StatCard
                 title="Today's Jobs"
                 value={stats.todayJobs.toString()}

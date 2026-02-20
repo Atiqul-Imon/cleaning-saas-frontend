@@ -41,8 +41,12 @@ export default function InvoicesPage() {
     <Section background="subtle" padding="lg">
       <Container size="lg">
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">Invoices</h1>
-          <p className="text-[var(--gray-600)] text-lg">Manage and track all your invoices</p>
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--gray-900)] mb-2">
+            Invoices
+          </h1>
+          <p className="text-[var(--gray-600)] text-base sm:text-lg">
+            Manage and track all your invoices
+          </p>
         </div>
 
         {invoices.length === 0 ? (
