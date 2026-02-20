@@ -12,7 +12,9 @@ import { JobCard } from '@/features/jobs/components';
 export default function JobsPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED'
+  >('all');
   const [sortBy, setSortBy] = useState<'date' | 'client' | 'status'>('date');
   const { jobs, isLoading, error, userRole } = useJobs();
 
@@ -34,7 +36,7 @@ export default function JobsPage() {
       filtered = filtered.filter(
         (job) =>
           job.client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          job.type.toLowerCase().includes(searchQuery.toLowerCase())
+          job.type.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -92,17 +94,24 @@ export default function JobsPage() {
           <Stack direction="row" justify="between" align="center">
             <div>
               <h1 className="text-4xl font-extrabold text-[var(--gray-900)] mb-2">Jobs</h1>
-              <p className="text-[var(--gray-600)] text-lg">
-                Manage all your cleaning jobs
-              </p>
+              <p className="text-[var(--gray-600)] text-lg">Manage all your cleaning jobs</p>
             </div>
             {canCreateJobs && (
               <Link href="/jobs/create">
-                <Button variant="primary" size="lg" leftIcon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                }>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                  }
+                >
                   Create Job
                 </Button>
               </Link>
@@ -118,14 +127,23 @@ export default function JobsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 leftIcon={
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
                   </svg>
                 }
               />
               <Select
                 label="Status"
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
+                onChange={(e) =>
+                  setStatusFilter(
+                    e.target.value as 'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED',
+                  )
+                }
                 options={[
                   { label: 'All Statuses', value: 'all' },
                   { label: 'Scheduled', value: 'SCHEDULED' },
@@ -136,7 +154,7 @@ export default function JobsPage() {
               <Select
                 label="Sort By"
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as 'date' | 'client' | 'status')}
                 options={[
                   { label: 'Date', value: 'date' },
                   { label: 'Client', value: 'client' },
@@ -149,15 +167,27 @@ export default function JobsPage() {
           {/* Jobs List */}
           {filteredJobs.length === 0 ? (
             <EmptyState
-              title={searchQuery || statusFilter !== 'all' ? 'No jobs match your filters' : 'No jobs yet'}
+              title={
+                searchQuery || statusFilter !== 'all' ? 'No jobs match your filters' : 'No jobs yet'
+              }
               description={
                 searchQuery || statusFilter !== 'all'
                   ? 'Try adjusting your search or filter criteria'
                   : 'Create your first job to get started'
               }
               icon={
-                <svg className="w-16 h-16 text-[var(--gray-400)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg
+                  className="w-16 h-16 text-[var(--gray-400)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
               }
               action={

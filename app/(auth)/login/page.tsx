@@ -91,8 +91,9 @@ export default function LoginPage() {
       if (error) {
         throw error;
       }
-    } catch (error: any) {
-      setError(error.message || 'Failed to login with Google');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to login with Google';
+      setError(errorMessage);
       setLoading(false);
     }
   };
