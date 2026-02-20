@@ -430,29 +430,38 @@ export default function DashboardPage() {
               <Grid cols={1} gap="md">
                 {stats.upcomingJobs
                   .slice(0, 5)
-                  .map((job: { id: string; client?: { name: string }; scheduledTime?: string }) => (
-                    <Card key={job.id} variant="elevated" padding="md" hover>
-                      <Stack direction="row" justify="between" align="center">
-                        <div>
-                          <h3 className="font-bold text-[var(--gray-900)]">
-                            {job.client?.name || 'Unknown Client'}
-                          </h3>
-                          <p className="text-sm text-[var(--gray-600)]">
-                            {new Date(job.scheduledDate).toLocaleDateString('en-GB', {
-                              weekday: 'short',
-                              day: 'numeric',
-                              month: 'short',
-                            })}
-                          </p>
-                        </div>
-                        <Link href={`/jobs/${job.id}`}>
-                          <Button variant="ghost" size="sm">
-                            View
-                          </Button>
-                        </Link>
-                      </Stack>
-                    </Card>
-                  ))}
+                  .map(
+                    (job: {
+                      id: string;
+                      client?: { name: string };
+                      scheduledDate?: string | Date;
+                      scheduledTime?: string;
+                    }) => (
+                      <Card key={job.id} variant="elevated" padding="md" hover>
+                        <Stack direction="row" justify="between" align="center">
+                          <div>
+                            <h3 className="font-bold text-[var(--gray-900)]">
+                              {job.client?.name || 'Unknown Client'}
+                            </h3>
+                            <p className="text-sm text-[var(--gray-600)]">
+                              {job.scheduledDate
+                                ? new Date(job.scheduledDate).toLocaleDateString('en-GB', {
+                                    weekday: 'short',
+                                    day: 'numeric',
+                                    month: 'short',
+                                  })
+                                : 'No date specified'}
+                            </p>
+                          </div>
+                          <Link href={`/jobs/${job.id}`}>
+                            <Button variant="ghost" size="sm">
+                              View
+                            </Button>
+                          </Link>
+                        </Stack>
+                      </Card>
+                    ),
+                  )}
               </Grid>
             </div>
           )}
