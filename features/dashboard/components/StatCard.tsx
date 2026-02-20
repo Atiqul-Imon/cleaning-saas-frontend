@@ -99,14 +99,13 @@ const StatCard = React.memo(
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <p
-              className={cn(
-                'text-xs font-medium mb-2 uppercase tracking-wide',
-                currentVariant.titleColor,
-              )}
+              className={cn('text-sm font-semibold mb-3 tracking-wide', currentVariant.titleColor)}
             >
               {title}
             </p>
-            <p className={cn('text-2xl sm:text-3xl font-bold mb-3', currentVariant.valueColor)}>
+            <p
+              className={cn('text-4xl sm:text-5xl font-extrabold mb-2', currentVariant.valueColor)}
+            >
               {value}
             </p>
             {trend && (
@@ -169,8 +168,8 @@ const StatCard = React.memo(
               </div>
             )}
           </div>
-          <div className={cn('p-2.5 sm:p-3 rounded-lg flex-shrink-0', currentVariant.iconBg)}>
-            <div className={cn('w-5 h-5 sm:w-6 sm:h-6', currentVariant.iconColor)}>{icon}</div>
+          <div className={cn('p-3 sm:p-4 rounded-xl flex-shrink-0', currentVariant.iconBg)}>
+            <div className={cn('w-7 h-7 sm:w-8 sm:h-8', currentVariant.iconColor)}>{icon}</div>
           </div>
         </div>
       </Card>

@@ -61,9 +61,9 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 
     const paddings = {
       none: 'p-0',
-      sm: 'p-4',
-      md: 'p-6',
-      lg: 'p-8',
+      sm: 'p-5',
+      md: 'p-7',
+      lg: 'p-9',
     };
 
     const isInteractive = clickable || hover || onClick;
@@ -74,11 +74,11 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         role={isInteractive ? 'button' : undefined}
         tabIndex={isInteractive ? 0 : undefined}
         className={cn(
-          'rounded-xl transition-all duration-200 ease-out border',
+          'rounded-2xl transition-all duration-200 ease-out border-2',
           variants[variant],
           paddings[padding],
           (hover || clickable) &&
-            'hover:shadow-xl hover:-translate-y-0.5 cursor-pointer active:scale-[0.99]',
+            'hover:shadow-2xl hover:-translate-y-1 cursor-pointer active:scale-[0.98]',
           isInteractive &&
             'focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2',
           className,

@@ -35,8 +35,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-semibold mb-2 transition-colors duration-300"
-            style={{ color: 'var(--text-secondary)' }}
+            className="block text-base font-bold mb-3 transition-colors duration-300"
+            style={{ color: 'var(--text-primary)' }}
           >
             {label}
             {required && (
@@ -49,7 +49,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <div className="relative">
           {leftIcon && (
             <div
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 transition-colors duration-300 pointer-events-none"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 transition-colors duration-300 pointer-events-none"
               style={{ color: 'var(--text-tertiary)' }}
             >
               {leftIcon}
@@ -59,12 +59,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'w-full rounded-lg border-2 px-4 py-3 min-h-[44px]',
+              'w-full rounded-xl border-2 px-4 py-4 min-h-[56px]',
               'focus:outline-none focus:ring-2 focus:ring-offset-0',
               'transition-all duration-200 ease-out',
-              'text-base md:text-sm', // Prevent zoom on iOS
-              leftIcon ? 'pl-10' : '',
-              rightIcon ? 'pr-10' : '',
+              'text-base font-medium', // Always 16px to prevent zoom on iOS, medium weight for readability
+              leftIcon ? 'pl-11' : '',
+              rightIcon ? 'pr-11' : '',
               error
                 ? 'border-[var(--error-500)] focus:ring-[var(--error-500)] focus:border-[var(--error-600)]'
                 : 'focus:ring-[var(--primary-600)] focus:border-[var(--primary-600)]',
@@ -85,7 +85,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           />
           {rightIcon && (
             <div
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 transition-colors duration-300 pointer-events-none"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 transition-colors duration-300 pointer-events-none"
               style={{ color: 'var(--text-tertiary)' }}
             >
               {rightIcon}

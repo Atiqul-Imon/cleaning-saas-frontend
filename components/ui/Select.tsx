@@ -21,7 +21,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-sm font-semibold text-[var(--gray-700)] mb-2"
+            className="block text-base font-bold text-[var(--gray-900)] mb-3"
           >
             {label}
           </label>
@@ -30,10 +30,10 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={selectId}
           className={cn(
-            'w-full rounded-lg border-2 px-4 py-3 text-[var(--gray-900)] min-h-[44px]',
+            'w-full rounded-xl border-2 px-4 py-4 text-[var(--gray-900)] min-h-[56px]',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             'transition-all duration-200 ease-out',
-            'bg-white text-base md:text-sm', // Prevent zoom on iOS
+            'bg-white text-base font-medium',
             'disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed',
             error
               ? 'border-[var(--error-500)] focus:ring-[var(--error-500)] focus:border-[var(--error-600)]'
