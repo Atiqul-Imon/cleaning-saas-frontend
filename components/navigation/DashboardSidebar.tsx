@@ -3,7 +3,6 @@
 import { usePathname } from 'next/navigation';
 import { useUserRole } from '@/lib/use-user-role';
 import Sidebar from './Sidebar';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import Link from 'next/link';
 
 interface DashboardSidebarProps {
@@ -199,10 +198,6 @@ export default function DashboardSidebar({ userRole: initialUserRole }: Dashboar
               </span>
             </div>
           </Link>
-        </div>
-        {/* Theme Toggle */}
-        <div className="flex justify-end">
-          <ThemeToggle />
         </div>
       </div>
 

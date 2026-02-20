@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUserRole } from '@/lib/use-user-role';
 import { Button, IconButton } from '@/components/ui';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import { Container } from '@/components/layout';
 import dynamic from 'next/dynamic';
 
@@ -86,9 +85,58 @@ export default function Header() {
     return pathname?.startsWith(href);
   };
 
-  // Don't render header on dashboard pages
+  // Don't render header on dashboard pages (desktop only - mobile needs header)
+  // On mobile, show a minimal header with logo and menu
   if (isDashboardPage && user) {
-    return null;
+    return (
+      <>
+        {/* Mobile Header - Show on mobile even on dashboard pages */}
+        <header
+          className="lg:hidden sticky top-0 z-30 shadow-sm backdrop-blur-sm bg-opacity-95 transition-colors duration-300"
+          style={{
+            backgroundColor: 'var(--bg-elevated)',
+            borderBottom: '1px solid var(--border-light)',
+          }}
+        >
+          <Container size="lg">
+            <nav className="flex items-center h-16 gap-3">
+              {/* Mobile Menu Button - Left Side */}
+              <IconButton
+                variant="ghost"
+                size="md"
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label="Open menu"
+                className="flex-shrink-0"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </IconButton>
+
+              {/* Logo */}
+              <Link href="/dashboard" className="flex items-center space-x-2 group flex-1 min-w-0">
+                <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary-600)] to-[var(--accent-500)] rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow flex-shrink-0">
+                  <span className="text-white font-bold text-lg">CV</span>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xl font-extrabold bg-gradient-to-r from-[var(--primary-600)] to-[var(--accent-500)] bg-clip-text text-transparent truncate">
+                    Clenvora
+                  </span>
+                </div>
+              </Link>
+            </nav>
+          </Container>
+        </header>
+
+        {/* Mobile Menu */}
+        <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} user={user} />
+      </>
+    );
   }
 
   return (
@@ -161,11 +209,6 @@ export default function Header() {
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
-                  {/* Theme Toggle */}
-                  <div className="hidden md:block">
-                    <ThemeToggle />
-                  </div>
-
                   {/* Search - Desktop (only for Owners and Admins) */}
                   {(isOwner || isAdmin) && (
                     <div className="hidden md:block">
