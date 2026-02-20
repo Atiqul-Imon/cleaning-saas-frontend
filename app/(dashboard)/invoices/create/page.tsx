@@ -54,9 +54,9 @@ export default function CreateInvoicePage() {
   // Create invoice mutation
   const createInvoiceMutation = useApiMutation<
     { id: string; invoiceNumber: string },
-    { jobId: string; amount: number }
+    { amount: number }
   >({
-    endpoint: `/invoices`,
+    endpoint: `/invoices/from-job/${jobId}`,
     method: 'POST',
     invalidateQueries: [queryKeys.invoices.all(userRole?.id), queryKeys.jobs.detail(jobId || '')],
     mutationOptions: {
@@ -94,7 +94,7 @@ export default function CreateInvoicePage() {
       return;
     }
 
-    createInvoiceMutation.mutate({ jobId, amount: amountNum });
+    createInvoiceMutation.mutate({ amount: amountNum });
   };
 
   const submitting = createInvoiceMutation.isPending;

@@ -65,47 +65,29 @@ export default function PhotoUpload({
         throw new Error('Not authenticated');
       }
 
-      // Upload to ImageKit first
-      const imageKitPublicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY;
-      const imageKitUrlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
+      // Upload to ImageKit using the utility function
+      const { uploadToImageKit } = await import('@/lib/imagekit');
 
-      if (!imageKitPublicKey || !imageKitUrlEndpoint) {
-        throw new Error('ImageKit not configured');
+      console.log('[PHOTO UPLOAD] Starting upload for job:', jobId, 'Type:', photoType);
+
+      const imageKitResult = await uploadToImageKit(file, 'job-photos');
+
+      if (!imageKitResult || !imageKitResult.url) {
+        throw new Error('Failed to upload image to ImageKit');
       }
 
-      // Create FormData for ImageKit
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileName', `job-${jobId}-${Date.now()}-${file.name}`);
-      formData.append('folder', 'job-photos');
-      formData.append('publicKey', imageKitPublicKey);
-
-      // Upload to ImageKit
-      const imageKitResponse = await fetch(`${imageKitUrlEndpoint}/api/v1/files/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!imageKitResponse.ok) {
-        const errorText = await imageKitResponse.text();
-        throw new Error(`ImageKit upload failed: ${errorText}`);
-      }
-
-      const imageKitData = await imageKitResponse.json();
-      const imageUrl = imageKitData.url;
-
-      if (!imageUrl) {
-        throw new Error('Failed to get image URL from ImageKit');
-      }
+      console.log('[PHOTO UPLOAD] ImageKit upload successful, URL:', imageKitResult.url);
 
       // Save photo URL to backend
-      const { ApiClient } = await import('@/lib/api-client');
-      const apiClient = new ApiClient(async () => session?.access_token || null);
+      const { apiClient } = await import('@/lib/api-client-singleton');
 
+      console.log('[PHOTO UPLOAD] Saving photo to backend...');
       await apiClient.post(`/jobs/${jobId}/photos`, {
-        imageUrl,
+        imageUrl: imageKitResult.url,
         photoType,
       });
+
+      console.log('[PHOTO UPLOAD] ✅ Photo saved successfully');
 
       // Reset form and preview
       if (fileInputRef.current) {

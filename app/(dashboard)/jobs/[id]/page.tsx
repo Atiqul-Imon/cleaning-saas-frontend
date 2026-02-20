@@ -2,6 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
 import { queryKeys } from '@/lib/query-keys';
 import { useUserRole } from '@/lib/use-user-role';
@@ -88,6 +89,7 @@ export default function JobDetailPage() {
   const jobId = params.id as string;
   const { userRole, loading: roleLoading } = useUserRole();
   const { showToast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch job using React Query
   const jobQuery = useApiQuery<Job>(queryKeys.jobs.detail(jobId), `/jobs/${jobId}`, {
@@ -112,11 +114,18 @@ export default function JobDetailPage() {
       queryKeys.jobs.detail(jobId),
       queryKeys.jobs.all(userRole?.id),
       queryKeys.jobs.myJobs(userRole?.id),
+      ['dashboard', 'stats'],
     ],
     mutationOptions: {
       onSuccess: (updatedJob) => {
         const statusText = updatedJob.status.replace('_', ' ');
         showToast(`Job status updated to ${statusText}`, 'success');
+
+        // If job is completed, invalidate dashboard stats to refresh the UI
+        if (updatedJob.status === 'COMPLETED') {
+          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+          queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+        }
       },
       onError: (error) => {
         const errorMessage =
@@ -472,108 +481,31 @@ export default function JobDetailPage() {
             <Card variant="elevated" padding="lg">
               <Stack direction="row" justify="between" align="center" className="mb-6">
                 <h2 className="text-xl font-bold text-[var(--gray-900)]">Photos</h2>
-                {job.client.phone && job.photos && job.photos.length > 0 && (
-                  <Stack direction="row" spacing="sm">
-                    {job.photos.some((p: any) => p.photoType === 'BEFORE') && (
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={async () => {
-                          try {
-                            const { apiClient } = await import('@/lib/api-client-singleton');
-                            const data = await apiClient.get<{ whatsappUrl: string | null }>(
-                              `/jobs/${job.id}/whatsapp/photos?photoType=BEFORE`,
-                            );
-                            if (data.whatsappUrl) {
-                              window.open(data.whatsappUrl, '_blank');
-                              showToast('Opening WhatsApp...', 'success');
-                            } else {
-                              showToast('Failed to generate WhatsApp link', 'error');
-                            }
-                          } catch (error: any) {
-                            showToast(
-                              (error as Error)?.message || 'Failed to send photos',
-                              'error',
-                            );
-                          }
-                        }}
-                        className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
-                        leftIcon={
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                          </svg>
-                        }
-                      >
-                        Send Before
-                      </Button>
-                    )}
-                    {job.photos.some((p: any) => p.photoType === 'AFTER') && (
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={async () => {
-                          try {
-                            const { apiClient } = await import('@/lib/api-client-singleton');
-                            const data = await apiClient.get<{ whatsappUrl: string | null }>(
-                              `/jobs/${job.id}/whatsapp/photos?photoType=AFTER`,
-                            );
-                            if (data.whatsappUrl) {
-                              window.open(data.whatsappUrl, '_blank');
-                              showToast('Opening WhatsApp...', 'success');
-                            } else {
-                              showToast('Failed to generate WhatsApp link', 'error');
-                            }
-                          } catch (error: any) {
-                            showToast(
-                              (error as Error)?.message || 'Failed to send photos',
-                              'error',
-                            );
-                          }
-                        }}
-                        className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
-                        leftIcon={
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                          </svg>
-                        }
-                      >
-                        Send After
-                      </Button>
-                    )}
-                    {job.photos.length > 0 && (
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={async () => {
-                          try {
-                            const { apiClient } = await import('@/lib/api-client-singleton');
-                            const data = await apiClient.get<{ whatsappUrl: string | null }>(
-                              `/jobs/${job.id}/whatsapp/photos?photoType=ALL`,
-                            );
-                            if (data.whatsappUrl) {
-                              window.open(data.whatsappUrl, '_blank');
-                              showToast('Opening WhatsApp...', 'success');
-                            } else {
-                              showToast('Failed to generate WhatsApp link', 'error');
-                            }
-                          } catch (error: any) {
-                            showToast(
-                              (error as Error)?.message || 'Failed to send photos',
-                              'error',
-                            );
-                          }
-                        }}
-                        className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
-                        leftIcon={
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                          </svg>
-                        }
-                      >
-                        Send All
-                      </Button>
-                    )}
-                  </Stack>
+                {isOwner && job.photos && job.photos.length > 0 && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        showToast('Preparing photos...', 'info');
+                        const { shareJobPhotos } = await import('@/lib/whatsapp-share');
+                        await shareJobPhotos(job.id, job.client.name);
+                        showToast('Photos ready! Select WhatsApp from share menu.', 'success');
+                      } catch (error: unknown) {
+                        const errorMessage =
+                          error instanceof Error ? error.message : 'Failed to share photos';
+                        showToast(errorMessage, 'error');
+                      }
+                    }}
+                    className="bg-[#25D366] hover:bg-[#20BA5A] text-white border-0"
+                    leftIcon={
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                      </svg>
+                    }
+                  >
+                    Send Photos
+                  </Button>
                 )}
               </Stack>
               <PhotoGallery photos={job.photos} />
@@ -583,10 +515,13 @@ export default function JobDetailPage() {
                     jobId={job.id}
                     photoType="BEFORE"
                     onUploadSuccess={() => {
+                      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.detail(job.id) });
+                      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
                       jobQuery.refetch();
                       showToast('Before photo uploaded successfully', 'success');
                     }}
                     onError={(error) => {
+                      console.error('[PHOTO UPLOAD] Error:', error);
                       showToast(error, 'error');
                     }}
                   />
@@ -594,10 +529,13 @@ export default function JobDetailPage() {
                     jobId={job.id}
                     photoType="AFTER"
                     onUploadSuccess={() => {
+                      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.detail(job.id) });
+                      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
                       jobQuery.refetch();
                       showToast('After photo uploaded successfully', 'success');
                     }}
                     onError={(error) => {
+                      console.error('[PHOTO UPLOAD] Error:', error);
                       showToast(error, 'error');
                     }}
                   />

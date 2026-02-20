@@ -22,51 +22,68 @@ export async function uploadToImageKit(
     throw new Error('ImageKit credentials not configured');
   }
 
-  // Get authentication token from backend
-  // For security, we should get this from the backend API
-  const response = await fetch('/api/imagekit/auth', {
-    method: 'GET',
-  });
+  // Try direct upload first (ImageKit public key should have upload permissions)
+  // If that fails, we can implement backend auth later
+  try {
+    return await uploadDirectly(file, folder, publicKey, urlEndpoint);
+  } catch (error) {
+    console.error('[IMAGEKIT] Direct upload failed, trying with auth...', error);
+    // Fallback: try to get auth token from backend (if endpoint exists)
+    try {
+      const response = await fetch('/api/imagekit/auth', {
+        method: 'GET',
+      });
 
-  if (!response.ok) {
-    // Fallback: try direct upload (less secure, but works for MVP)
-    return uploadDirectly(file, folder, publicKey, urlEndpoint);
+      if (response.ok) {
+        const authData = await response.json();
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('fileName', file.name);
+        formData.append('folder', folder);
+        formData.append('token', authData.token);
+        formData.append('signature', authData.signature);
+        formData.append('expire', authData.expire.toString());
+        formData.append('publicKey', publicKey);
+
+        const uploadResponse = await fetch(`${urlEndpoint}/api/v1/files/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload image to ImageKit');
+        }
+
+        return uploadResponse.json();
+      }
+    } catch (authError) {
+      console.error('[IMAGEKIT] Auth upload also failed:', authError);
+    }
+
+    // Re-throw original error
+    throw error;
   }
-
-  const authData = await response.json();
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('fileName', file.name);
-  formData.append('folder', folder);
-  formData.append('token', authData.token);
-  formData.append('signature', authData.signature);
-  formData.append('expire', authData.expire.toString());
-  formData.append('publicKey', publicKey);
-
-  const uploadResponse = await fetch(`${urlEndpoint}/api/v1/files/upload`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!uploadResponse.ok) {
-    throw new Error('Failed to upload image to ImageKit');
-  }
-
-  return uploadResponse.json();
 }
 
-// Fallback direct upload (requires public key with upload permissions)
+// Direct upload (requires public key with upload permissions)
 async function uploadDirectly(
   file: File,
   folder: string,
   publicKey: string,
   urlEndpoint: string,
 ): Promise<ImageKitUploadResponse> {
+  console.log('[IMAGEKIT] Uploading file directly to ImageKit');
+  console.log('[IMAGEKIT] File name:', file.name);
+  console.log('[IMAGEKIT] File size:', file.size);
+  console.log('[IMAGEKIT] Folder:', folder);
+
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('fileName', file.name);
+  formData.append('fileName', `${folder}/${Date.now()}-${file.name}`);
   formData.append('folder', folder);
   formData.append('publicKey', publicKey);
+
+  console.log('[IMAGEKIT] Sending request to:', `${urlEndpoint}/api/v1/files/upload`);
 
   const response = await fetch(`${urlEndpoint}/api/v1/files/upload`, {
     method: 'POST',
@@ -74,11 +91,18 @@ async function uploadDirectly(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`ImageKit upload failed: ${error}`);
+    const errorText = await response.text();
+    console.error('[IMAGEKIT] Upload failed:', errorText);
+    throw new Error(`ImageKit upload failed: ${errorText}`);
   }
 
   const data = await response.json();
+  console.log('[IMAGEKIT] ✅ Upload successful:', data.url);
+
+  if (!data.url) {
+    throw new Error('ImageKit returned no URL');
+  }
+
   return {
     fileId: data.fileId,
     name: data.name,
