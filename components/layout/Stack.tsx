@@ -33,11 +33,11 @@ const Stack = React.forwardRef<HTMLDivElement, StackProps>(
 
     const spacings = {
       none: direction === 'row' ? 'space-x-0' : 'space-y-0',
-      xs: direction === 'row' ? 'space-x-1' : 'space-y-1',
-      sm: direction === 'row' ? 'space-x-2' : 'space-y-2',
-      md: direction === 'row' ? 'space-x-4' : 'space-y-4',
-      lg: direction === 'row' ? 'space-x-6' : 'space-y-6',
-      xl: direction === 'row' ? 'space-x-8' : 'space-y-8',
+      xs: direction === 'row' ? 'space-x-2' : 'space-y-2',
+      sm: direction === 'row' ? 'space-x-3' : 'space-y-3',
+      md: direction === 'row' ? 'space-x-5' : 'space-y-5',
+      lg: direction === 'row' ? 'space-x-8' : 'space-y-8',
+      xl: direction === 'row' ? 'space-x-10' : 'space-y-10',
     };
 
     const aligns = {

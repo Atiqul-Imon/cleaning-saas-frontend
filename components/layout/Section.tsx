@@ -13,10 +13,10 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
   ({ padding = 'md', background = 'default', className, children, ...props }, ref) => {
     const paddings = {
       none: 'py-0',
-      sm: 'py-6',
-      md: 'py-10',
-      lg: 'py-16',
-      xl: 'py-20',
+      sm: 'py-8',
+      md: 'py-12',
+      lg: 'py-20',
+      xl: 'py-24',
     };
 
     const getBackgroundStyle = () => {

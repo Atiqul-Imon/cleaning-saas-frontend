@@ -38,10 +38,10 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     ref,
   ) => {
     const variants = {
-      default: 'shadow-sm',
-      elevated: 'shadow-lg',
-      outlined: 'border-2',
-      flat: 'border-0',
+      default: 'shadow-[var(--shadow-subtle)]',
+      elevated: 'shadow-[var(--shadow-card)]',
+      outlined: 'border-2 shadow-[var(--shadow-subtle)]',
+      flat: 'border-0 shadow-none',
     };
 
     const getVariantStyles = () => {
@@ -78,7 +78,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           variants[variant],
           paddings[padding],
           (hover || clickable) &&
-            'hover:shadow-2xl hover:-translate-y-1 cursor-pointer active:scale-[0.98]',
+            'hover:shadow-[var(--shadow-elevated)] hover:-translate-y-1 cursor-pointer active:scale-[0.98]',
           isInteractive &&
             'focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2',
           className,

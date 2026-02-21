@@ -31,7 +31,7 @@ export default function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <div className={cn('mb-6 sm:mb-8', className)}>
+    <div className={cn('mb-8 sm:mb-10', className)}>
       {/* Back Button */}
       {backHref && (
         <Link href={backHref} className="inline-block mb-4">
@@ -57,11 +57,11 @@ export default function PageHeader({
       {/* Header Content */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[var(--gray-900)] mb-2 break-words">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)] mb-3 break-words leading-tight">
             {title}
           </h1>
           {description && (
-            <p className="text-sm sm:text-base text-[var(--gray-600)] leading-relaxed">
+            <p className="text-base text-[var(--text-tertiary)] leading-relaxed max-w-2xl">
               {description}
             </p>
           )}

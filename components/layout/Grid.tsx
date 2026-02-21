@@ -10,16 +10,7 @@ export interface GridProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Grid = React.forwardRef<HTMLDivElement, GridProps>(
-  (
-    {
-      cols = 3,
-      gap = 'md',
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({ cols = 3, gap = 'md', className, children, ...props }, ref) => {
     const colClasses = {
       1: 'grid-cols-1',
       2: 'grid-cols-1 sm:grid-cols-2',
@@ -32,30 +23,20 @@ const Grid = React.forwardRef<HTMLDivElement, GridProps>(
 
     const gaps = {
       none: 'gap-0',
-      sm: 'gap-3 sm:gap-4',
-      md: 'gap-4 sm:gap-6',
-      lg: 'gap-6 sm:gap-8',
+      sm: 'gap-4 sm:gap-5',
+      md: 'gap-5 sm:gap-7',
+      lg: 'gap-7 sm:gap-9',
       xl: 'gap-8 sm:gap-12',
     };
 
     return (
-      <div
-        ref={ref}
-        className={cn(
-          'grid',
-          colClasses[cols],
-          gaps[gap],
-          className
-        )}
-        {...props}
-      >
+      <div ref={ref} className={cn('grid', colClasses[cols], gaps[gap], className)} {...props}>
         {children}
       </div>
     );
-  }
+  },
 );
 
 Grid.displayName = 'Grid';
 
 export default Grid;
-
