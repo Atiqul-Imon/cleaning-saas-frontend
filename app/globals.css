@@ -306,6 +306,20 @@ html {
   animation: slide-up 0.25s ease-out;
 }
 
+/* Phase 6: Page content fade-in */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
 /* Print Styles */
 @media print {
   * {

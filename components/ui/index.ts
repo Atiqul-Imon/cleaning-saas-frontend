@@ -10,6 +10,7 @@ export { default as Checkbox } from './Checkbox';
 export { default as Modal } from './Modal';
 export { default as LoadingSkeleton } from './LoadingSkeleton';
 export { default as ProgressBar } from './ProgressBar';
+export { default as CollapsibleSection } from './CollapsibleSection';
 export { default as EmptyState } from './EmptyState';
 export { default as Toast } from './Toast';
 export { default as SearchBar } from './SearchBar';

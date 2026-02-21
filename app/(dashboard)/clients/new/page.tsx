@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useClientForm } from '@/features/clients/hooks/useClientForm';
 import { usePermissions } from '@/shared/hooks/usePermissions';
 import { Container, Stack, Section, Divider, PageHeader } from '@/components/layout';
-import { Card, Button, Input, Textarea } from '@/components/ui';
+import { Card, Button, Input, Textarea, CollapsibleSection } from '@/components/ui';
 
 export default function CreateClientPage() {
   const router = useRouter();
@@ -108,26 +108,20 @@ export default function CreateClientPage() {
 
                 <Divider spacing="md" />
 
-                {/* Secure Notes */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-[var(--primary-50)] rounded">
-                      <svg
-                        className="w-4 h-4 text-[var(--primary-600)]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                        />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold text-[var(--gray-900)]">Secure Notes</h3>
-                  </div>
+                {/* Secure Notes - Progressive disclosure: collapsed by default */}
+                <CollapsibleSection
+                  title="Secure Notes"
+                  summary="key codes, access info, pets"
+                  defaultOpen={
+                    !!(
+                      formData.keySafe ||
+                      formData.alarmCode ||
+                      formData.accessInfo ||
+                      formData.pets ||
+                      formData.preferences
+                    )
+                  }
+                >
                   <p className="text-sm text-[var(--gray-600)] mb-4">
                     Store important information securely (access codes, key safe locations, etc.)
                   </p>
@@ -178,7 +172,7 @@ export default function CreateClientPage() {
                       helperText="Optional"
                     />
                   </Stack>
-                </div>
+                </CollapsibleSection>
 
                 <Divider spacing="md" />
 

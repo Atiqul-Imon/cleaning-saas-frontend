@@ -8,6 +8,7 @@ import { queryKeys } from '@/lib/query-keys';
 import { Container, Grid, Stack, Section } from '@/components/layout';
 import { Card, Button, LoadingSkeleton, EmptyState } from '@/components/ui';
 import { JobCard } from '@/features/jobs/components';
+import FirstTimeWelcomeBanner from '@/components/FirstTimeWelcomeBanner';
 import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { formatDateBritish, formatDateBritishFull } from '@/lib/date-utils';
@@ -31,15 +32,15 @@ interface DashboardStats {
   todayJobs: number;
   monthlyEarnings: number;
   unpaidInvoices: number;
-  todayJobsList: any[];
+  todayJobsList: unknown[];
   role?: 'OWNER' | 'CLEANER' | 'ADMIN';
   businesses?: Business[];
-  upcomingJobs?: any[];
-  inProgressJobs?: any[];
+  upcomingJobs?: unknown[];
+  inProgressJobs?: unknown[];
   completedThisWeek?: number;
-  recentJobs?: any[];
-  recentClients?: any[];
-  recentInvoices?: any[];
+  recentJobs?: unknown[];
+  recentClients?: unknown[];
+  recentInvoices?: unknown[];
   totalJobs?: number;
   totalClients?: number;
   totalInvoices?: number;
@@ -238,6 +239,9 @@ export default function DashboardPage() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
           </div>
+
+          {/* First-time welcome guide (Phase 6) - owners/admins only */}
+          {(isOwner || isAdmin) && <FirstTimeWelcomeBanner />}
 
           {/* Stats Cards - Simplified to 3 most important metrics */}
           {stats && (isOwner || isAdmin) && (
