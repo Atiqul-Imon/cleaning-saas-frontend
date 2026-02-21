@@ -23,7 +23,7 @@ export interface ClientCardProps {
  */
 const ClientCard = React.memo(({ id, name, phone, address, jobCount }: ClientCardProps) => {
   return (
-    <Link href={`/clients/${id}`} className="h-full block">
+    <Link href={`/clients/${id}`} className="h-full block touch-manipulation min-h-[88px]">
       <Card
         variant="elevated"
         padding="sm"

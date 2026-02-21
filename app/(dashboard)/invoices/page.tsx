@@ -6,7 +6,7 @@ import { Card, Button, LoadingSkeleton } from '@/components/ui';
 import { InvoiceCard } from '@/features/invoices/components';
 
 export default function InvoicesPage() {
-  const { invoices, isLoading, error } = useInvoices();
+  const { invoices, isLoading, error, refetch, isRefreshing } = useInvoices();
 
   const loading = isLoading;
 
@@ -68,7 +68,14 @@ export default function InvoicesPage() {
       <Container size="lg">
         <Stack spacing="lg">
           {/* Page Header */}
-          <PageHeader title="Invoices" description="Manage and track all your invoices" />
+          <PageHeader
+            title="Invoices"
+            description="Manage and track all your invoices"
+            onRefresh={() => {
+              void refetch();
+            }}
+            isRefreshing={isRefreshing}
+          />
 
           {/* Invoices List */}
           {invoices.length === 0 ? (

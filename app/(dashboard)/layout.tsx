@@ -34,8 +34,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Desktop Sidebar */}
       <DashboardSidebar userRole={userRole} />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-0">{children}</div>
+      {/* Main Content - Padding for mobile bottom nav + safe area (Phase 3) */}
+      <div className="flex-1 flex flex-col min-w-0 mobile-content-padding">{children}</div>
 
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />

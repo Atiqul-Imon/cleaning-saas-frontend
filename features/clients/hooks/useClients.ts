@@ -10,7 +10,7 @@ import type { Client } from '../types/client.types';
 export function useClients() {
   const { userRole, loading: roleLoading } = useUserRole();
 
-  const { data, isLoading, error } = useApiQuery<Client[]>(
+  const { data, isLoading, error, refetch, isFetching } = useApiQuery<Client[]>(
     queryKeys.clients.all(userRole?.id),
     '/clients',
     {
@@ -23,6 +23,8 @@ export function useClients() {
     isLoading: roleLoading || isLoading,
     error,
     userRole,
+    refetch,
+    isRefreshing: isFetching && !isLoading,
   };
 }
 

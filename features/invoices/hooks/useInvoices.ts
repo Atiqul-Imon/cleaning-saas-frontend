@@ -10,7 +10,7 @@ import type { Invoice } from '../types/invoice.types';
 export function useInvoices() {
   const { userRole, loading: roleLoading } = useUserRole();
 
-  const { data, isLoading, error } = useApiQuery<Invoice[]>(
+  const { data, isLoading, error, refetch, isFetching } = useApiQuery<Invoice[]>(
     queryKeys.invoices.all(userRole?.id),
     '/invoices',
     {
@@ -23,6 +23,8 @@ export function useInvoices() {
     isLoading: roleLoading || isLoading,
     error,
     userRole,
+    refetch,
+    isRefreshing: isFetching && !isLoading,
   };
 }
 

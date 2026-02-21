@@ -164,6 +164,18 @@ body {
   max-width: 65ch;
 }
 
+/* Phase 3: Touch optimization - removes 300ms tap delay on mobile */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Phase 3: Ensure inputs scroll into view when focused (keyboard on mobile) */
+input:focus,
+textarea:focus,
+select:focus {
+  scroll-margin-bottom: 20vh;
+}
+
 /* Input Placeholder Styling */
 input::placeholder,
 textarea::placeholder {
@@ -232,6 +244,16 @@ html {
 
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Phase 3: Mobile content padding - bottom nav (6rem) + safe area */
+.mobile-content-padding {
+  padding-bottom: 0;
+}
+@media (max-width: 1023px) {
+  .mobile-content-padding {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .safe-area-left {

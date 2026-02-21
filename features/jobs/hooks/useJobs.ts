@@ -11,25 +11,23 @@ import type { Job } from '../types/job.types';
 export function useJobs() {
   const { userRole, loading: roleLoading } = useUserRole();
 
-  const { data, isLoading, error } = useApiQuery<Job[] | { data: Job[]; pagination: any }>(
-    queryKeys.jobs.all(userRole?.id),
-    '/jobs',
-    {
-      enabled: !!userRole,
-      select: (response) => {
-        // Handle both paginated and non-paginated responses
-        if (Array.isArray(response)) {
-          return response;
-        }
-        // If response has data property, it's paginated
-        if (response && typeof response === 'object' && 'data' in response) {
-          return (response as { data: Job[] }).data;
-        }
-        // Fallback to empty array
-        return [];
-      },
+  const { data, isLoading, error, refetch, isFetching } = useApiQuery<
+    Job[] | { data: Job[]; pagination: unknown }
+  >(queryKeys.jobs.all(userRole?.id), '/jobs', {
+    enabled: !!userRole,
+    select: (response) => {
+      // Handle both paginated and non-paginated responses
+      if (Array.isArray(response)) {
+        return response;
+      }
+      // If response has data property, it's paginated
+      if (response && typeof response === 'object' && 'data' in response) {
+        return (response as { data: Job[] }).data;
+      }
+      // Fallback to empty array
+      return [];
     },
-  );
+  });
 
   // Ensure we always return an array
   const jobs = Array.isArray(data) ? data : [];
@@ -39,6 +37,8 @@ export function useJobs() {
     isLoading: roleLoading || isLoading,
     error,
     userRole,
+    refetch,
+    isRefreshing: isFetching && !isLoading,
   };
 }
 

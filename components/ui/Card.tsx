@@ -78,7 +78,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           variants[variant],
           paddings[padding],
           (hover || clickable) &&
-            'hover:shadow-[var(--shadow-elevated)] hover:-translate-y-1 cursor-pointer active:scale-[0.98]',
+            'hover:shadow-[var(--shadow-elevated)] hover:-translate-y-1 cursor-pointer active:scale-[0.98] touch-manipulation',
           isInteractive &&
             'focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2',
           className,

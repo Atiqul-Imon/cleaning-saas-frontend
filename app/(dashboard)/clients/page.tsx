@@ -8,7 +8,7 @@ import { Card, Button, LoadingSkeleton } from '@/components/ui';
 import { ClientCard } from '@/features/clients/components';
 
 export default function ClientsPage() {
-  const { clients, isLoading, error, userRole } = useClients();
+  const { clients, isLoading, error, userRole, refetch, isRefreshing } = useClients();
   const { canCreateClients } = usePermissions();
   const loading = isLoading;
 
@@ -75,6 +75,10 @@ export default function ClientsPage() {
           <PageHeader
             title={isCleaner ? 'My Clients' : 'Clients'}
             description={isCleaner ? 'Clients you work with' : 'Manage your client relationships'}
+            onRefresh={() => {
+              void refetch();
+            }}
+            isRefreshing={isRefreshing}
             actions={
               canCreateClients ? (
                 <Link href="/clients/new">

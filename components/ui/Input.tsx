@@ -25,10 +25,23 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
  * - Theme-aware colors
  */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, leftIcon, rightIcon, required, className, id, ...props }, ref) => {
+  (
+    { label, error, helperText, leftIcon, rightIcon, required, className, id, onFocus, ...props },
+    ref,
+  ) => {
     const [inputId] = React.useState(
       () => id || `input-${Math.random().toString(36).substr(2, 9)}`,
     );
+
+    // Phase 3: Scroll into view when focused (keeps input visible above mobile keyboard)
+    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      onFocus?.(e);
+      if (typeof window !== 'undefined' && 'visualViewport' in window) {
+        setTimeout(() => {
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    };
 
     return (
       <div className="w-full">
@@ -81,6 +94,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={
               error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined
             }
+            onFocus={handleFocus}
             {...props}
           />
           {rightIcon && (

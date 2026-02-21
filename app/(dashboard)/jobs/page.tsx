@@ -16,7 +16,7 @@ export default function JobsPage() {
     'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED'
   >((searchParams.get('status') as 'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') || 'all');
   const [sortBy, setSortBy] = useState<'date' | 'client' | 'status'>('date');
-  const { jobs, isLoading, error, userRole } = useJobs();
+  const { jobs, isLoading, error, userRole, refetch, isRefreshing } = useJobs();
 
   const { canCreateJobs } = usePermissions();
   const loading = isLoading;
@@ -142,6 +142,10 @@ export default function JobsPage() {
           <PageHeader
             title="Jobs"
             description="Manage all your cleaning jobs"
+            onRefresh={() => {
+              void refetch();
+            }}
+            isRefreshing={isRefreshing}
             actions={
               canCreateJobs ? (
                 <Link href="/jobs/create">

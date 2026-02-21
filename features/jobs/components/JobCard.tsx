@@ -75,7 +75,7 @@ const JobCard = React.memo(
     const isOverdue = jobDate.getTime() < today.getTime() && status === 'SCHEDULED';
 
     return (
-      <Link href={`/jobs/${id}`} className="h-full block">
+      <Link href={`/jobs/${id}`} className="h-full block touch-manipulation min-h-[88px]">
         <Card
           variant="elevated"
           padding="sm"
