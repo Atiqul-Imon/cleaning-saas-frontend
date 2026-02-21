@@ -28,19 +28,47 @@ const QuickAction = dynamic(
   },
 );
 
+interface DashboardJob {
+  id: string;
+  client?: { id?: string; name: string; phone?: string; address?: string };
+  scheduledTime?: string;
+  scheduledDate?: string | Date;
+  status?: string;
+  type?: string;
+  cleaner?: { id?: string; email?: string };
+}
+
+interface DashboardClient {
+  id: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  createdAt?: string | Date;
+}
+
+interface DashboardInvoice {
+  id: string;
+  invoiceNumber: string;
+  totalAmount: number | string;
+  status: string;
+  client?: { name: string };
+  dueDate?: string | Date;
+  createdAt?: string | Date;
+}
+
 interface DashboardStats {
   todayJobs: number;
   monthlyEarnings: number;
   unpaidInvoices: number;
-  todayJobsList: unknown[];
+  todayJobsList: DashboardJob[];
   role?: 'OWNER' | 'CLEANER' | 'ADMIN';
   businesses?: Business[];
-  upcomingJobs?: unknown[];
-  inProgressJobs?: unknown[];
+  upcomingJobs?: DashboardJob[];
+  inProgressJobs?: DashboardJob[];
   completedThisWeek?: number;
-  recentJobs?: unknown[];
-  recentClients?: unknown[];
-  recentInvoices?: unknown[];
+  recentJobs?: DashboardJob[];
+  recentClients?: DashboardClient[];
+  recentInvoices?: DashboardInvoice[];
   totalJobs?: number;
   totalClients?: number;
   totalInvoices?: number;
@@ -425,43 +453,31 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <Grid cols={3} gap="md">
-                {stats.todayJobsList
-                  .slice(0, 5)
-                  .map(
-                    (job: {
-                      id: string;
-                      client?: { id?: string; name: string; phone?: string; address?: string };
-                      scheduledTime?: string;
-                      scheduledDate?: string | Date;
-                      status?: string;
-                      type?: string;
-                      cleaner?: { id?: string; email?: string };
-                    }) => (
-                      <JobCard
-                        key={job.id}
-                        id={job.id}
-                        client={{
-                          id: job.client?.id || job.id,
-                          name: job.client?.name || 'Unknown Client',
-                        }}
-                        type={job.type || 'ONE_OFF'}
-                        scheduledDate={
-                          job.scheduledDate
-                            ? new Date(job.scheduledDate).toISOString()
-                            : new Date().toISOString()
-                        }
-                        scheduledTime={job.scheduledTime || ''}
-                        status={
-                          (job.status as 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') || 'SCHEDULED'
-                        }
-                        cleaner={
-                          job.cleaner?.email
-                            ? { id: job.cleaner.id || '', email: job.cleaner.email }
-                            : undefined
-                        }
-                      />
-                    ),
-                  )}
+                {stats.todayJobsList.slice(0, 5).map((job) => (
+                  <JobCard
+                    key={job.id}
+                    id={job.id}
+                    client={{
+                      id: job.client?.id || job.id,
+                      name: job.client?.name || 'Unknown Client',
+                    }}
+                    type={job.type || 'ONE_OFF'}
+                    scheduledDate={
+                      job.scheduledDate
+                        ? new Date(job.scheduledDate).toISOString()
+                        : new Date().toISOString()
+                    }
+                    scheduledTime={job.scheduledTime || ''}
+                    status={
+                      (job.status as 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') || 'SCHEDULED'
+                    }
+                    cleaner={
+                      job.cleaner?.email
+                        ? { id: job.cleaner.id || '', email: job.cleaner.email }
+                        : undefined
+                    }
+                  />
+                ))}
               </Grid>
             </div>
           )}
@@ -486,43 +502,31 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <Grid cols={3} gap="md">
-                {stats.upcomingJobs
-                  .slice(0, 5)
-                  .map(
-                    (job: {
-                      id: string;
-                      client?: { id?: string; name: string; phone?: string; address?: string };
-                      scheduledDate?: string | Date;
-                      scheduledTime?: string;
-                      status?: string;
-                      type?: string;
-                      cleaner?: { id?: string; email?: string };
-                    }) => (
-                      <JobCard
-                        key={job.id}
-                        id={job.id}
-                        client={{
-                          id: job.client?.id || job.id,
-                          name: job.client?.name || 'Unknown Client',
-                        }}
-                        type={job.type || 'ONE_OFF'}
-                        scheduledDate={
-                          job.scheduledDate
-                            ? new Date(job.scheduledDate).toISOString()
-                            : new Date().toISOString()
-                        }
-                        scheduledTime={job.scheduledTime || ''}
-                        status={
-                          (job.status as 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') || 'SCHEDULED'
-                        }
-                        cleaner={
-                          job.cleaner?.email
-                            ? { id: job.cleaner.id || '', email: job.cleaner.email }
-                            : undefined
-                        }
-                      />
-                    ),
-                  )}
+                {stats.upcomingJobs.slice(0, 5).map((job) => (
+                  <JobCard
+                    key={job.id}
+                    id={job.id}
+                    client={{
+                      id: job.client?.id || job.id,
+                      name: job.client?.name || 'Unknown Client',
+                    }}
+                    type={job.type || 'ONE_OFF'}
+                    scheduledDate={
+                      job.scheduledDate
+                        ? new Date(job.scheduledDate).toISOString()
+                        : new Date().toISOString()
+                    }
+                    scheduledTime={job.scheduledTime || ''}
+                    status={
+                      (job.status as 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') || 'SCHEDULED'
+                    }
+                    cleaner={
+                      job.cleaner?.email
+                        ? { id: job.cleaner.id || '', email: job.cleaner.email }
+                        : undefined
+                    }
+                  />
+                ))}
               </Grid>
             </div>
           )}
@@ -550,40 +554,29 @@ export default function DashboardPage() {
                   </Link>
                 </div>
                 <Grid cols={3} gap="md">
-                  {stats.inProgressJobs
-                    .slice(0, 5)
-                    .map(
-                      (job: {
-                        id: string;
-                        client?: { id?: string; name: string; phone?: string; address?: string };
-                        scheduledDate?: string | Date;
-                        scheduledTime?: string;
-                        type?: string;
-                        cleaner?: { id?: string; email?: string };
-                      }) => (
-                        <JobCard
-                          key={job.id}
-                          id={job.id}
-                          client={{
-                            id: job.client?.id || job.id,
-                            name: job.client?.name || 'Unknown Client',
-                          }}
-                          type={job.type || 'ONE_OFF'}
-                          scheduledDate={
-                            job.scheduledDate
-                              ? new Date(job.scheduledDate).toISOString()
-                              : new Date().toISOString()
-                          }
-                          scheduledTime={job.scheduledTime || ''}
-                          status="IN_PROGRESS"
-                          cleaner={
-                            job.cleaner?.email
-                              ? { id: job.cleaner.id || '', email: job.cleaner.email }
-                              : undefined
-                          }
-                        />
-                      ),
-                    )}
+                  {stats.inProgressJobs.slice(0, 5).map((job) => (
+                    <JobCard
+                      key={job.id}
+                      id={job.id}
+                      client={{
+                        id: job.client?.id || job.id,
+                        name: job.client?.name || 'Unknown Client',
+                      }}
+                      type={job.type || 'ONE_OFF'}
+                      scheduledDate={
+                        job.scheduledDate
+                          ? new Date(job.scheduledDate).toISOString()
+                          : new Date().toISOString()
+                      }
+                      scheduledTime={job.scheduledTime || ''}
+                      status="IN_PROGRESS"
+                      cleaner={
+                        job.cleaner?.email
+                          ? { id: job.cleaner.id || '', email: job.cleaner.email }
+                          : undefined
+                      }
+                    />
+                  ))}
                 </Grid>
               </div>
             )}
@@ -608,36 +601,27 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <Grid cols={3} gap="md">
-                {stats.upcomingJobs
-                  .slice(0, 5)
-                  .map(
-                    (job: {
-                      id: string;
-                      client?: { name: string };
-                      scheduledDate?: string | Date;
-                      scheduledTime?: string;
-                    }) => (
-                      <Card key={job.id} variant="elevated" padding="md" hover>
-                        <Stack direction="row" justify="between" align="center">
-                          <div>
-                            <h3 className="font-bold text-[var(--gray-900)]">
-                              {job.client?.name || 'Unknown Client'}
-                            </h3>
-                            <p className="text-sm text-[var(--gray-600)]">
-                              {job.scheduledDate
-                                ? formatDateBritish(job.scheduledDate)
-                                : 'No date specified'}
-                            </p>
-                          </div>
-                          <Link href={`/jobs/${job.id}`}>
-                            <Button variant="ghost" size="sm">
-                              View
-                            </Button>
-                          </Link>
-                        </Stack>
-                      </Card>
-                    ),
-                  )}
+                {stats.upcomingJobs.slice(0, 5).map((job) => (
+                  <Card key={job.id} variant="elevated" padding="md" hover>
+                    <Stack direction="row" justify="between" align="center">
+                      <div>
+                        <h3 className="font-bold text-[var(--gray-900)]">
+                          {job.client?.name || 'Unknown Client'}
+                        </h3>
+                        <p className="text-sm text-[var(--gray-600)]">
+                          {job.scheduledDate
+                            ? formatDateBritish(job.scheduledDate)
+                            : 'No date specified'}
+                        </p>
+                      </div>
+                      <Link href={`/jobs/${job.id}`}>
+                        <Button variant="ghost" size="sm">
+                          View
+                        </Button>
+                      </Link>
+                    </Stack>
+                  </Card>
+                ))}
               </Grid>
             </div>
           )}
@@ -658,43 +642,31 @@ export default function DashboardPage() {
                   </Link>
                 </div>
                 <Grid cols={1} gap="md">
-                  {stats.recentJobs
-                    .slice(0, 5)
-                    .map(
-                      (job: {
-                        id: string;
-                        client?: { id?: string; name: string; phone?: string; address?: string };
-                        scheduledDate?: string | Date;
-                        scheduledTime?: string;
-                        status?: string;
-                        type?: string;
-                        cleaner?: { id?: string; email?: string };
-                      }) => (
-                        <JobCard
-                          key={job.id}
-                          id={job.id}
-                          client={{
-                            id: job.client?.id || job.id,
-                            name: job.client?.name || 'Unknown Client',
-                          }}
-                          type={job.type || 'ONE_OFF'}
-                          scheduledDate={
-                            job.scheduledDate
-                              ? new Date(job.scheduledDate).toISOString()
-                              : new Date().toISOString()
-                          }
-                          scheduledTime={job.scheduledTime || ''}
-                          status={
-                            (job.status as 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') || 'SCHEDULED'
-                          }
-                          cleaner={
-                            job.cleaner?.email
-                              ? { id: job.cleaner.id || '', email: job.cleaner.email }
-                              : undefined
-                          }
-                        />
-                      ),
-                    )}
+                  {stats.recentJobs.slice(0, 5).map((job) => (
+                    <JobCard
+                      key={job.id}
+                      id={job.id}
+                      client={{
+                        id: job.client?.id || job.id,
+                        name: job.client?.name || 'Unknown Client',
+                      }}
+                      type={job.type || 'ONE_OFF'}
+                      scheduledDate={
+                        job.scheduledDate
+                          ? new Date(job.scheduledDate).toISOString()
+                          : new Date().toISOString()
+                      }
+                      scheduledTime={job.scheduledTime || ''}
+                      status={
+                        (job.status as 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') || 'SCHEDULED'
+                      }
+                      cleaner={
+                        job.cleaner?.email
+                          ? { id: job.cleaner.id || '', email: job.cleaner.email }
+                          : undefined
+                      }
+                    />
+                  ))}
                 </Grid>
               </div>
             )}
@@ -721,40 +693,28 @@ export default function DashboardPage() {
                   </Link>
                 </div>
                 <Grid cols={3} gap="md">
-                  {stats.recentClients
-                    .slice(0, 5)
-                    .map(
-                      (client: {
-                        id: string;
-                        name: string;
-                        phone?: string;
-                        address?: string;
-                        createdAt?: string | Date;
-                      }) => (
-                        <Card key={client.id} variant="elevated" padding="md" hover>
-                          <Stack direction="row" justify="between" align="center">
-                            <div className="flex-1">
-                              <h3 className="font-bold text-[var(--gray-900)] mb-1">
-                                {client.name}
-                              </h3>
-                              <Stack
-                                direction="row"
-                                spacing="md"
-                                className="text-sm text-[var(--gray-600)]"
-                              >
-                                {client.phone && <span>📞 {client.phone}</span>}
-                                {client.address && <span>📍 {client.address}</span>}
-                              </Stack>
-                            </div>
-                            <Link href={`/clients/${client.id}`}>
-                              <Button variant="ghost" size="sm">
-                                View
-                              </Button>
-                            </Link>
+                  {stats.recentClients.slice(0, 5).map((client) => (
+                    <Card key={client.id} variant="elevated" padding="md" hover>
+                      <Stack direction="row" justify="between" align="center">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-[var(--gray-900)] mb-1">{client.name}</h3>
+                          <Stack
+                            direction="row"
+                            spacing="md"
+                            className="text-sm text-[var(--gray-600)]"
+                          >
+                            {client.phone && <span>📞 {client.phone}</span>}
+                            {client.address && <span>📍 {client.address}</span>}
                           </Stack>
-                        </Card>
-                      ),
-                    )}
+                        </div>
+                        <Link href={`/clients/${client.id}`}>
+                          <Button variant="ghost" size="sm">
+                            View
+                          </Button>
+                        </Link>
+                      </Stack>
+                    </Card>
+                  ))}
                 </Grid>
               </div>
             )}
@@ -781,57 +741,45 @@ export default function DashboardPage() {
                   </Link>
                 </div>
                 <Grid cols={1} gap="md">
-                  {stats.recentInvoices
-                    .slice(0, 5)
-                    .map(
-                      (invoice: {
-                        id: string;
-                        invoiceNumber: string;
-                        totalAmount: number | string;
-                        status: string;
-                        client?: { name: string };
-                        dueDate?: string | Date;
-                        createdAt?: string | Date;
-                      }) => (
-                        <Card key={invoice.id} variant="elevated" padding="md" hover>
-                          <Stack direction="row" justify="between" align="center">
-                            <div className="flex-1">
-                              <Stack direction="row" spacing="sm" align="center" className="mb-1">
-                                <h3 className="font-bold text-[var(--gray-900)]">
-                                  {invoice.invoiceNumber}
-                                </h3>
-                                <span
-                                  className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                                    invoice.status === 'PAID'
-                                      ? 'bg-[var(--success-100)] text-[var(--success-700)]'
-                                      : 'bg-[var(--warning-100)] text-[var(--warning-700)]'
-                                  }`}
-                                >
-                                  {invoice.status}
-                                </span>
-                              </Stack>
-                              <p className="text-sm text-[var(--gray-600)]">
-                                {invoice.client?.name || 'Unknown Client'} • £
-                                {typeof invoice.totalAmount === 'string'
-                                  ? parseFloat(invoice.totalAmount).toFixed(2)
-                                  : invoice.totalAmount.toFixed(2)}
-                                {invoice.dueDate && (
-                                  <>
-                                    {' • Due: '}
-                                    {formatDateBritishFull(invoice.dueDate)}
-                                  </>
-                                )}
-                              </p>
-                            </div>
-                            <Link href={`/invoices/${invoice.id}`}>
-                              <Button variant="ghost" size="sm">
-                                View
-                              </Button>
-                            </Link>
+                  {stats.recentInvoices.slice(0, 5).map((invoice) => (
+                    <Card key={invoice.id} variant="elevated" padding="md" hover>
+                      <Stack direction="row" justify="between" align="center">
+                        <div className="flex-1">
+                          <Stack direction="row" spacing="sm" align="center" className="mb-1">
+                            <h3 className="font-bold text-[var(--gray-900)]">
+                              {invoice.invoiceNumber}
+                            </h3>
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                                invoice.status === 'PAID'
+                                  ? 'bg-[var(--success-100)] text-[var(--success-700)]'
+                                  : 'bg-[var(--warning-100)] text-[var(--warning-700)]'
+                              }`}
+                            >
+                              {invoice.status}
+                            </span>
                           </Stack>
-                        </Card>
-                      ),
-                    )}
+                          <p className="text-sm text-[var(--gray-600)]">
+                            {invoice.client?.name || 'Unknown Client'} • £
+                            {typeof invoice.totalAmount === 'string'
+                              ? parseFloat(invoice.totalAmount).toFixed(2)
+                              : invoice.totalAmount.toFixed(2)}
+                            {invoice.dueDate && (
+                              <>
+                                {' • Due: '}
+                                {formatDateBritishFull(invoice.dueDate)}
+                              </>
+                            )}
+                          </p>
+                        </div>
+                        <Link href={`/invoices/${invoice.id}`}>
+                          <Button variant="ghost" size="sm">
+                            View
+                          </Button>
+                        </Link>
+                      </Stack>
+                    </Card>
+                  ))}
                 </Grid>
               </div>
             )}
