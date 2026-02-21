@@ -8,7 +8,7 @@ import { useJobs } from '@/features/jobs/hooks/useJobs';
 import { jobsApi } from '@/features/jobs/services/jobs.api';
 import { usePermissions } from '@/shared/hooks/usePermissions';
 import { Container, Grid, Stack, Section, PageHeader } from '@/components/layout';
-import { Card, Button, LoadingSkeleton, Select } from '@/components/ui';
+import { Card, Button, LoadingSkeleton, Select, EmptyState } from '@/components/ui';
 import { JobCard } from '@/features/jobs/components';
 import { useToast } from '@/lib/toast-context';
 
@@ -286,54 +286,26 @@ export default function JobsPage() {
 
           {/* Jobs List */}
           {filteredJobs.length === 0 ? (
-            <Card variant="elevated" padding="lg" className="text-center">
-              <div className="max-w-md mx-auto space-y-6 py-8">
-                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-[var(--gray-50)] to-[var(--gray-100)] rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-12 h-12 text-[var(--gray-400)]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2.5}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-extrabold text-[var(--gray-900)] mb-3">
-                    {statusFilter !== 'all' ? 'No jobs found' : 'No jobs yet'}
-                  </h3>
-                  <p className="text-base text-[var(--gray-600)] mb-8 leading-relaxed">
-                    {statusFilter !== 'all'
-                      ? 'Try changing your filter or create a new job'
-                      : 'Get started by creating your first cleaning job'}
-                  </p>
-                  {statusFilter === 'all' && canCreateJobs && (
-                    <Link href="/jobs/create">
-                      <Button variant="primary" size="lg">
-                        <svg
-                          className="w-5 h-5 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2.5}
-                            d="M12 4v16m8-8H4"
-                          />
-                        </svg>
-                        Create Your First Job
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              </div>
+            <Card variant="elevated" padding="lg">
+              <EmptyState
+                variant="jobs"
+                title={statusFilter !== 'all' ? 'No jobs found' : 'No jobs yet'}
+                description={
+                  statusFilter !== 'all'
+                    ? 'Try changing your filter or create a new job'
+                    : 'Get started by creating your first cleaning job'
+                }
+                hint={
+                  statusFilter === 'all'
+                    ? "Jobs are created for clients. Add a client first if you haven't yet."
+                    : undefined
+                }
+                action={
+                  statusFilter === 'all' && canCreateJobs
+                    ? { label: 'Create Your First Job', href: '/jobs/create' }
+                    : undefined
+                }
+              />
             </Card>
           ) : (
             <Stack spacing="lg">

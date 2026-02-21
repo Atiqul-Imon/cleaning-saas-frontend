@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { ProgressBar } from '@/components/ui';
 
 interface PhotoUploadProps {
   jobId: string;
@@ -113,7 +114,7 @@ export default function PhotoUpload({
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-semibold text-gray-950 mb-2">
+        <label className="block text-sm font-semibold text-[var(--gray-900)] mb-2">
           Upload {photoType} Photo
         </label>
         <input
@@ -122,10 +123,10 @@ export default function PhotoUpload({
           accept="image/*"
           capture="environment"
           onChange={handleFileSelect}
-          className="block w-full text-sm text-gray-950 file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-2 file:border-indigo-600 file:text-indigo-700 file:font-semibold file:bg-white hover:file:bg-indigo-50 file:cursor-pointer cursor-pointer touch-manipulation min-h-[48px]"
+          className="block w-full text-sm text-[var(--gray-900)] file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-2 file:border-[var(--primary-600)] file:text-[var(--primary-700)] file:font-semibold file:bg-white hover:file:bg-[var(--primary-50)] file:cursor-pointer cursor-pointer touch-manipulation min-h-[48px]"
           disabled={uploading}
         />
-        <p className="text-xs text-gray-600 mt-1">Max file size: 10MB</p>
+        <p className="text-xs text-[var(--gray-600)] mt-1">Max file size: 10MB</p>
       </div>
 
       {preview && (
@@ -133,20 +134,26 @@ export default function PhotoUpload({
           <img
             src={preview}
             alt={`${photoType} preview`}
-            className="w-full h-64 object-cover rounded-lg border-2 border-gray-300"
+            className="w-full h-64 object-cover rounded-lg border-2 border-[var(--gray-300)]"
           />
+          {uploading && (
+            <div className="mt-3">
+              <p className="text-sm font-medium text-[var(--gray-600)] mb-1.5">Uploading...</p>
+              <ProgressBar indeterminate />
+            </div>
+          )}
           <div className="flex gap-2 mt-2">
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="flex-1 bg-indigo-600 text-white px-4 py-3 rounded-lg font-bold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 shadow-md hover:shadow-lg transition-all duration-200 min-h-[48px] touch-manipulation"
+              className="flex-1 bg-[var(--primary-600)] text-white px-4 py-3 rounded-lg font-bold hover:bg-[var(--primary-700)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-500)] disabled:opacity-50 shadow-md hover:shadow-lg transition-all duration-200 min-h-[48px] touch-manipulation"
             >
               {uploading ? 'Uploading...' : 'Upload Photo'}
             </button>
             <button
               onClick={handleCancel}
               disabled={uploading}
-              className="px-4 py-3 border-2 border-gray-400 text-gray-950 rounded-lg font-bold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 transition-all duration-200 min-h-[48px] touch-manipulation"
+              className="px-4 py-3 border-2 border-[var(--gray-400)] text-[var(--gray-900)] rounded-lg font-bold hover:bg-[var(--gray-100)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gray-500)] disabled:opacity-50 transition-all duration-200 min-h-[48px] touch-manipulation"
             >
               Cancel
             </button>

@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useUserRole } from '@/lib/hooks/use-user-role-query';
-import { Card } from '@/components/ui';
+import { Card, LoadingSkeleton } from '@/components/ui';
+import { Section, Container } from '@/components/layout';
 
 export default function AdminSettingsPage() {
   const router = useRouter();
@@ -15,7 +16,13 @@ export default function AdminSettingsPage() {
   }
 
   if (roleLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Section background="subtle" padding="lg">
+        <Container size="lg">
+          <LoadingSkeleton type="card" count={4} />
+        </Container>
+      </Section>
+    );
   }
 
   if (userRole?.role !== 'ADMIN') {
@@ -144,6 +151,3 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
-
-
-

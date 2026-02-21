@@ -26,9 +26,9 @@ export default function Toast({ message, type, isVisible, onClose, duration = 30
   }
 
   const bgColor = {
-    success: 'bg-green-600',
-    error: 'bg-red-600',
-    info: 'bg-blue-600',
+    success: 'bg-[var(--success-600)]',
+    error: 'bg-[var(--error-600)]',
+    info: 'bg-[var(--primary-600)]',
   }[type];
 
   const icon = {
@@ -60,9 +60,9 @@ export default function Toast({ message, type, isVisible, onClose, duration = 30
   }[type];
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 animate-slide-up">
+    <div className="fixed bottom-4 right-4 z-50 animate-slide-up" role="status" aria-live="polite">
       <div
-        className={`${bgColor} text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] max-w-md`}
+        className={`${bgColor} text-white px-6 py-4 rounded-xl shadow-elevated flex items-center gap-3 min-w-[300px] max-w-md`}
       >
         <div className="flex-shrink-0">{icon}</div>
         <p className="flex-1 font-semibold">{message}</p>

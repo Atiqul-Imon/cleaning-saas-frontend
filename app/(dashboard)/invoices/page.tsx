@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useInvoices } from '@/features/invoices/hooks/useInvoices';
 import { Container, Section, Grid, Stack, PageHeader } from '@/components/layout';
-import { Card, Button, LoadingSkeleton } from '@/components/ui';
+import { Card, Button, LoadingSkeleton, EmptyState } from '@/components/ui';
 import { InvoiceCard } from '@/features/invoices/components';
 
 export default function InvoicesPage() {
@@ -132,30 +132,13 @@ export default function InvoicesPage() {
 
           {/* Invoices List */}
           {invoices.length === 0 ? (
-            <Card variant="elevated" padding="lg" className="text-center">
-              <div className="max-w-md mx-auto space-y-4">
-                <div className="w-20 h-20 mx-auto bg-[var(--gray-100)] rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-10 h-10 text-[var(--gray-400)]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-[var(--gray-900)] mb-2">No invoices yet</h3>
-                  <p className="text-[var(--gray-600)]">
-                    Invoices will be automatically generated when you complete jobs
-                  </p>
-                </div>
-              </div>
+            <Card variant="elevated" padding="lg">
+              <EmptyState
+                variant="invoices"
+                title="No invoices yet"
+                description="Create invoices from completed jobs to request payment from clients."
+                hint="Go to a completed job and create an invoice. You can send it by WhatsApp or download as PDF."
+              />
             </Card>
           ) : (
             <Grid cols={3} gap="md">

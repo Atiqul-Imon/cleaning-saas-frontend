@@ -161,8 +161,10 @@ export default function DashboardPage() {
       <Section background="subtle" padding="lg">
         <Container size="lg">
           <EmptyState
+            variant="error"
             title="Error Loading Dashboard"
             description={(error as Error)?.message || 'Failed to load dashboard data'}
+            hint="Check your connection and try again."
             action={{
               label: 'Try Again',
               onClick: () => {

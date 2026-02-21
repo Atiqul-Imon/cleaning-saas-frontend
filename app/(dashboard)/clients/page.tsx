@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useClients } from '@/features/clients/hooks/useClients';
 import { usePermissions } from '@/shared/hooks/usePermissions';
 import { Container, Grid, Stack, Section, PageHeader } from '@/components/layout';
-import { Card, Button, LoadingSkeleton } from '@/components/ui';
+import { Card, Button, LoadingSkeleton, EmptyState } from '@/components/ui';
 import { ClientCard } from '@/features/clients/components';
 
 export default function ClientsPage() {
@@ -111,41 +111,24 @@ export default function ClientsPage() {
 
           {/* Clients List */}
           {!loading && clients.length === 0 ? (
-            <Card variant="elevated" padding="lg" className="text-center">
-              <div className="max-w-md mx-auto space-y-4">
-                <div className="w-20 h-20 mx-auto bg-[var(--gray-100)] rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-10 h-10 text-[var(--gray-400)]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-[var(--gray-900)] mb-2">
-                    {isCleaner ? 'No clients assigned yet' : 'No clients yet'}
-                  </h3>
-                  <p className="text-[var(--gray-600)] mb-6">
-                    {isCleaner
-                      ? 'You will see clients here once jobs are assigned to you.'
-                      : 'Add your first client to get started managing your cleaning business'}
-                  </p>
-                  {canCreateClients && (
-                    <Link href="/clients/new">
-                      <Button variant="primary" size="lg">
-                        Add First Client
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              </div>
+            <Card variant="elevated" padding="lg">
+              <EmptyState
+                variant="clients"
+                title={isCleaner ? 'No clients assigned yet' : 'No clients yet'}
+                description={
+                  isCleaner
+                    ? 'You will see clients here once jobs are assigned to you.'
+                    : 'Add your first client to get started managing your cleaning business'
+                }
+                hint={
+                  !isCleaner
+                    ? 'Store names, phone numbers and addresses. You can then create jobs and invoices for each client.'
+                    : undefined
+                }
+                action={
+                  canCreateClients ? { label: 'Add First Client', href: '/clients/new' } : undefined
+                }
+              />
             </Card>
           ) : (
             <Grid cols={3} gap="md">

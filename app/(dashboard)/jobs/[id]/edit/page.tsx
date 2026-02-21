@@ -194,6 +194,7 @@ export default function EditJobPage() {
       <Section background="subtle" padding="lg">
         <Container size="lg">
           <EmptyState
+            variant="error"
             title="Error Loading Job"
             description={(jobQuery.error as Error)?.message || 'Failed to load job'}
             action={{

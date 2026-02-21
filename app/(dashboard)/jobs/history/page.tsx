@@ -128,6 +128,7 @@ export default function JobHistoryPage() {
 
         {jobs.length === 0 ? (
           <EmptyState
+            variant="jobs"
             title="No completed jobs"
             description={
               filter === 'week'
@@ -136,23 +137,7 @@ export default function JobHistoryPage() {
                   ? 'No jobs completed in the last 30 days'
                   : 'No completed jobs yet'
             }
-            icon={
-              <div className="bg-[var(--success-100)] w-20 h-20 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-10 h-10 text-[var(--success-600)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            }
+            hint="Completed jobs will appear here. Mark jobs as complete from the job detail page."
             action={{
               label: 'View All Jobs',
               href: '/jobs',
