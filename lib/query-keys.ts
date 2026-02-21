@@ -18,6 +18,7 @@ export const queryKeys = {
     all: (): QueryKey => ['business'],
     detail: (userId?: string): QueryKey => ['business', userId].filter(Boolean),
     cleaners: (userId?: string): QueryKey => ['business', 'cleaners', userId].filter(Boolean),
+    cleanerDetail: (cleanerId: string): QueryKey => ['business', 'cleaners', cleanerId],
   },
 
   // Clients

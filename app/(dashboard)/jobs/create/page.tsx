@@ -17,6 +17,7 @@ interface Cleaner {
   id: string;
   cleanerId: string;
   email: string;
+  name?: string;
   totalJobs: number;
   todayJobs: number;
 }
@@ -182,7 +183,7 @@ export default function CreateJobPage() {
                       { value: '', label: "I'll do it myself" },
                       ...cleaners.map((cleaner) => ({
                         value: cleaner.cleanerId,
-                        label: `${cleaner.email}${cleaner.todayJobs > 0 ? ` (${cleaner.todayJobs} jobs today)` : ''}`,
+                        label: `${cleaner.name || cleaner.email}${cleaner.todayJobs > 0 ? ` (${cleaner.todayJobs} jobs today)` : ''}`,
                       })),
                     ]}
                     helperText={

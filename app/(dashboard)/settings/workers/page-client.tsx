@@ -2,6 +2,7 @@
 
 // This is the client component - server-side role check is in page.tsx
 import { useState } from 'react';
+import Link from 'next/link';
 import { useApiQuery, useApiMutation } from '@/lib/hooks/use-api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-keys';
@@ -14,6 +15,7 @@ interface Cleaner {
   id: string;
   cleanerId: string;
   email: string;
+  name?: string;
   role: string;
   status: string;
   totalJobs: number;
@@ -270,77 +272,101 @@ export default function WorkersPageClient() {
             </Card>
           ) : (
             <Grid cols={1} gap="md">
-              {cleaners.map((cleaner) => (
-                <Card key={cleaner.id} variant="elevated" padding="md" hover>
-                  <Stack direction="row" justify="between" align="start">
-                    <Stack direction="row" spacing="md" align="start" className="flex-1">
-                      <Avatar name={cleaner.email} size="md" />
-                      <div className="flex-1">
-                        <Stack direction="row" spacing="md" align="center" className="mb-2">
-                          <h3 className="font-bold text-[var(--gray-900)] text-base">
-                            {cleaner.email}
-                          </h3>
-                          <Badge
-                            variant={
-                              cleaner.status === 'ACTIVE'
-                                ? 'success'
-                                : cleaner.status === 'PENDING'
-                                  ? 'warning'
-                                  : 'primary'
-                            }
-                            size="sm"
-                          >
-                            {cleaner.status}
-                          </Badge>
+              {cleaners.map((cleaner) => {
+                const displayName = cleaner.name || cleaner.email;
+                return (
+                  <Card key={cleaner.id} variant="elevated" padding="md" hover>
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                      <Link
+                        href={`/settings/workers/${cleaner.cleanerId}`}
+                        className="flex-1 min-w-0"
+                      >
+                        <Stack direction="row" spacing="md" align="start" className="flex-1">
+                          <Avatar name={displayName} size="md" />
+                          <div className="flex-1 min-w-0">
+                            <Stack
+                              direction="row"
+                              spacing="md"
+                              align="center"
+                              className="mb-2 flex-wrap gap-y-1"
+                            >
+                              <h3 className="font-bold text-[var(--gray-900)] text-base">
+                                {displayName}
+                              </h3>
+                              <Badge
+                                variant={
+                                  cleaner.status === 'ACTIVE'
+                                    ? 'success'
+                                    : cleaner.status === 'PENDING'
+                                      ? 'warning'
+                                      : 'primary'
+                                }
+                                size="sm"
+                              >
+                                {cleaner.status}
+                              </Badge>
+                            </Stack>
+                            {cleaner.name && (
+                              <p className="text-xs text-[var(--gray-600)] font-medium mb-2 truncate">
+                                {cleaner.email}
+                              </p>
+                            )}
+                            <p className="text-xs text-[var(--gray-600)] font-medium mb-3">
+                              Staff Member
+                            </p>
+                            <Grid cols={2} gap="md">
+                              <div>
+                                <p className="text-xl font-extrabold text-[var(--gray-900)]">
+                                  {cleaner.totalJobs}
+                                </p>
+                                <p className="text-xs text-[var(--gray-600)] font-medium uppercase tracking-wide mt-1">
+                                  Total Jobs
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xl font-extrabold text-[var(--primary-600)]">
+                                  {cleaner.todayJobs}
+                                </p>
+                                <p className="text-xs text-[var(--gray-600)] font-medium uppercase tracking-wide mt-1">
+                                  Today
+                                </p>
+                              </div>
+                            </Grid>
+                          </div>
                         </Stack>
-                        <p className="text-xs text-[var(--gray-600)] font-medium mb-3">
-                          Staff Member
-                        </p>
-                        <Grid cols={2} gap="md">
-                          <div>
-                            <p className="text-xl font-extrabold text-[var(--gray-900)]">
-                              {cleaner.totalJobs}
-                            </p>
-                            <p className="text-xs text-[var(--gray-600)] font-medium uppercase tracking-wide mt-1">
-                              Total Jobs
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xl font-extrabold text-[var(--primary-600)]">
-                              {cleaner.todayJobs}
-                            </p>
-                            <p className="text-xs text-[var(--gray-600)] font-medium uppercase tracking-wide mt-1">
-                              Today
-                            </p>
-                          </div>
-                        </Grid>
-                      </div>
-                    </Stack>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleRemoveClick(cleaner.cleanerId, cleaner.email)}
-                      leftIcon={
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                      </Link>
+                      <div className="flex-shrink-0 w-full sm:w-auto">
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleRemoveClick(cleaner.cleanerId, cleaner.email);
+                          }}
+                          leftIcon={
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          }
+                          className="w-full sm:w-auto"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      }
-                    >
-                      Delete
-                    </Button>
-                  </Stack>
-                </Card>
-              ))}
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
             </Grid>
           )}
         </Stack>
