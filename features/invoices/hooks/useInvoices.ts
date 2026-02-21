@@ -7,16 +7,23 @@ import type { Invoice } from '../types/invoice.types';
  * Hook for fetching all invoices
  * Only available for owners and admins
  */
-export function useInvoices() {
+export function useInvoices(options?: { status?: 'PAID' | 'UNPAID' }) {
   const { userRole, loading: roleLoading } = useUserRole();
 
-  const { data, isLoading, error, refetch, isFetching } = useApiQuery<Invoice[]>(
-    queryKeys.invoices.all(userRole?.id),
-    '/invoices',
-    {
-      enabled: !!userRole && (userRole.role === 'OWNER' || userRole.role === 'ADMIN'),
-    },
-  );
+  const params = new URLSearchParams();
+  if (options?.status) {
+    params.set('status', options.status);
+  }
+  const queryString = params.toString();
+  const url = queryString ? `/invoices?${queryString}` : '/invoices';
+
+  const queryKey = options?.status
+    ? [...queryKeys.invoices.all(userRole?.id), options.status]
+    : queryKeys.invoices.all(userRole?.id);
+
+  const { data, isLoading, error, refetch, isFetching } = useApiQuery<Invoice[]>(queryKey, url, {
+    enabled: !!userRole && (userRole.role === 'OWNER' || userRole.role === 'ADMIN'),
+  });
 
   return {
     invoices: data || [],

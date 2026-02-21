@@ -347,6 +347,22 @@ export default function CreateJobPage() {
                       </Grid>
                     </div>
                   )}
+
+                  {/* Smart suggestion when one-off is selected */}
+                  {formData.type === 'ONE_OFF' && (
+                    <div className="p-4 rounded-xl bg-[var(--primary-50)] border border-[var(--primary-200)]">
+                      <p className="text-sm text-[var(--gray-700)]">
+                        Most clients schedule weekly.{' '}
+                        <button
+                          type="button"
+                          onClick={() => updateField('type', 'RECURRING')}
+                          className="font-bold text-[var(--primary-600)] hover:text-[var(--primary-700)] underline underline-offset-2"
+                        >
+                          Make this a repeating job?
+                        </button>
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Section 3: When */}

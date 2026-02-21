@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useJobManagement } from './useJobManagement';
+import { useJobDefaults } from './useJobDefaults';
 import { JobsService } from '../services/jobs.service';
 import { useToast } from '@/lib/toast-context';
 import type { CreateJobDto } from '../types/job.types';
@@ -8,22 +9,30 @@ import type { CreateJobDto } from '../types/job.types';
 /**
  * Hook for job form management
  * Handles form state, validation, and submission
+ * Uses smart defaults: remembers last client, time, type
  */
 export function useJobForm(initialData?: Partial<CreateJobDto>) {
   const router = useRouter();
   const { createJob, isCreating } = useJobManagement();
   const { showToast } = useToast();
+  const { get: getDefaults, set: setDefaults } = useJobDefaults();
 
-  const [formData, setFormData] = useState<CreateJobDto>({
-    clientId: initialData?.clientId || '',
-    cleanerId: initialData?.cleanerId,
-    type: initialData?.type || 'ONE_OFF',
-    frequency: initialData?.frequency,
-    scheduledDate: initialData?.scheduledDate || '',
-    scheduledTime: initialData?.scheduledTime,
-    reminderEnabled:
-      initialData?.reminderEnabled !== undefined ? initialData.reminderEnabled : true,
-    reminderTime: initialData?.reminderTime || '1 day',
+  const [formData, setFormData] = useState<CreateJobDto>(() => {
+    const fromStorage = getDefaults();
+    const storedFreq = fromStorage?.frequency;
+    const validFreq =
+      storedFreq === 'WEEKLY' || storedFreq === 'BI_WEEKLY' ? storedFreq : undefined;
+    return {
+      clientId: initialData?.clientId || fromStorage?.clientId || '',
+      cleanerId: initialData?.cleanerId,
+      type: initialData?.type ?? (fromStorage?.type as CreateJobDto['type']) ?? 'ONE_OFF',
+      frequency: initialData?.frequency ?? validFreq,
+      scheduledDate: initialData?.scheduledDate || '',
+      scheduledTime: initialData?.scheduledTime ?? fromStorage?.scheduledTime,
+      reminderEnabled:
+        initialData?.reminderEnabled !== undefined ? initialData.reminderEnabled : true,
+      reminderTime: initialData?.reminderTime || '1 day',
+    };
   });
 
   const [errors, setErrors] = useState<string[]>([]);
@@ -65,8 +74,14 @@ export function useJobForm(initialData?: Partial<CreateJobDto>) {
       const transformedData = JobsService.transformJobData(formData);
       await createJob(transformedData);
 
-      // Wait for success, then navigate
-      // Navigation will happen after successful creation
+      // Save smart defaults for next time
+      setDefaults({
+        clientId: formData.clientId,
+        scheduledTime: formData.scheduledTime,
+        type: formData.type,
+        frequency: formData.frequency,
+      });
+
       router.push('/jobs');
       router.refresh();
     } catch (error) {

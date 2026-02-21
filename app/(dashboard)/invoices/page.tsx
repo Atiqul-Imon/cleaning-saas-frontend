@@ -1,14 +1,30 @@
 'use client';
 
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useInvoices } from '@/features/invoices/hooks/useInvoices';
 import { Container, Section, Grid, Stack, PageHeader } from '@/components/layout';
 import { Card, Button, LoadingSkeleton } from '@/components/ui';
 import { InvoiceCard } from '@/features/invoices/components';
 
 export default function InvoicesPage() {
-  const { invoices, isLoading, error, refetch, isRefreshing } = useInvoices();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const statusFilter = (searchParams.get('status') as 'PAID' | 'UNPAID') || undefined;
+  const { invoices, isLoading, error, refetch, isRefreshing } = useInvoices({
+    status: statusFilter,
+  });
 
   const loading = isLoading;
+
+  const setStatusFilter = (status: 'all' | 'PAID' | 'UNPAID') => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (status === 'all') {
+      params.delete('status');
+    } else {
+      params.set('status', status);
+    }
+    router.push(`/invoices${params.toString() ? `?${params.toString()}` : ''}`);
+  };
 
   if (loading) {
     return (
@@ -69,13 +85,50 @@ export default function InvoicesPage() {
         <Stack spacing="lg">
           {/* Page Header */}
           <PageHeader
-            title="Invoices"
-            description="Manage and track all your invoices"
+            title={
+              statusFilter === 'UNPAID'
+                ? 'Outstanding Invoices'
+                : statusFilter === 'PAID'
+                  ? 'Paid Invoices'
+                  : 'Invoices'
+            }
+            description={
+              statusFilter === 'UNPAID'
+                ? 'Invoices awaiting payment'
+                : statusFilter === 'PAID'
+                  ? 'Invoices that have been paid'
+                  : 'Manage and track all your invoices'
+            }
             onRefresh={() => {
               void refetch();
             }}
             isRefreshing={isRefreshing}
           />
+
+          {/* Status Filter Tabs */}
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={!statusFilter ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setStatusFilter('all')}
+            >
+              All
+            </Button>
+            <Button
+              variant={statusFilter === 'UNPAID' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setStatusFilter('UNPAID')}
+            >
+              Outstanding
+            </Button>
+            <Button
+              variant={statusFilter === 'PAID' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setStatusFilter('PAID')}
+            >
+              Paid
+            </Button>
+          </div>
 
           {/* Invoices List */}
           {invoices.length === 0 ? (

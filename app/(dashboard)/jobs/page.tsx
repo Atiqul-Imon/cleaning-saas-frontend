@@ -3,29 +3,77 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
 import { useJobs } from '@/features/jobs/hooks/useJobs';
+import { jobsApi } from '@/features/jobs/services/jobs.api';
 import { usePermissions } from '@/shared/hooks/usePermissions';
 import { Container, Grid, Stack, Section, PageHeader } from '@/components/layout';
 import { Card, Button, LoadingSkeleton, Select } from '@/components/ui';
 import { JobCard } from '@/features/jobs/components';
+import { useToast } from '@/lib/toast-context';
 
 export default function JobsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showToast } = useToast();
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED'
   >((searchParams.get('status') as 'all' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED') || 'all');
   const [sortBy, setSortBy] = useState<'date' | 'client' | 'status'>('date');
+  const queryClient = useQueryClient();
   const { jobs, isLoading, error, userRole, refetch, isRefreshing } = useJobs();
 
   const { canCreateJobs } = usePermissions();
   const loading = isLoading;
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    setSelectionMode(false);
+  };
+
+  const handleBulkMarkComplete = async () => {
+    const ids = Array.from(selectedIds);
+    const completable = filteredJobs.filter((j) => ids.includes(j.id) && j.status !== 'COMPLETED');
+    if (completable.length === 0) {
+      showToast('No jobs to mark complete', 'error');
+      return;
+    }
+    setBulkUpdating(true);
+    try {
+      await Promise.all(completable.map((j) => jobsApi.update(j.id, { status: 'COMPLETED' })));
+      showToast(
+        `${completable.length} job${completable.length === 1 ? '' : 's'} marked complete`,
+        'success',
+      );
+      clearSelection();
+      queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    } catch {
+      showToast('Failed to update some jobs', 'error');
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
   // Initialize status filter from URL params
   useEffect(() => {
     const statusParam = searchParams.get('status');
     if (statusParam && ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED'].includes(statusParam)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatusFilter(statusParam as 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED');
     }
   }, [searchParams]);
@@ -147,32 +195,55 @@ export default function JobsPage() {
             }}
             isRefreshing={isRefreshing}
             actions={
-              canCreateJobs ? (
-                <Link href="/jobs/create">
+              <div className="flex gap-2 flex-wrap">
+                {selectionMode ? (
                   <Button
-                    variant="primary"
+                    variant="secondary"
                     size="lg"
+                    onClick={clearSelection}
                     className="w-full sm:w-auto"
-                    leftIcon={
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                    }
                   >
-                    Create Job
+                    Cancel
                   </Button>
-                </Link>
-              ) : undefined
+                ) : (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      onClick={() => setSelectionMode(true)}
+                      className="w-full sm:w-auto"
+                    >
+                      Select
+                    </Button>
+                    {canCreateJobs && (
+                      <Link href="/jobs/create">
+                        <Button
+                          variant="primary"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                          leftIcon={
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 4v16m8-8H4"
+                              />
+                            </svg>
+                          }
+                        >
+                          Create Job
+                        </Button>
+                      </Link>
+                    )}
+                  </>
+                )}
+              </div>
             }
           />
 
@@ -293,6 +364,9 @@ export default function JobsPage() {
                             scheduledTime={job.scheduledTime}
                             status={job.status}
                             cleaner={job.cleaner}
+                            selectable={selectionMode}
+                            selected={selectedIds.has(job.id)}
+                            onSelect={() => toggleSelect(job.id)}
                           />
                         ))}
                       </Grid>
@@ -323,6 +397,9 @@ export default function JobsPage() {
                             scheduledTime={job.scheduledTime}
                             status={job.status}
                             cleaner={job.cleaner}
+                            selectable={selectionMode}
+                            selected={selectedIds.has(job.id)}
+                            onSelect={() => toggleSelect(job.id)}
                           />
                         ))}
                       </Grid>
@@ -353,6 +430,9 @@ export default function JobsPage() {
                             scheduledTime={job.scheduledTime}
                             status={job.status}
                             cleaner={job.cleaner}
+                            selectable={selectionMode}
+                            selected={selectedIds.has(job.id)}
+                            onSelect={() => toggleSelect(job.id)}
                           />
                         ))}
                       </Grid>
@@ -371,6 +451,9 @@ export default function JobsPage() {
                       scheduledTime={job.scheduledTime}
                       status={job.status}
                       cleaner={job.cleaner}
+                      selectable={selectionMode}
+                      selected={selectedIds.has(job.id)}
+                      onSelect={() => toggleSelect(job.id)}
                     />
                   ))}
                 </Grid>
@@ -378,6 +461,38 @@ export default function JobsPage() {
             </Stack>
           )}
         </Stack>
+
+        {/* Floating bulk action bar */}
+        {selectedIds.size > 0 && (
+          <div className="fixed bottom-20 left-0 right-0 z-40 p-4 md:bottom-4 md:left-auto md:right-8 md:max-w-md md:rounded-xl shadow-elevated bg-white border-2 border-[var(--gray-200)]">
+            <div className="flex items-center justify-between gap-4">
+              <span className="font-bold text-[var(--gray-900)]">{selectedIds.size} selected</span>
+              <div className="flex gap-2">
+                <Button variant="secondary" size="md" onClick={clearSelection}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={handleBulkMarkComplete}
+                  isLoading={bulkUpdating}
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  }
+                >
+                  Mark complete
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </Container>
     </Section>
   );
