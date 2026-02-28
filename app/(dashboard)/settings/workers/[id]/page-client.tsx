@@ -73,8 +73,7 @@ export default function StaffDetailPageClient() {
   const cleaner = cleanerQuery.data;
   const allJobs = jobsQuery.data || [];
   const staffJobs = useMemo(
-    () =>
-      allJobs.filter((j) => j.cleaner?.id === cleanerId || j.cleanerId === cleanerId).slice(0, 12),
+    () => allJobs.filter((j) => j.cleaner?.id === cleanerId).slice(0, 12),
     [allJobs, cleanerId],
   );
   const loading = cleanerQuery.isLoading;

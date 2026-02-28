@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Card, StatusBadge } from '@/components/ui';
+import { StatusBadge } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatDateBritishWithWeekday } from '@/lib/date-utils';
 
@@ -21,22 +21,22 @@ export interface JobCardProps {
     email: string;
     name?: string;
   };
-  /** Selection mode: show checkbox, click toggles selection instead of navigation */
   selectable?: boolean;
   selected?: boolean;
   onSelect?: () => void;
 }
 
-/**
- * JobCard Component
- *
- * Enhanced job card with:
- * - Cleaner design with better spacing
- * - Clear status indicators (color + icon)
- * - Priority/urgency indicators
- * - Better information hierarchy
- * - Mobile-optimized layout
- */
+const getCleanerName = (cleaner?: { name?: string; email?: string }) => {
+  if (cleaner?.name) {
+    return cleaner.name;
+  }
+  if (cleaner?.email) {
+    const emailName = cleaner.email.split('@')[0];
+    return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+  }
+  return '';
+};
+
 const JobCard = React.memo(
   ({
     id,
@@ -50,38 +50,6 @@ const JobCard = React.memo(
     selected,
     onSelect,
   }: JobCardProps) => {
-    const statusConfig = {
-      SCHEDULED: {
-        iconBg: 'bg-[var(--primary-50)]',
-        iconColor: 'text-[var(--primary-600)]',
-      },
-      IN_PROGRESS: {
-        iconBg: 'bg-[var(--warning-50)]',
-        iconColor: 'text-[var(--warning-600)]',
-      },
-      COMPLETED: {
-        iconBg: 'bg-[var(--success-50)]',
-        iconColor: 'text-[var(--success-600)]',
-      },
-    };
-
-    const config = statusConfig[status];
-
-    // Extract cleaner name from email if name is not provided
-    const getCleanerName = () => {
-      if (cleaner?.name) {
-        return cleaner.name;
-      }
-      if (cleaner?.email) {
-        // Extract name from email (part before @)
-        const emailName = cleaner.email.split('@')[0];
-        // Capitalize first letter
-        return emailName.charAt(0).toUpperCase() + emailName.slice(1);
-      }
-      return '';
-    };
-
-    // Check if job is today or overdue
     const jobDate = new Date(scheduledDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -89,64 +57,69 @@ const JobCard = React.memo(
     const isToday = jobDate.getTime() === today.getTime();
     const isOverdue = jobDate.getTime() < today.getTime() && status === 'SCHEDULED';
 
+    const statusStyles = {
+      SCHEDULED: { pill: 'bg-[var(--primary-50)]', text: 'text-[var(--primary-700)]' },
+      IN_PROGRESS: { pill: 'bg-[var(--warning-50)]', text: 'text-[var(--warning-700)]' },
+      COMPLETED: { pill: 'bg-[var(--success-50)]', text: 'text-[var(--success-700)]' },
+    };
+    const s = statusStyles[status];
+
     const cardContent = (
-      <Card
-        variant="elevated"
-        padding="sm"
-        hover
-        clickable
-        className="h-full flex flex-col transition-all duration-200"
+      <article
+        className={cn(
+          'relative overflow-hidden rounded-2xl bg-white shadow-[var(--shadow-card)]',
+          'transition-all duration-300 ease-out',
+          'hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5',
+          'focus-within:ring-2 focus-within:ring-[var(--primary-400)] focus-within:ring-offset-2',
+          selectable && selected && 'ring-2 ring-[var(--primary-500)] ring-offset-2',
+        )}
       >
-        <div className="flex flex-col flex-1 space-y-3">
-          {/* Header: Client Name, Status & Selection checkbox */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              {selectable && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onSelect?.();
-                  }}
-                  className={cn(
-                    'flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-colors touch-manipulation',
-                    selected
-                      ? 'bg-[var(--primary-600)] border-[var(--primary-600)]'
-                      : 'border-[var(--gray-300)] hover:border-[var(--primary-400)]',
-                  )}
-                  aria-label={selected ? 'Deselect job' : 'Select job'}
-                >
-                  {selected && (
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  )}
-                </button>
-              )}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-base text-[var(--gray-900)] mb-0.5 truncate">
-                  {client.name}
-                </h3>
-                <p className="text-xs text-[var(--gray-600)] font-medium">
-                  {type.replace(/_/g, ' ')}
-                </p>
-              </div>
-            </div>
-            <div className="flex-shrink-0">
-              <StatusBadge status={status} size="sm" />
+        {/* Header strip - client + status */}
+        <div className="flex items-start justify-between gap-4 p-5 pb-3">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            {selectable && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onSelect?.();
+                }}
+                className={cn(
+                  'flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center mt-0.5 transition-colors',
+                  selected
+                    ? 'bg-[var(--primary-600)]'
+                    : 'bg-[var(--gray-200)] hover:bg-[var(--gray-300)]',
+                )}
+                aria-label={selected ? 'Deselect' : 'Select'}
+              >
+                {selected && (
+                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </button>
+            )}
+            <div className="min-w-0 flex-1">
+              <h3 className="font-bold text-lg text-[var(--gray-900)] truncate leading-tight">
+                {client.name}
+              </h3>
+              <p className="text-sm text-[var(--gray-500)] mt-0.5">{type.replace(/_/g, ' ')}</p>
             </div>
           </div>
+          <StatusBadge status={status} size="sm" />
+        </div>
 
-          {/* Date & Time */}
-          <div className="flex items-center gap-1.5 text-xs text-[var(--gray-600)]">
-            <div className={cn('p-1 rounded', config.iconBg)}>
+        {/* Body - date, time, cleaner */}
+        <div className="px-5 pb-5 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className={cn('flex items-center gap-2 px-3 py-1.5 rounded-lg', s.pill)}>
               <svg
-                className={cn('w-3.5 h-3.5', config.iconColor)}
+                className={cn('w-4 h-4', s.text)}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -158,9 +131,7 @@ const JobCard = React.memo(
                   d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-            </div>
-            <div className="flex-1">
-              <span className="font-medium">
+              <span className={cn('text-sm font-semibold', s.text)}>
                 {isToday
                   ? 'Today'
                   : isOverdue
@@ -168,41 +139,28 @@ const JobCard = React.memo(
                     : formatDateBritishWithWeekday(scheduledDate)}
               </span>
               {scheduledTime && (
-                <span className="text-[var(--gray-500)] ml-1.5">• {scheduledTime}</span>
+                <span className={cn('text-sm font-medium opacity-90', s.text)}>
+                  · {scheduledTime}
+                </span>
               )}
             </div>
           </div>
 
-          {/* Spacer to ensure consistent card heights */}
-          <div className="flex-1 min-h-[20px]" />
-
-          {/* Cleaner Assignment */}
           {cleaner && (
-            <div className={cn('flex items-center gap-1.5 px-2 py-1.5 rounded-md', config.iconBg)}>
-              <svg
-                className={cn('w-3.5 h-3.5 flex-shrink-0', config.iconColor)}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-              <span className={cn('text-xs font-medium truncate', config.iconColor)}>
-                {getCleanerName()}
-              </span>
+            <div className="flex items-center gap-2 text-sm text-[var(--gray-600)]">
+              <div className="w-6 h-6 rounded-full bg-[var(--gray-200)] flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-bold text-[var(--gray-600)]">
+                  {getCleanerName(cleaner).charAt(0)}
+                </span>
+              </div>
+              <span className="font-medium truncate">{getCleanerName(cleaner)}</span>
             </div>
           )}
 
-          {/* Urgency Indicator */}
           {isOverdue && (
-            <div className="flex items-center gap-1.5 px-2 py-1.5 bg-[var(--error-50)] rounded-md border border-[var(--error-200)]">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--error-50)]">
               <svg
-                className="w-3.5 h-3.5 text-[var(--error-600)] flex-shrink-0"
+                className="w-4 h-4 text-[var(--error-600)] flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -214,13 +172,11 @@ const JobCard = React.memo(
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                 />
               </svg>
-              <span className="text-xs font-medium text-[var(--error-700)]">
-                This job is overdue
-              </span>
+              <span className="text-sm font-semibold text-[var(--error-700)]">Overdue</span>
             </div>
           )}
         </div>
-      </Card>
+      </article>
     );
 
     if (selectable) {
@@ -235,10 +191,7 @@ const JobCard = React.memo(
               onSelect?.();
             }
           }}
-          className={cn(
-            'h-full block touch-manipulation min-h-[88px] cursor-pointer',
-            selected && 'ring-2 ring-[var(--primary-500)] ring-offset-2 rounded-xl',
-          )}
+          className="h-full block cursor-pointer"
         >
           {cardContent}
         </div>
@@ -246,12 +199,13 @@ const JobCard = React.memo(
     }
 
     return (
-      <Link href={`/jobs/${id}`} className="h-full block touch-manipulation min-h-[88px]">
+      <Link href={`/jobs/${id}`} className="h-full block focus:outline-none">
         {cardContent}
       </Link>
     );
   },
 );
+
 JobCard.displayName = 'JobCard';
 
 export default JobCard;

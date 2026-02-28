@@ -224,9 +224,9 @@ export default function DashboardPage() {
   return (
     <Section background="subtle" padding="lg">
       <Container size="lg">
-        <Stack spacing="lg">
+        <Stack spacing="xl">
           {/* Hero Section */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--primary-600)] to-[var(--accent-600)] p-6 sm:p-8 lg:p-10 text-white">
+          <div className="relative overflow-hidden rounded-2xl bg-[var(--primary-600)] p-6 sm:p-8 lg:p-10 text-white shadow-[var(--shadow-card)]">
             <div className="relative z-10">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex-1">
@@ -255,7 +255,7 @@ export default function DashboardPage() {
                 {stats && (isOwner || isAdmin) && stats.todayJobs > 0 && (
                   <div className="flex-shrink-0">
                     <Link href="/jobs?status=SCHEDULED">
-                      <button className="px-4 py-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-lg font-semibold text-sm transition-all duration-200 border border-white/30">
+                      <button className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl font-semibold text-sm transition-all duration-200">
                         View Today&apos;s Jobs
                       </button>
                     </Link>
@@ -271,63 +271,78 @@ export default function DashboardPage() {
           {/* First-time welcome guide (Phase 6) - owners/admins only */}
           {(isOwner || isAdmin) && <FirstTimeWelcomeBanner />}
 
-          {/* Stats Cards - Simplified to 3 most important metrics */}
+          {/* Stats - Key metrics */}
           {stats && (isOwner || isAdmin) && (
-            <Grid cols={1} gap="lg" className="sm:grid-cols-3">
-              <Link href="/jobs?status=SCHEDULED" className="block">
+            <div>
+              <h2 className="text-sm font-semibold text-[var(--gray-500)] uppercase tracking-wider mb-4">
+                Overview
+              </h2>
+              <Grid cols={1} gap="lg" className="sm:grid-cols-3">
+                <Link href="/jobs?status=SCHEDULED" className="block">
+                  <StatCard
+                    title="Today's Jobs"
+                    value={stats.todayJobs.toString()}
+                    variant="primary"
+                    highlight={stats.todayJobs > 0}
+                    icon={
+                      <svg
+                        className="w-7 h-7"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    }
+                    onClick={() => {}}
+                  />
+                </Link>
                 <StatCard
-                  title="Today's Jobs"
-                  value={stats.todayJobs.toString()}
-                  variant="primary"
-                  highlight={stats.todayJobs > 0}
+                  title="This Month"
+                  value={`£${stats.monthlyEarnings.toFixed(0)}`}
+                  variant="success"
                   icon={
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
                   }
-                  onClick={() => {}}
                 />
-              </Link>
-              <StatCard
-                title="This Month"
-                value={`£${stats.monthlyEarnings.toFixed(0)}`}
-                variant="success"
-                icon={
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                }
-              />
-              <Link href="/invoices?status=UNPAID" className="block">
-                <StatCard
-                  title="To Collect"
-                  value={stats.unpaidInvoices.toString()}
-                  variant="warning"
-                  highlight={stats.unpaidInvoices > 0}
-                  icon={
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                  }
-                  onClick={() => {}}
-                />
-              </Link>
-            </Grid>
+                <Link href="/invoices?status=UNPAID" className="block">
+                  <StatCard
+                    title="To Collect"
+                    value={stats.unpaidInvoices.toString()}
+                    variant="warning"
+                    highlight={stats.unpaidInvoices > 0}
+                    icon={
+                      <svg
+                        className="w-7 h-7"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                    }
+                    onClick={() => {}}
+                  />
+                </Link>
+              </Grid>
+            </div>
           )}
 
           {/* Cleaner Stats */}
@@ -368,14 +383,15 @@ export default function DashboardPage() {
             </Grid>
           )}
 
-          {/* Quick Actions - Phase 4: Contextual workflow shortcuts */}
+          {/* Quick Actions */}
           {(isOwner || isAdmin) && (
             <div>
-              <h2 className="text-2xl font-bold text-[var(--gray-900)] mb-6">Quick Actions</h2>
-              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+              <h2 className="text-sm font-semibold text-[var(--gray-500)] uppercase tracking-wider mb-4">
+                Quick Actions
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 <QuickAction
-                  title="Quick Job"
-                  description="New job (fastest path)"
+                  title="Job"
                   variant="primary"
                   icon={
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -390,8 +406,7 @@ export default function DashboardPage() {
                   href="/jobs/create"
                 />
                 <QuickAction
-                  title="Today's Schedule"
-                  description="View scheduled jobs"
+                  title="Schedule"
                   variant="info"
                   icon={
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -406,8 +421,7 @@ export default function DashboardPage() {
                   href="/jobs?status=SCHEDULED"
                 />
                 <QuickAction
-                  title="Outstanding Invoices"
-                  description="Unpaid to collect"
+                  title="Invoice"
                   variant="warning"
                   icon={
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -422,8 +436,7 @@ export default function DashboardPage() {
                   href="/invoices?status=UNPAID"
                 />
                 <QuickAction
-                  title="Add Client"
-                  description="New client"
+                  title="Client"
                   variant="success"
                   icon={
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -438,9 +451,8 @@ export default function DashboardPage() {
                   href="/clients/new"
                 />
                 <QuickAction
-                  title="Manage Staff"
-                  description="Add cleaners & workers"
-                  variant="secondary"
+                  title="Staff"
+                  variant="purple"
                   icon={
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -460,8 +472,10 @@ export default function DashboardPage() {
           {/* Today's Jobs List */}
           {stats && stats.todayJobsList && stats.todayJobsList.length > 0 && (
             <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-[var(--gray-900)]">Today&apos;s Jobs</h2>
+              <div className="flex justify-between items-center mb-5">
+                <h2 className="text-sm font-semibold text-[var(--gray-500)] uppercase tracking-wider">
+                  Today&apos;s Jobs
+                </h2>
                 <Link href="/jobs">
                   <Button variant="ghost" size="sm">
                     View All ({stats.totalJobs || 0})

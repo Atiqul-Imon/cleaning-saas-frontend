@@ -38,27 +38,27 @@ export default function StatusBadge({ status, type, size = 'md', className }: St
   const typeConfig = {
     success: {
       variant: 'success' as const,
-      className: 'bg-[var(--success-50)] text-[var(--success-800)] border-[var(--success-300)]',
+      className: 'bg-[var(--success-50)] text-[var(--success-800)]',
     },
     warning: {
       variant: 'warning' as const,
-      className: 'bg-[var(--warning-50)] text-[var(--warning-800)] border-[var(--warning-300)]',
+      className: 'bg-[var(--warning-50)] text-[var(--warning-800)]',
     },
     error: {
       variant: 'error' as const,
-      className: 'bg-[var(--error-50)] text-[var(--error-800)] border-[var(--error-300)]',
+      className: 'bg-[var(--error-50)] text-[var(--error-800)]',
     },
     info: {
       variant: 'primary' as const,
-      className: 'bg-[var(--primary-50)] text-[var(--primary-800)] border-[var(--primary-300)]',
+      className: 'bg-[var(--primary-50)] text-[var(--primary-800)]',
     },
     primary: {
       variant: 'primary' as const,
-      className: 'bg-[var(--primary-50)] text-[var(--primary-800)] border-[var(--primary-300)]',
+      className: 'bg-[var(--primary-50)] text-[var(--primary-800)]',
     },
     neutral: {
       variant: 'default' as const,
-      className: 'bg-[var(--gray-100)] text-[var(--gray-800)] border-[var(--gray-300)]',
+      className: 'bg-[var(--gray-100)] text-[var(--gray-800)]',
     },
   };
 
@@ -68,7 +68,7 @@ export default function StatusBadge({ status, type, size = 'md', className }: St
     <Badge
       variant={config.variant}
       size={size}
-      className={cn('border font-medium', config.className, className)}
+      className={cn('font-medium', config.className, className)}
     >
       {status.replace(/_/g, ' ')}
     </Badge>

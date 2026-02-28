@@ -92,10 +92,10 @@ export default function Header() {
       <>
         {/* Mobile Header - Show on mobile even on dashboard pages */}
         <header
-          className="lg:hidden sticky top-0 z-30 shadow-sm backdrop-blur-sm bg-opacity-95 transition-colors duration-300"
+          className="lg:hidden sticky top-0 z-30 backdrop-blur-sm bg-opacity-95 transition-colors duration-300"
           style={{
             backgroundColor: 'var(--bg-elevated)',
-            borderBottom: '1px solid var(--border-light)',
+            boxShadow: 'var(--shadow-subtle)',
           }}
         >
           <Container size="lg">
@@ -120,11 +120,14 @@ export default function Header() {
 
               {/* Logo */}
               <Link href="/dashboard" className="flex items-center space-x-2 group flex-1 min-w-0">
-                <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary-600)] to-[var(--accent-500)] rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow flex-shrink-0">
+                <div className="w-8 h-8 bg-[var(--primary-600)] rounded-xl flex items-center justify-center shadow-[var(--shadow-subtle)] flex-shrink-0">
                   <span className="text-white font-bold text-lg">CV</span>
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-xl font-extrabold bg-gradient-to-r from-[var(--primary-600)] to-[var(--accent-500)] bg-clip-text text-transparent truncate">
+                  <span
+                    className="text-xl font-extrabold truncate"
+                    style={{ color: 'var(--primary-600)' }}
+                  >
                     Clenvora
                   </span>
                 </div>
@@ -142,10 +145,10 @@ export default function Header() {
   return (
     <>
       <header
-        className="sticky top-0 z-30 shadow-sm backdrop-blur-sm bg-opacity-95 transition-colors duration-300"
+        className="sticky top-0 z-30 backdrop-blur-sm bg-opacity-95 transition-colors duration-300"
         style={{
           backgroundColor: 'var(--bg-elevated)',
-          borderBottom: '1px solid var(--border-light)',
+          boxShadow: 'var(--shadow-subtle)',
         }}
       >
         <Container size="lg">
@@ -153,11 +156,11 @@ export default function Header() {
             {/* Logo */}
             <div className="flex items-center space-x-8">
               <Link href="/" className="flex items-center space-x-2 group">
-                <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary-600)] to-[var(--accent-500)] rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                <div className="w-8 h-8 bg-[var(--primary-600)] rounded-xl flex items-center justify-center shadow-[var(--shadow-subtle)]">
                   <span className="text-white font-bold text-lg">CV</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-2xl font-extrabold bg-gradient-to-r from-[var(--primary-600)] to-[var(--accent-500)] bg-clip-text text-transparent">
+                  <span className="text-2xl font-extrabold" style={{ color: 'var(--primary-600)' }}>
                     Clenvora
                   </span>
                   <span className="text-xs text-[var(--gray-500)] -mt-1 hidden sm:block">

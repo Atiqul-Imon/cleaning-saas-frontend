@@ -31,12 +31,7 @@ export default function FilterBar({
   className,
 }: FilterBarProps) {
   return (
-    <div
-      className={cn(
-        'flex flex-wrap gap-2 sm:gap-3 pb-4 border-b border-[var(--gray-200)]',
-        className,
-      )}
-    >
+    <div className={cn('flex flex-wrap gap-2 sm:gap-3 pb-4', className)}>
       {filters.map((filter) => {
         const isActive = activeFilter === filter.value;
 

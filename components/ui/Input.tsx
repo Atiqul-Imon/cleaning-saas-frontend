@@ -72,22 +72,19 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'w-full rounded-xl border-2 px-4 py-4 min-h-[56px]',
-              'focus:outline-none focus:ring-2 focus:ring-offset-0',
+              'w-full rounded-xl border-0 px-4 py-4 min-h-[56px] shadow-[var(--shadow-subtle)]',
+              'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-[var(--primary-500)]',
               'transition-all duration-200 ease-out',
-              'text-base font-medium', // Always 16px to prevent zoom on iOS, medium weight for readability
+              'text-base font-medium',
               leftIcon ? 'pl-11' : '',
               rightIcon ? 'pr-11' : '',
-              error
-                ? 'border-[var(--error-500)] focus:ring-[var(--error-500)] focus:border-[var(--error-600)]'
-                : 'focus:ring-[var(--primary-600)] focus:border-[var(--primary-600)]',
+              error && 'ring-2 ring-[var(--error-500)]',
               'disabled:cursor-not-allowed disabled:opacity-50',
               className,
             )}
             style={{
               color: 'var(--text-primary)',
-              backgroundColor: 'var(--bg-primary)',
-              borderColor: error ? 'var(--error-500)' : 'var(--border-medium)',
+              backgroundColor: 'var(--bg-tertiary)',
             }}
             placeholder={props.placeholder}
             aria-invalid={error ? 'true' : 'false'}

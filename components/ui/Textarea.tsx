@@ -29,15 +29,13 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={textareaId}
           className={cn(
-            'w-full rounded-lg border-2 px-4 py-3 text-[var(--gray-900)]',
-            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'w-full rounded-xl border-0 px-4 py-3 text-[var(--gray-900)] shadow-[var(--shadow-subtle)]',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-[var(--primary-500)]',
             'transition-all duration-200 ease-out',
             'placeholder:text-[var(--gray-400)]',
-            'resize-y min-h-[100px] text-base md:text-sm', // Prevent zoom on iOS
+            'resize-y min-h-[100px] text-base md:text-sm bg-[var(--bg-tertiary)]',
             'disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed',
-            error
-              ? 'border-[var(--error-500)] focus:ring-[var(--error-500)] focus:border-[var(--error-600)]'
-              : 'border-[var(--gray-300)] focus:ring-[var(--primary-500)] focus:border-[var(--primary-600)]',
+            error && 'ring-2 ring-[var(--error-500)]',
             className,
           )}
           aria-invalid={error ? 'true' : 'false'}

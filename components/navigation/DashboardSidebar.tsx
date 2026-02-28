@@ -187,21 +187,18 @@ export default function DashboardSidebar({ userRole: initialUserRole }: Dashboar
       className="hidden lg:block w-64 h-screen sticky top-0 overflow-y-auto transition-colors duration-300"
       style={{
         backgroundColor: 'var(--bg-elevated)',
-        borderRight: '1px solid var(--border-light)',
+        boxShadow: 'var(--shadow-subtle)',
       }}
     >
       {/* Logo/Brand */}
-      <div
-        className="p-6 border-b transition-colors duration-300"
-        style={{ borderColor: 'var(--border-light)' }}
-      >
+      <div className="p-6 transition-colors duration-300">
         <div className="flex items-center justify-between mb-4">
           <Link href="/dashboard" className="flex items-center space-x-2 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary-600)] to-[var(--accent-500)] rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+            <div className="w-8 h-8 bg-[var(--primary-600)] rounded-xl flex items-center justify-center shadow-[var(--shadow-subtle)] group-hover:shadow-[var(--shadow-card)] transition-shadow">
               <span className="text-white font-bold text-lg">CV</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-extrabold bg-gradient-to-r from-[var(--primary-600)] to-[var(--accent-500)] bg-clip-text text-transparent">
+              <span className="text-lg font-extrabold" style={{ color: 'var(--primary-600)' }}>
                 Clenvora
               </span>
               <span

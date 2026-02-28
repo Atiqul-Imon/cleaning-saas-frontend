@@ -44,11 +44,7 @@ export default function FirstTimeWelcomeBanner() {
   }
 
   return (
-    <Card
-      variant="outlined"
-      padding="md"
-      className="mb-6 border-[var(--primary-200)] bg-[var(--primary-50)] animate-fade-in"
-    >
+    <Card variant="outlined" padding="md" className="mb-6 bg-[var(--primary-50)] animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h3 className="font-bold text-lg text-[var(--gray-900)] mb-1">Welcome! Get started</h3>

@@ -26,7 +26,7 @@ export default function CollapsibleSection({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className={cn('border-2 border-[var(--gray-200)] rounded-xl overflow-hidden', className)}>
+    <div className={cn('rounded-xl overflow-hidden shadow-[var(--shadow-subtle)]', className)}>
       <button
         type="button"
         onClick={() => setIsOpen((o) => !o)}
@@ -53,10 +53,7 @@ export default function CollapsibleSection({
         </svg>
       </button>
       {isOpen && (
-        <div
-          id="collapsible-content"
-          className="p-5 pt-2 bg-white border-t border-[var(--gray-200)] animate-fade-in"
-        >
+        <div id="collapsible-content" className="p-5 pt-2 bg-[var(--bg-elevated)] animate-fade-in">
           {children}
         </div>
       )}

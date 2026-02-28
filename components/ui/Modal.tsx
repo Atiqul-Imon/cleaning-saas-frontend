@@ -79,7 +79,7 @@ const Modal: React.FC<ModalProps> = ({
         >
           {/* Header */}
           {(title || showCloseButton) && (
-            <div className="flex items-center justify-between p-6 border-b border-[var(--gray-200)]">
+            <div className="flex items-center justify-between p-6">
               {title && (
                 <h2 id="modal-title" className="text-xl font-bold text-[var(--gray-900)]">
                   {title}

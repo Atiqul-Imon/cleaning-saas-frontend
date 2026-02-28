@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 export interface QuickActionProps {
@@ -12,117 +11,41 @@ export interface QuickActionProps {
   variant?: 'primary' | 'secondary' | 'accent' | 'success' | 'info' | 'warning' | 'purple';
 }
 
+const colorVariants = {
+  primary:
+    'border-teal-200 bg-teal-50/80 text-teal-700 hover:bg-teal-100 [&_svg]:text-teal-600 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-300',
+  secondary:
+    'border-border bg-muted/80 text-muted-foreground hover:bg-muted [&_svg]:text-muted-foreground',
+  accent:
+    'border-cyan-200 bg-cyan-50/80 text-cyan-700 hover:bg-cyan-100 [&_svg]:text-cyan-600 dark:border-cyan-800 dark:bg-cyan-950/50',
+  success:
+    'border-emerald-200 bg-emerald-50/80 text-emerald-700 hover:bg-emerald-100 [&_svg]:text-emerald-600 dark:border-emerald-800 dark:bg-emerald-950/50',
+  info: 'border-blue-200 bg-blue-50/80 text-blue-700 hover:bg-blue-100 [&_svg]:text-blue-600 dark:border-blue-800 dark:bg-blue-950/50',
+  warning:
+    'border-amber-200 bg-amber-50/80 text-amber-700 hover:bg-amber-100 [&_svg]:text-amber-600 dark:border-amber-800 dark:bg-amber-950/50',
+  purple:
+    'border-violet-200 bg-violet-50/80 text-violet-700 hover:bg-violet-100 [&_svg]:text-violet-600 dark:border-violet-800 dark:bg-violet-950/50',
+};
+
 /**
- * QuickAction Component
- *
- * Simplified quick action button with:
- * - Clean, minimal design (no busy gradients)
- * - Subtle backgrounds with icons
- * - Clear labels
- * - Mobile-optimized (2 per row)
- * - Touch-friendly
+ * QuickAction - Compact, colorful action buttons for dashboard
+ * shadcn-inspired, sleek, grid-friendly on mobile
  */
-export default function QuickAction({
-  title,
-  description,
-  icon,
-  href,
-  variant = 'primary',
-}: QuickActionProps) {
-  const variants = {
-    primary: {
-      bg: 'bg-[var(--primary-50)]',
-      iconBg: 'bg-[var(--primary-100)]',
-      iconColor: 'text-[var(--primary-600)]',
-      textColor: 'text-[var(--gray-900)]',
-      hover: 'hover:bg-[var(--primary-100)]',
-    },
-    secondary: {
-      bg: 'bg-[var(--gray-50)]',
-      iconBg: 'bg-[var(--gray-100)]',
-      iconColor: 'text-[var(--gray-700)]',
-      textColor: 'text-[var(--gray-900)]',
-      hover: 'hover:bg-[var(--gray-100)]',
-    },
-    accent: {
-      bg: 'bg-[var(--accent-50)]',
-      iconBg: 'bg-[var(--accent-100)]',
-      iconColor: 'text-[var(--accent-600)]',
-      textColor: 'text-[var(--gray-900)]',
-      hover: 'hover:bg-[var(--accent-100)]',
-    },
-    success: {
-      bg: 'bg-[var(--success-50)]',
-      iconBg: 'bg-[var(--success-100)]',
-      iconColor: 'text-[var(--success-600)]',
-      textColor: 'text-[var(--gray-900)]',
-      hover: 'hover:bg-[var(--success-100)]',
-    },
-    info: {
-      bg: 'bg-[var(--accent-50)]',
-      iconBg: 'bg-[var(--accent-100)]',
-      iconColor: 'text-[var(--accent-600)]',
-      textColor: 'text-[var(--gray-900)]',
-      hover: 'hover:bg-[var(--accent-100)]',
-    },
-    warning: {
-      bg: 'bg-[var(--warning-50)]',
-      iconBg: 'bg-[var(--warning-100)]',
-      iconColor: 'text-[var(--warning-600)]',
-      textColor: 'text-[var(--gray-900)]',
-      hover: 'hover:bg-[var(--warning-100)]',
-    },
-    purple: {
-      bg: 'bg-[var(--primary-50)]',
-      iconBg: 'bg-[var(--primary-100)]',
-      iconColor: 'text-[var(--primary-600)]',
-      textColor: 'text-[var(--gray-900)]',
-      hover: 'hover:bg-[var(--primary-100)]',
-    },
-  };
-
-  const currentVariant = variants[variant];
-
+export default function QuickAction({ title, icon, href, variant = 'primary' }: QuickActionProps) {
   return (
-    <div className="w-full min-w-0">
-      <Link href={href} className="h-full block w-full min-w-0">
-        <Card
-          variant="flat"
-          padding="none"
-          hover
-          clickable
-          className={cn(
-            'relative overflow-hidden transition-all duration-200 h-full w-full min-w-0',
-            'p-3 sm:p-4',
-            currentVariant.bg,
-            currentVariant.hover,
-          )}
-        >
-          <div className="flex items-center gap-3">
-            {/* Icon */}
-            <div className={cn('p-2 rounded-lg flex-shrink-0', currentVariant.iconBg)}>
-              <div className={cn('w-5 h-5 sm:w-6 sm:h-6', currentVariant.iconColor)}>{icon}</div>
-            </div>
-
-            {/* Text */}
-            <div className="flex-1 min-w-0">
-              <h3
-                className={cn(
-                  'font-semibold text-sm sm:text-base mb-0.5 break-words',
-                  currentVariant.textColor,
-                )}
-              >
-                {title}
-              </h3>
-              {description && (
-                <p className="text-xs text-[var(--gray-600)] hidden sm:block break-words">
-                  {description}
-                </p>
-              )}
-            </div>
-          </div>
-        </Card>
-      </Link>
-    </div>
+    <Link
+      href={href}
+      className={cn(
+        'group inline-flex min-h-10 w-full items-center justify-start gap-3 rounded-lg border px-4 py-3 text-sm font-medium shadow-sm transition-all hover:shadow',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'touch-manipulation',
+        colorVariants[variant],
+      )}
+    >
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white/70 [&>svg]:size-4">
+        {icon}
+      </span>
+      <span className="truncate">{title}</span>
+    </Link>
   );
 }

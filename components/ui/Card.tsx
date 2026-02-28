@@ -40,21 +40,19 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     const variants = {
       default: 'shadow-[var(--shadow-subtle)]',
       elevated: 'shadow-[var(--shadow-card)]',
-      outlined: 'border-2 shadow-[var(--shadow-subtle)]',
-      flat: 'border-0 shadow-none',
+      outlined: 'shadow-[var(--shadow-subtle)]',
+      flat: 'shadow-none',
     };
 
     const getVariantStyles = () => {
       const baseStyle = {
         backgroundColor: 'var(--bg-elevated)',
-        borderColor: 'var(--border-light)',
+        borderWidth: 0,
+        borderColor: 'transparent',
       };
 
-      if (variant === 'outlined') {
-        return { ...baseStyle, borderColor: 'var(--border-medium)' };
-      }
       if (variant === 'flat') {
-        return { ...baseStyle, backgroundColor: 'var(--bg-tertiary)', borderColor: 'transparent' };
+        return { ...baseStyle, backgroundColor: 'var(--bg-tertiary)' };
       }
       return baseStyle;
     };
@@ -74,7 +72,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         role={isInteractive ? 'button' : undefined}
         tabIndex={isInteractive ? 0 : undefined}
         className={cn(
-          'rounded-2xl transition-all duration-200 ease-out border-2',
+          'rounded-2xl transition-all duration-200 ease-out border-0',
           variants[variant],
           paddings[padding],
           (hover || clickable) &&

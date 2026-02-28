@@ -7,9 +7,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'success';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
   fullWidth?: boolean;
+  /** @deprecated Icons removed for minimal design - prop ignored */
+  leftIcon?: React.ReactNode;
+  /** @deprecated Icons removed for minimal design - prop ignored */
+  rightIcon?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -31,9 +33,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant = 'primary',
       size = 'md',
       isLoading = false,
-      leftIcon,
-      rightIcon,
       fullWidth = false,
+      leftIcon: _leftIcon,
+      rightIcon: _rightIcon,
       className,
       disabled,
       children,
@@ -46,15 +48,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        'bg-[var(--primary-600)] text-white hover:bg-[var(--primary-700)] active:bg-[var(--primary-800)] focus:ring-[var(--primary-500)] shadow-md hover:shadow-lg',
+        'bg-[var(--primary-600)] text-white hover:bg-[var(--primary-700)] active:bg-[var(--primary-800)] focus:ring-[var(--primary-500)] shadow-[var(--shadow-subtle)] hover:shadow-[var(--shadow-card)]',
       secondary:
-        'bg-[var(--gray-200)] text-[var(--gray-900)] hover:bg-[var(--gray-300)] active:bg-[var(--gray-400)] focus:ring-[var(--gray-500)]',
+        'bg-[var(--gray-100)] text-[var(--gray-800)] hover:bg-[var(--gray-200)] active:bg-[var(--gray-300)] focus:ring-[var(--gray-400)]',
       ghost:
-        'bg-transparent text-[var(--gray-700)] hover:bg-[var(--gray-100)] active:bg-[var(--gray-200)] focus:ring-[var(--gray-500)]',
+        'bg-transparent text-[var(--gray-700)] hover:bg-[var(--gray-100)] active:bg-[var(--gray-200)] focus:ring-[var(--gray-400)]',
       danger:
-        'bg-[var(--error-500)] text-white hover:bg-[var(--error-600)] active:bg-[var(--error-700)] focus:ring-[var(--error-500)] shadow-md hover:shadow-lg',
+        'bg-[var(--error-500)] text-white hover:bg-[var(--error-600)] active:bg-[var(--error-700)] focus:ring-[var(--error-500)] shadow-[var(--shadow-subtle)] hover:shadow-[var(--shadow-card)]',
       success:
-        'bg-[var(--success-500)] text-white hover:bg-[var(--success-600)] active:bg-[var(--success-700)] focus:ring-[var(--success-500)] shadow-md hover:shadow-lg',
+        'bg-[var(--success-500)] text-white hover:bg-[var(--success-600)] active:bg-[var(--success-700)] focus:ring-[var(--success-500)] shadow-[var(--shadow-subtle)] hover:shadow-[var(--shadow-card)]',
     };
 
     const sizes = {
@@ -97,11 +99,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             Loading...
           </>
         ) : (
-          <>
-            {leftIcon && <span className="mr-2">{leftIcon}</span>}
-            {children}
-            {rightIcon && <span className="ml-2">{rightIcon}</span>}
-          </>
+          children
         )}
       </button>
     );

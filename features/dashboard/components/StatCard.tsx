@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 export interface StatCardProps {
@@ -17,17 +16,6 @@ export interface StatCardProps {
   highlight?: boolean;
 }
 
-/**
- * StatCard Component
- *
- * Enhanced stat card with:
- * - Cleaner, minimal design
- * - Better icon placement
- * - Trend indicators
- * - Clickable support
- * - Highlight option for important stats
- * - Mobile-optimized
- */
 const StatCard = React.memo(
   ({
     title,
@@ -40,40 +28,30 @@ const StatCard = React.memo(
   }: StatCardProps) => {
     const variants = {
       default: {
-        bg: 'bg-white',
-        border: 'border-[var(--gray-200)]',
         iconBg: 'bg-[var(--gray-100)]',
         iconColor: 'text-[var(--gray-700)]',
         valueColor: 'text-[var(--gray-900)]',
         titleColor: 'text-[var(--gray-600)]',
       },
       primary: {
-        bg: 'bg-white',
-        border: 'border-[var(--primary-200)]',
         iconBg: 'bg-[var(--primary-50)]',
         iconColor: 'text-[var(--primary-600)]',
         valueColor: 'text-[var(--gray-900)]',
         titleColor: 'text-[var(--gray-600)]',
       },
       success: {
-        bg: 'bg-white',
-        border: 'border-[var(--success-200)]',
         iconBg: 'bg-[var(--success-50)]',
         iconColor: 'text-[var(--success-600)]',
         valueColor: 'text-[var(--gray-900)]',
         titleColor: 'text-[var(--gray-600)]',
       },
       warning: {
-        bg: 'bg-white',
-        border: 'border-[var(--warning-200)]',
         iconBg: 'bg-[var(--warning-50)]',
         iconColor: 'text-[var(--warning-600)]',
         valueColor: 'text-[var(--gray-900)]',
         titleColor: 'text-[var(--gray-600)]',
       },
       error: {
-        bg: 'bg-white',
-        border: 'border-[var(--error-200)]',
         iconBg: 'bg-[var(--error-50)]',
         iconColor: 'text-[var(--error-600)]',
         valueColor: 'text-[var(--gray-900)]',
@@ -81,38 +59,41 @@ const StatCard = React.memo(
       },
     };
 
-    const currentVariant = variants[variant];
+    const v = variants[variant];
 
     return (
-      <Card
-        variant="default"
-        padding="md"
-        hover={!!onClick}
-        clickable={!!onClick}
+      <div
+        role={onClick ? 'button' : undefined}
+        tabIndex={onClick ? 0 : undefined}
         onClick={onClick}
+        onKeyDown={
+          onClick
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onClick();
+                }
+              }
+            : undefined
+        }
         className={cn(
-          'relative overflow-hidden transition-all duration-200',
-          highlight && 'ring-2 ring-[var(--primary-500)] ring-offset-2',
-          currentVariant.bg,
+          'w-full text-left rounded-2xl p-6 bg-white shadow-[var(--shadow-card)]',
+          'transition-all duration-300 ease-out',
+          onClick && 'cursor-pointer hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5',
+          highlight && 'ring-2 ring-[var(--primary-400)] ring-offset-2',
         )}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <p
-              className={cn('text-sm font-semibold mb-3 tracking-wide', currentVariant.titleColor)}
-            >
-              {title}
-            </p>
-            <p
-              className={cn('text-4xl sm:text-5xl font-extrabold mb-2', currentVariant.valueColor)}
-            >
+            <p className={cn('text-sm font-semibold mb-2', v.titleColor)}>{title}</p>
+            <p className={cn('text-3xl sm:text-4xl font-extrabold tracking-tight', v.valueColor)}>
               {value}
             </p>
             {trend && (
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 mt-2">
                 {trend.value > 0 ? (
                   <svg
-                    className="w-4 h-4 text-[var(--success-600)] flex-shrink-0"
+                    className="w-4 h-4 text-[var(--success-600)]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -126,7 +107,7 @@ const StatCard = React.memo(
                   </svg>
                 ) : trend.value < 0 ? (
                   <svg
-                    className="w-4 h-4 text-[var(--error-600)] flex-shrink-0"
+                    className="w-4 h-4 text-[var(--error-600)]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -140,7 +121,7 @@ const StatCard = React.memo(
                   </svg>
                 ) : (
                   <svg
-                    className="w-4 h-4 text-[var(--gray-400)] flex-shrink-0"
+                    className="w-4 h-4 text-[var(--gray-400)]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -168,14 +149,20 @@ const StatCard = React.memo(
               </div>
             )}
           </div>
-          <div className={cn('p-3 sm:p-4 rounded-xl flex-shrink-0', currentVariant.iconBg)}>
-            <div className={cn('w-7 h-7 sm:w-8 sm:h-8', currentVariant.iconColor)}>{icon}</div>
+          <div
+            className={cn(
+              'w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0',
+              v.iconBg,
+            )}
+          >
+            <div className={cn('w-6 h-6', v.iconColor)}>{icon}</div>
           </div>
         </div>
-      </Card>
+      </div>
     );
   },
 );
+
 StatCard.displayName = 'StatCard';
 
 export default StatCard;

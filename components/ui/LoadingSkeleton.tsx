@@ -15,7 +15,7 @@ export default function LoadingSkeleton({
     switch (type) {
       case 'card':
         return (
-          <div className="bg-white rounded-xl shadow-card border border-[var(--gray-200)] p-6 animate-pulse">
+          <div className="bg-[var(--bg-elevated)] rounded-xl shadow-[var(--shadow-card)] p-6 animate-pulse">
             <div className="h-6 bg-[var(--gray-200)] rounded w-3/4 mb-4"></div>
             <div className="h-4 bg-[var(--gray-200)] rounded w-1/2 mb-2"></div>
             <div className="h-4 bg-[var(--gray-200)] rounded w-2/3"></div>
@@ -23,7 +23,7 @@ export default function LoadingSkeleton({
         );
       case 'list':
         return (
-          <div className="border-b border-[var(--gray-200)] pb-4 animate-pulse">
+          <div className="pb-4 animate-pulse">
             <div className="h-5 bg-[var(--gray-200)] rounded w-1/3 mb-2"></div>
             <div className="h-4 bg-[var(--gray-200)] rounded w-1/2"></div>
           </div>

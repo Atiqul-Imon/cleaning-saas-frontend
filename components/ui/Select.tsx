@@ -30,14 +30,12 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={selectId}
           className={cn(
-            'w-full rounded-xl border-2 px-4 py-4 text-[var(--gray-900)] min-h-[56px]',
-            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'w-full rounded-xl border-0 px-4 py-4 text-[var(--gray-900)] min-h-[56px] shadow-[var(--shadow-subtle)]',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-[var(--primary-500)]',
             'transition-all duration-200 ease-out',
-            'bg-white text-base font-medium',
+            'bg-[var(--bg-tertiary)] text-base font-medium',
             'disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed',
-            error
-              ? 'border-[var(--error-500)] focus:ring-[var(--error-500)] focus:border-[var(--error-600)]'
-              : 'border-[var(--gray-300)] focus:ring-[var(--primary-500)] focus:border-[var(--primary-600)]',
+            error && 'ring-2 ring-[var(--error-500)]',
             className,
           )}
           aria-invalid={error ? 'true' : 'false'}

@@ -202,7 +202,7 @@ export default function MobileBottomNav() {
       className="fixed bottom-0 left-0 right-0 backdrop-blur-md shadow-lg md:hidden z-50 safe-area-bottom transition-colors duration-300"
       style={{
         backgroundColor: 'var(--bg-elevated)',
-        borderTop: '1px solid var(--border-light)',
+        boxShadow: '0 -1px 3px 0 rgb(0 0 0 / 0.04)',
       }}
       aria-label="Main navigation"
       role="navigation"
